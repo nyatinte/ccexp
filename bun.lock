@@ -33,7 +33,7 @@
         "publint": "^0.3.12",
         "ts-pattern": "^5.7.1",
         "tsdown": "^0.12.9",
-        "typescript": "^5.7.2",
+        "typescript": "^5.8.3",
         "vitest": "^3.2.4",
       },
     },
