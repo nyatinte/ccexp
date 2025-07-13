@@ -31,7 +31,7 @@
         "knip": "^5.61.3",
         "lefthook": "^1.11.14",
         "publint": "^0.3.12",
-        "ts-pattern": "^5.5.0",
+        "ts-pattern": "^5.7.1",
         "tsdown": "^0.12.9",
         "typescript": "^5.7.2",
         "vitest": "^3.2.4",
