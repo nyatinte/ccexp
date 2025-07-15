@@ -1,17 +1,11 @@
 import type { Stats } from 'node:fs';
 import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import { CLAUDE_FILE_PATTERNS, FILE_SIZE_LIMITS } from './_consts.ts';
-import type {
-  ClaudeFileInfo,
-  ClaudeFileType,
-  ProjectInfo,
-  ScanOptions,
-} from './_types.ts';
+import type { ClaudeFileInfo, ClaudeFileType, ScanOptions } from './_types.ts';
 import { createClaudeFilePath } from './_types.ts';
 import {
-  analyzeProjectInfo,
   detectClaudeFileType,
   extractCommandsFromContent,
   extractTagsFromContent,
@@ -223,19 +217,11 @@ class ClaudeMdScanner extends BaseFileScanner<ClaudeFileInfo> {
     const tags = extractTagsFromContent(content);
     const commands = extractCommandsFromContent(content);
 
-    // Analyze project info if it's a project file
-    let projectInfo: ProjectInfo | undefined;
-    if (fileType === 'claude-md' || fileType === 'claude-local-md') {
-      const projectDir = dirname(filePath);
-      projectInfo = await analyzeProjectInfo(projectDir);
-    }
-
     return {
       path: createClaudeFilePath(filePath),
       type: fileType,
       size: stats.size,
       lastModified: stats.mtime,
-      projectInfo,
       commands,
       tags,
     };
@@ -372,14 +358,9 @@ if (import.meta.vitest != null) {
       const filePath = fixture.getPath('my-app/CLAUDE.md');
       const result = await processClaudeFile(filePath);
 
-      expect(result?.projectInfo).toBeDefined();
-      // Project has package.json with build commands
-      expect(result?.projectInfo?.buildCommands).toEqual(
-        expect.arrayContaining(['npm run build']),
-      );
-      expect(result?.projectInfo?.testCommands).toEqual(
-        expect.arrayContaining(['npm run test']),
-      );
+      // Just verify the file was processed successfully
+      expect(result).toBeDefined();
+      expect(result?.type).toBe('claude-md');
     });
   });
 

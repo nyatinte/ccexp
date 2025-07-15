@@ -29,7 +29,6 @@ class SettingsJsonScanner extends BaseFileScanner<ClaudeFileInfo> {
         type: detectClaudeFileType(filePath),
         size: stats.size,
         lastModified: stats.mtime,
-        projectInfo: undefined,
         commands: [],
         tags,
       };

@@ -356,13 +356,7 @@ Rollback to previous version`,
         },
         async (fixture) => {
           const basePath = join(fixture.path, 'test-project');
-          const file = createFileInfo(basePath, 'CLAUDE.md', 'claude-md', {
-            projectInfo: {
-              framework: 'React',
-              language: 'TypeScript',
-              buildCommands: ['bun run build'],
-            },
-          });
+          const file = createFileInfo(basePath, 'CLAUDE.md', 'claude-md');
 
           const { lastFrame } = render(<Preview file={file} />);
 

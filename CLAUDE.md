@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-**claude-code-explorer** - React Ink-based CLI tool for exploring and managing Claude Code settings and slash commands. The tool provides an interactive terminal UI for file navigation, content preview, and file management operations.
+**ccexp** - React Ink-based CLI tool for exploring and managing Claude Code settings and slash commands. The tool provides an interactive terminal UI for file navigation, content preview, and file management operations.
 
 ## Core Commands
 
@@ -98,7 +98,7 @@ src/
    ```typescript
    // Type-level branding
    export type ClaudeFilePath = string & { readonly [ClaudeFilePathBrand]: true };
-   
+
    // Runtime validation
    export const ClaudeFilePathSchema = z.string().refine(/* validation */);
    export const createClaudeFilePath = (path: string): ClaudeFilePath => {
@@ -113,11 +113,11 @@ src/
    export function FileList({ files, onFileSelect }: FileListProps) {
      const [currentIndex, setCurrentIndex] = useState(0);
      const [isMenuMode, setIsMenuMode] = useState(false);
-     
+
      useInput((input, key) => {
        // Handle keyboard navigation
      }, { isActive: !isMenuMode });
-     
+
      return (
        <Box flexDirection="column">
          {/* File list UI */}
@@ -157,7 +157,7 @@ src/
 ### Data Flow Architecture
 
 - **Scanners**: `claude-md-scanner.ts` + `slash-command-scanner.ts` → discover files
-- **Type System**: `_types.ts` → branded types + zod schemas for data integrity  
+- **Type System**: `_types.ts` → branded types + zod schemas for data integrity
 - **React State**: `useFileNavigation` hook → file loading and selection state
 - **Components**: React Ink components → interactive terminal UI
 - **File Operations**: clipboard, file opening via system integrations
@@ -167,7 +167,7 @@ src/
 The tool automatically discovers these file types:
 
 - **CLAUDE.md** → Project-level configuration (most common)
-- **CLAUDE.local.md** → Local overrides (gitignored)  
+- **CLAUDE.local.md** → Local overrides (gitignored)
 - **~/.claude/CLAUDE.md** → Global user configuration
 - **.claude/commands/**/*.md** → Slash command definitions
 - **.claude/settings.json** → Project settings (shared)
@@ -213,7 +213,7 @@ The tool automatically discovers these file types:
 # Complete pipeline (run in sequence)
 bun run typecheck              # TypeScript: 0 errors required
 bun run check:write           # Biome: Auto-fix + 0 errors required
-bun run knip                  # Dependency cleanup: 0 unused items required  
+bun run knip                  # Dependency cleanup: 0 unused items required
 bun run test                  # Tests: 100% pass rate required
 bun run build                 # Build: Must complete without errors
 ```
@@ -236,7 +236,7 @@ bun run ci                    # Runs build + check + typecheck + knip + test in 
 
 - **No shortcuts**: Never skip quality checks or claim completion with failing tests
 - **No flag shortcuts**: NEVER use `-n` or similar flags to skip quality checks
-- **Fix, don't disable**: Resolve lint errors rather than adding ignore comments  
+- **Fix, don't disable**: Resolve lint errors rather than adding ignore comments
 - **Test coverage**: InSource tests required for all utility functions
 - **Error handling**: Graceful degradation with user-friendly error messages
 - **Dependency management**: Keep dependencies clean - remove unused imports and exports immediately
@@ -302,7 +302,7 @@ Follow [Semantic Versioning](https://semver.org/):
 Before first release:
 
 1. Add `NPM_TOKEN` to GitHub repository secrets
-2. Verify package name availability: `npm view claude-code-explorer`
+2. Verify package name availability: `npm view ccexp`
 3. Ensure npm account has publishing permissions
 
 See `VERSIONING.md` for detailed versioning strategy and commit message conventions.

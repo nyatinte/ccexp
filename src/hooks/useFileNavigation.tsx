@@ -20,7 +20,6 @@ const convertSlashCommandToFileInfo = (
   type: 'slash-command' as const,
   size: 0, // No size information for slash commands
   lastModified: command.lastModified,
-  projectInfo: undefined,
   commands: [
     {
       name: command.name,
