@@ -88,7 +88,10 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
                 <Preview file={selectedFile} />
               </ErrorBoundary>
             }
-            leftWidth={40} // 40% : 60% ratio
+            leftWidth={35} // 35% : 65% ratio for better preview space
+            minLeftWidth={25}
+            maxLeftWidth={50}
+            dynamicWidth={true}
           />
         </Box>
       </Box>

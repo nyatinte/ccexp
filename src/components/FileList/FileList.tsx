@@ -1,6 +1,6 @@
 import { basename } from 'node:path';
-import { Box, Text, useInput } from 'ink';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Text, useInput, useStdout } from 'ink';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   ClaudeFileInfo,
   ClaudeFileType,
@@ -41,6 +41,8 @@ const FileList = React.memo(function FileList({
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [isMenuMode, setIsMenuMode] = useState(false);
   const [isGroupSelected, setIsGroupSelected] = useState(false);
+  const [scrollOffset, setScrollOffset] = useState(0);
+  const { stdout } = useStdout();
 
   // Filtered groups after search (memoized)
   const filteredGroups = useMemo(() => {
@@ -59,6 +61,114 @@ const FileList = React.memo(function FileList({
       }))
       .filter((group) => group.files.length > 0);
   }, [fileGroups, searchQuery]);
+
+  // Calculate viewport and visible items
+  const viewportHeight = useMemo(() => {
+    // Account for:
+    // - Header (2 lines)
+    // - Search (2 lines)
+    // - Footer (3 lines)
+    // - Scroll indicators (2 lines when both shown)
+    // - Extra padding (2 lines)
+    const reservedLines = 11;
+    // Reduce the viewport further to show fewer items
+    const calculatedHeight = Math.max(3, (stdout?.rows ?? 24) - reservedLines);
+    // Optionally limit max visible items
+    return Math.min(calculatedHeight, 15);
+  }, [stdout?.rows]);
+
+  // Calculate total lines needed for all groups and files
+  const totalLines = useMemo(() => {
+    return filteredGroups.reduce((total, group) => {
+      // Each group header takes 1 line
+      let lines = 1;
+      // Add file lines if group is expanded
+      if (group.isExpanded) {
+        lines += group.files.length;
+      }
+      return total + lines;
+    }, 0);
+  }, [filteredGroups]);
+
+  // Calculate the absolute line position of the current selection
+  const getCurrentLinePosition = useCallback(() => {
+    let linePos = 0;
+
+    // Count lines up to current group
+    for (let i = 0; i < currentGroupIndex; i++) {
+      const group = filteredGroups[i];
+      if (group) {
+        linePos += 1; // Group header
+        if (group.isExpanded) {
+          linePos += group.files.length;
+        }
+      }
+    }
+
+    // If we're selecting a group, return the group's line position
+    if (isGroupSelected) {
+      return linePos; // This is the line where the current group header is
+    }
+
+    // If we're selecting a file, add the group header and file offset
+    const currentGroup = filteredGroups[currentGroupIndex];
+    if (currentGroup?.isExpanded) {
+      linePos += 1; // Group header
+      linePos += currentFileIndex; // File position within group
+    }
+
+    return linePos;
+  }, [currentGroupIndex, currentFileIndex, isGroupSelected, filteredGroups]);
+
+  // Calculate visible items based on scroll offset
+  const visibleItems = useMemo(() => {
+    const items: Array<{
+      type: 'group' | 'file';
+      groupIndex: number;
+      fileIndex?: number;
+    }> = [];
+    let currentLine = 0;
+
+    // Always ensure we start from a valid position
+    const effectiveScrollOffset = Math.max(
+      0,
+      Math.min(scrollOffset, totalLines - viewportHeight),
+    );
+
+    for (let groupIndex = 0; groupIndex < filteredGroups.length; groupIndex++) {
+      const group = filteredGroups[groupIndex];
+      if (!group) continue;
+
+      // Check if group header is visible
+      if (
+        currentLine >= effectiveScrollOffset &&
+        currentLine < effectiveScrollOffset + viewportHeight
+      ) {
+        items.push({ type: 'group', groupIndex });
+      }
+      currentLine++;
+
+      // Check if files are visible (if group is expanded)
+      if (group.isExpanded) {
+        for (let fileIndex = 0; fileIndex < group.files.length; fileIndex++) {
+          if (
+            currentLine >= effectiveScrollOffset &&
+            currentLine < effectiveScrollOffset + viewportHeight
+          ) {
+            items.push({ type: 'file', groupIndex, fileIndex });
+          }
+          currentLine++;
+
+          // Early exit if we've passed the viewport
+          if (currentLine >= effectiveScrollOffset + viewportHeight) {
+            return items;
+          }
+        }
+      }
+    }
+
+    return items;
+  }, [filteredGroups, scrollOffset, viewportHeight, totalLines]);
 
   // Get currently selected file
   const getCurrentFile = () => {
@@ -81,12 +191,13 @@ const FileList = React.memo(function FileList({
     }
   }, [filteredGroups, currentGroupIndex, currentFileIndex]);
 
-  // Reset indices when search query changes
+  // Reset indices and scroll position when search query changes
   // biome-ignore lint/correctness/useExhaustiveDependencies: Need to detect searchQuery changes to reset indices
   useEffect(() => {
     setCurrentGroupIndex(0);
     setCurrentFileIndex(0);
     setIsGroupSelected(false);
+    setScrollOffset(0); // Reset scroll position
   }, [searchQuery]);
 
   // Update file selection when selection state changes
@@ -105,6 +216,21 @@ const FileList = React.memo(function FileList({
     isGroupSelected,
     onFileSelect,
   ]);
+
+  // Update scroll position to keep selected item visible
+  useEffect(() => {
+    const currentLine = getCurrentLinePosition();
+    const maxScroll = Math.max(0, totalLines - viewportHeight);
+
+    // If current selection is above viewport, scroll up
+    if (currentLine < scrollOffset) {
+      setScrollOffset(Math.max(0, currentLine));
+    }
+    // If current selection is below viewport, scroll down
+    else if (currentLine >= scrollOffset + viewportHeight) {
+      setScrollOffset(Math.min(maxScroll, currentLine - viewportHeight + 1));
+    }
+  }, [viewportHeight, scrollOffset, getCurrentLinePosition, totalLines]);
 
   // Keyboard input handling
   useInput(
@@ -251,42 +377,81 @@ const FileList = React.memo(function FileList({
         </Text>
       </Box>
 
-      {/* File list - hidden in menu mode but still exists */}
-      <Box
-        flexDirection="column"
-        flexGrow={1}
-        height={isMenuMode ? 0 : undefined}
-      >
-        {!isMenuMode &&
-          filteredGroups.map((group, groupIndex) => (
-            <Box key={group.type} flexDirection="column">
-              <FileGroupComponent
-                type={group.type}
-                fileCount={group.files.length}
-                isExpanded={group.isExpanded}
-                isSelected={isGroupSelected && groupIndex === currentGroupIndex}
-              />
-              {group.isExpanded &&
-                group.files.map((file, fileIndex) => (
-                  <Box key={`${file.path}-${fileIndex}`} paddingLeft={2}>
-                    <FileItem
-                      file={file}
+      {/* File list container with scroll indicators */}
+      <Box flexDirection="column" flexGrow={1}>
+        {/* Top scroll indicator */}
+        {!isMenuMode && scrollOffset > 0 && (
+          <Box justifyContent="center" height={1}>
+            <Text dimColor>▲ {scrollOffset} more above</Text>
+          </Box>
+        )}
+
+        {/* File list - hidden in menu mode but still exists */}
+        <Box
+          flexDirection="column"
+          height={
+            isMenuMode
+              ? 0
+              : viewportHeight -
+                (scrollOffset > 0 ? 1 : 0) -
+                (scrollOffset + viewportHeight < totalLines ? 1 : 0)
+          }
+          overflow="hidden"
+        >
+          {!isMenuMode &&
+            visibleItems.map((item) => {
+              if (item.type === 'group') {
+                const group = filteredGroups[item.groupIndex];
+                if (!group) return null;
+                return (
+                  <Box key={`group-${item.groupIndex}`} flexDirection="column">
+                    <FileGroupComponent
+                      type={group.type}
+                      fileCount={group.files.length}
+                      isExpanded={group.isExpanded}
                       isSelected={
-                        !isGroupSelected &&
-                        groupIndex === currentGroupIndex &&
-                        fileIndex === currentFileIndex
-                      }
-                      isFocused={
-                        !isGroupSelected &&
-                        groupIndex === currentGroupIndex &&
-                        fileIndex === currentFileIndex &&
-                        !isMenuMode
+                        isGroupSelected && item.groupIndex === currentGroupIndex
                       }
                     />
                   </Box>
-                ))}
-            </Box>
-          ))}
+                );
+              }
+              const group = filteredGroups[item.groupIndex];
+              if (!group || item.fileIndex == null) return null;
+              const file = group.files[item.fileIndex];
+              if (!file) return null;
+              return (
+                <Box
+                  key={`file-${item.groupIndex}-${item.fileIndex}`}
+                  paddingLeft={2}
+                >
+                  <FileItem
+                    file={file}
+                    isSelected={
+                      !isGroupSelected &&
+                      item.groupIndex === currentGroupIndex &&
+                      item.fileIndex === currentFileIndex
+                    }
+                    isFocused={
+                      !isGroupSelected &&
+                      item.groupIndex === currentGroupIndex &&
+                      item.fileIndex === currentFileIndex &&
+                      !isMenuMode
+                    }
+                  />
+                </Box>
+              );
+            })}
+        </Box>
+
+        {/* Bottom scroll indicator */}
+        {!isMenuMode && scrollOffset + viewportHeight < totalLines && (
+          <Box justifyContent="center" height={1}>
+            <Text dimColor>
+              ▼ {totalLines - scrollOffset - viewportHeight} more below
+            </Text>
+          </Box>
+        )}
       </Box>
 
       {/* Menu actions - only visible in menu mode */}
