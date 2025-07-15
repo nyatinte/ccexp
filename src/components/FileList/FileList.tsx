@@ -44,7 +44,6 @@ const FileList = React.memo(function FileList({
   const [scrollOffset, setScrollOffset] = useState(0);
   const { stdout } = useStdout();
 
-  // Filtered groups after search (memoized)
   const filteredGroups = useMemo(() => {
     if (!searchQuery) return fileGroups;
 
@@ -62,7 +61,6 @@ const FileList = React.memo(function FileList({
       .filter((group) => group.files.length > 0);
   }, [fileGroups, searchQuery]);
 
-  // Calculate viewport and visible items
   const viewportHeight = useMemo(() => {
     // Account for:
     // - Header (2 lines)
@@ -71,18 +69,13 @@ const FileList = React.memo(function FileList({
     // - Scroll indicators (2 lines when both shown)
     // - Extra padding (2 lines)
     const reservedLines = 11;
-    // Reduce the viewport further to show fewer items
     const calculatedHeight = Math.max(3, (stdout?.rows ?? 24) - reservedLines);
-    // Optionally limit max visible items
     return Math.min(calculatedHeight, 15);
   }, [stdout?.rows]);
 
-  // Calculate total lines needed for all groups and files
   const totalLines = useMemo(() => {
     return filteredGroups.reduce((total, group) => {
-      // Each group header takes 1 line
       let lines = 1;
-      // Add file lines if group is expanded
       if (group.isExpanded) {
         lines += group.files.length;
       }
@@ -90,15 +83,13 @@ const FileList = React.memo(function FileList({
     }, 0);
   }, [filteredGroups]);
 
-  // Calculate the absolute line position of the current selection
   const getCurrentLinePosition = useCallback(() => {
     let linePos = 0;
 
-    // Count lines up to current group
     for (let i = 0; i < currentGroupIndex; i++) {
       const group = filteredGroups[i];
       if (group) {
-        linePos += 1; // Group header
+        linePos += 1;
         if (group.isExpanded) {
           linePos += group.files.length;
         }
@@ -107,20 +98,19 @@ const FileList = React.memo(function FileList({
 
     // If we're selecting a group, return the group's line position
     if (isGroupSelected) {
-      return linePos; // This is the line where the current group header is
+      return linePos;
     }
 
     // If we're selecting a file, add the group header and file offset
     const currentGroup = filteredGroups[currentGroupIndex];
     if (currentGroup?.isExpanded) {
-      linePos += 1; // Group header
-      linePos += currentFileIndex; // File position within group
+      linePos += 1;
+      linePos += currentFileIndex;
     }
 
     return linePos;
   }, [currentGroupIndex, currentFileIndex, isGroupSelected, filteredGroups]);
 
-  // Calculate visible items based on scroll offset
   const visibleItems = useMemo(() => {
     const items: Array<{
       type: 'group' | 'file';
@@ -129,7 +119,6 @@ const FileList = React.memo(function FileList({
     }> = [];
     let currentLine = 0;
 
-    // Always ensure we start from a valid position
     const effectiveScrollOffset = Math.max(
       0,
       Math.min(scrollOffset, totalLines - viewportHeight),
@@ -139,7 +128,6 @@ const FileList = React.memo(function FileList({
       const group = filteredGroups[groupIndex];
       if (!group) continue;
 
-      // Check if group header is visible
       if (
         currentLine >= effectiveScrollOffset &&
         currentLine < effectiveScrollOffset + viewportHeight
@@ -148,7 +136,6 @@ const FileList = React.memo(function FileList({
       }
       currentLine++;
 
-      // Check if files are visible (if group is expanded)
       if (group.isExpanded) {
         for (let fileIndex = 0; fileIndex < group.files.length; fileIndex++) {
           if (
@@ -159,7 +146,6 @@ const FileList = React.memo(function FileList({
           }
           currentLine++;
 
-          // Early exit if we've passed the viewport
           if (currentLine >= effectiveScrollOffset + viewportHeight) {
             return items;
           }
@@ -170,7 +156,6 @@ const FileList = React.memo(function FileList({
     return items;
   }, [filteredGroups, scrollOffset, viewportHeight, totalLines]);
 
-  // Get currently selected file
   const getCurrentFile = () => {
     if (isGroupSelected || filteredGroups.length === 0) return null;
     const group = filteredGroups[currentGroupIndex];
@@ -178,7 +163,6 @@ const FileList = React.memo(function FileList({
     return group.files[currentFileIndex];
   };
 
-  // Adjust indices when group list changes
   useEffect(() => {
     if (filteredGroups.length > 0) {
       if (currentGroupIndex >= filteredGroups.length) {
@@ -191,16 +175,14 @@ const FileList = React.memo(function FileList({
     }
   }, [filteredGroups, currentGroupIndex, currentFileIndex]);
 
-  // Reset indices and scroll position when search query changes
   // biome-ignore lint/correctness/useExhaustiveDependencies: Need to detect searchQuery changes to reset indices
   useEffect(() => {
     setCurrentGroupIndex(0);
     setCurrentFileIndex(0);
     setIsGroupSelected(false);
-    setScrollOffset(0); // Reset scroll position
+    setScrollOffset(0);
   }, [searchQuery]);
 
-  // Update file selection when selection state changes
   useEffect(() => {
     if (isGroupSelected || filteredGroups.length === 0) return;
     const group = filteredGroups[currentGroupIndex];
@@ -217,45 +199,31 @@ const FileList = React.memo(function FileList({
     onFileSelect,
   ]);
 
-  // Update scroll position to keep selected item visible
   useEffect(() => {
     const currentLine = getCurrentLinePosition();
     const maxScroll = Math.max(0, totalLines - viewportHeight);
 
-    // If current selection is above viewport, scroll up
     if (currentLine < scrollOffset) {
       setScrollOffset(Math.max(0, currentLine));
-    }
-    // If current selection is below viewport, scroll down
-    else if (currentLine >= scrollOffset + viewportHeight) {
+    } else if (currentLine >= scrollOffset + viewportHeight) {
       setScrollOffset(Math.min(maxScroll, currentLine - viewportHeight + 1));
     }
   }, [viewportHeight, scrollOffset, getCurrentLinePosition, totalLines]);
 
-  // Keyboard input handling
   useInput(
     (input, key) => {
       if (isMenuMode) return;
 
-      // Debug: Log key events
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Key event:', { input, key, searchQuery });
-      }
-
-      // Handle special keys
       if (key.escape) {
         if (searchQuery) {
-          // Clear search if active
           setSearchQuery('');
           onSearchQueryChange?.('');
         } else {
-          // Exit if no search
           process.exit(0);
         }
         return;
       }
 
-      // Clear search on backspace or delete
       if ((key.backspace || key.delete) && searchQuery) {
         setSearchQuery(searchQuery.slice(0, -1));
         onSearchQueryChange?.(searchQuery.slice(0, -1));
@@ -269,25 +237,20 @@ const FileList = React.memo(function FileList({
         return;
       }
 
-      // Ctrl+U to clear entire search query
       if (key.ctrl && input === 'u' && searchQuery) {
         setSearchQuery('');
         onSearchQueryChange?.('');
         return;
       }
 
-      // Navigation keys
       if (key.upArrow) {
         if (isGroupSelected) {
-          // Group navigation
           setCurrentGroupIndex((prev) => Math.max(0, prev - 1));
         } else {
-          // File navigation
           const group = filteredGroups[currentGroupIndex];
           if (group?.isExpanded && currentFileIndex > 0) {
             setCurrentFileIndex((prev) => prev - 1);
           } else if (currentGroupIndex > 0) {
-            // Move to previous group
             const prevGroupIndex = currentGroupIndex - 1;
             const prevGroup = filteredGroups[prevGroupIndex];
             if (prevGroup?.isExpanded && prevGroup.files.length > 0) {
@@ -314,7 +277,6 @@ const FileList = React.memo(function FileList({
             setCurrentGroupIndex((prev) => prev + 1);
           }
         } else {
-          // File navigation
           const group = filteredGroups[currentGroupIndex];
           if (group?.isExpanded && currentFileIndex < group.files.length - 1) {
             setCurrentFileIndex((prev) => prev + 1);

@@ -24,7 +24,6 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
     toggleGroup,
   } = useFileNavigation({ path: cliOptions.path });
 
-  // Error state
   if (error) {
     return (
       <Box flexDirection="column" padding={1}>
@@ -34,12 +33,10 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
     );
   }
 
-  // Loading state
   if (isLoading) {
     return <LoadingScreen />;
   }
 
-  // When no files found
   if (files.length === 0) {
     return (
       <Box
@@ -57,11 +54,9 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
     );
   }
 
-  // Main UI
   return (
     <ErrorBoundary>
       <Box flexDirection="column" width="100%" height="100%">
-        {/* Header */}
         <Box paddingX={1} paddingY={0} borderStyle="single" borderBottom={true}>
           <Text bold color="blue">
             ccexp
@@ -69,7 +64,6 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
           <Text dimColor> | Interactive File Browser</Text>
         </Box>
 
-        {/* Main content */}
         <Box flexGrow={1}>
           <SplitPane
             left={
@@ -88,7 +82,7 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
                 <Preview file={selectedFile} />
               </ErrorBoundary>
             }
-            leftWidth={35} // 35% : 65% ratio for better preview space
+            leftWidth={35}
             minLeftWidth={25}
             maxLeftWidth={50}
             dynamicWidth={true}
