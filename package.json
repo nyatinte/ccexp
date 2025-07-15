@@ -81,6 +81,7 @@
     "@inkjs/ui": "^2.0.0",
     "clipboardy": "^4.0.0",
     "commander": "^14.0.0",
+    "es-toolkit": "^1.39.7",
     "fdir": "^6.4.6",
     "ink": "^6.0.1",
     "ink-big-text": "^2.0.0",
