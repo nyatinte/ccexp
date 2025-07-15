@@ -1,5 +1,5 @@
 import { homedir } from 'node:os';
-import { basename, dirname } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { match, P } from 'ts-pattern';
 import type { ClaudeFilePath, ClaudeFileType } from './_types.ts';
 import { createClaudeFilePath } from './_types.ts';
@@ -29,14 +29,15 @@ export const getFileScope = (filePath: string): 'project' | 'user' => {
 export const detectClaudeFileType = (filePath: string): ClaudeFileType => {
   const fileName = basename(filePath);
   const dirPath = dirname(filePath);
+  const homeDir = homedir();
 
   return match([fileName, dirPath])
-    .with(['CLAUDE.md', P._], () => 'claude-md' as const)
-    .with(['CLAUDE.local.md', P._], () => 'claude-local-md' as const)
     .with(
-      [P._, P.when((dir) => dir.includes('.claude/CLAUDE.md'))],
+      ['CLAUDE.md', P.when((dir) => dir === join(homeDir, '.claude'))],
       () => 'global-md' as const,
     )
+    .with(['CLAUDE.md', P._], () => 'claude-md' as const)
+    .with(['CLAUDE.local.md', P._], () => 'claude-local-md' as const)
     .with(
       [
         P.when((name) => name.endsWith('.md')),
@@ -164,6 +165,12 @@ if (import.meta.vitest != null) {
       expect(detectClaudeFileType('/project/CLAUDE.local.md')).toBe(
         'claude-local-md',
       );
+    });
+
+    test('should detect global CLAUDE.md files', () => {
+      const homeDir = homedir();
+      const globalPath = join(homeDir, '.claude', 'CLAUDE.md');
+      expect(detectClaudeFileType(globalPath)).toBe('global-md');
     });
 
     test('should detect slash command files', () => {

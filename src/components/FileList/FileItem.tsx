@@ -28,7 +28,7 @@ export const FileItem = React.memo(function FileItem({
         color: 'green' as const,
         label: 'COMMAND',
       }))
-      .with('global-md', () => ({ color: 'magenta' as const, label: 'GLOBAL' }))
+      .with('global-md', () => ({ color: 'magenta' as const, label: 'USER MEMORY' }))
       .with('unknown', () => ({ color: 'gray' as const, label: 'FILE' }))
       .exhaustive();
   };
@@ -39,7 +39,7 @@ export const FileItem = React.memo(function FileItem({
       .with('claude-md', () => '📝')
       .with('claude-local-md', () => '🔒')
       .with('slash-command', () => '⚡')
-      .with('global-md', () => '🌐')
+      .with('global-md', () => '🧠')
       .with('unknown', () => '📄')
       .exhaustive();
   };
