@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { isArray } from 'es-toolkit/compat';
 import type { FileTree } from 'fs-fixture';
 import { createFixture, type FsFixture } from 'fs-fixture';
 import { match } from 'ts-pattern';
@@ -20,7 +21,7 @@ function hashFileTree(fileTree: FileTree): string {
     if (obj === null || typeof obj !== 'object') {
       return JSON.stringify(obj);
     }
-    if (Array.isArray(obj)) {
+    if (isArray(obj)) {
       return `[${obj.map(sortedStringify).join(',')}]`;
     }
     const sortedKeys = Object.keys(obj as Record<string, unknown>).sort();

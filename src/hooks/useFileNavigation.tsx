@@ -1,3 +1,6 @@
+import { groupBy } from 'es-toolkit/array';
+import { values } from 'es-toolkit/compat';
+import { merge } from 'es-toolkit/object';
 import { useCallback, useEffect, useState } from 'react';
 import type {
   ClaudeFileInfo,
@@ -72,22 +75,14 @@ export function useFileNavigation(
         // Combine both results
         const allFiles = [...claudeFiles, ...convertedCommands];
 
-        // Group files by type
-        const groupedFiles = allFiles.reduce<
-          Record<ClaudeFileType, NavigationFile[]>
-        >(
-          (acc, file) => {
-            if (!acc[file.type]) {
-              acc[file.type] = [];
-            }
-            acc[file.type].push(file);
-            return acc;
-          },
-          {} as Record<ClaudeFileType, NavigationFile[]>,
-        );
+        // Group files by type using es-toolkit
+        const groupedFiles = groupBy(allFiles, (file) => file.type) as Record<
+          ClaudeFileType,
+          NavigationFile[]
+        >;
 
         // Sort by filename within each group
-        Object.values(groupedFiles).forEach((group) => {
+        values(groupedFiles).forEach((group) => {
           group.sort((a, b) => {
             const aName = a.path.split('/').pop() || '';
             const bName = b.path.split('/').pop() || '';
@@ -139,7 +134,7 @@ export function useFileNavigation(
     setFileGroups((prev) =>
       prev.map((group) =>
         group.type === type
-          ? { ...group, isExpanded: !group.isExpanded }
+          ? merge(group, { isExpanded: !group.isExpanded })
           : group,
       ),
     );

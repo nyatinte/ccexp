@@ -2,6 +2,8 @@ import type { Stats } from 'node:fs';
 import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { uniq } from 'es-toolkit/array';
+import { isError } from 'es-toolkit/predicate';
 import { CLAUDE_FILE_PATTERNS, FILE_SIZE_LIMITS } from './_consts.ts';
 import type {
   ClaudeFileInfo,
@@ -147,8 +149,8 @@ export const scanClaudeFiles = async (
       }
     }
 
-    // Remove duplicates based on file path
-    const uniqueFiles: string[] = Array.from(new Set(files));
+    // Remove duplicates based on file path using es-toolkit
+    const uniqueFiles: string[] = uniq(files);
 
     // Process each file
     const fileInfos: ClaudeFileInfo[] = [];
@@ -170,7 +172,7 @@ export const scanClaudeFiles = async (
     );
   } catch (error) {
     throw new Error(
-      `Failed to scan Claude files: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      `Failed to scan Claude files: ${isError(error) ? error.message : 'Unknown error'}`,
     );
   }
 };

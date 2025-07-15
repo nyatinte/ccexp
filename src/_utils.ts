@@ -1,5 +1,7 @@
 import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
+import { toPairs as entries, keys } from 'es-toolkit/compat';
+import { merge } from 'es-toolkit/object';
 import { match, P } from 'ts-pattern';
 import { z } from 'zod/v4';
 import {
@@ -134,28 +136,24 @@ export const analyzeProjectInfo = async (
         const rawPackageJson = JSON.parse(packageContent);
         const packageJson = PackageJsonSchema.parse(rawPackageJson);
 
-        projectInfo = {
-          ...projectInfo,
+        projectInfo = merge(projectInfo, {
           language: 'JavaScript/TypeScript',
-          dependencies: Object.keys(packageJson.dependencies || {}),
-        };
+          dependencies: keys(packageJson.dependencies || {}),
+        });
 
         if (packageJson.scripts) {
-          projectInfo = {
-            ...projectInfo,
-            buildCommands: Object.keys(packageJson.scripts)
+          projectInfo = merge(projectInfo, {
+            buildCommands: keys(packageJson.scripts)
               .filter((script) => script.includes(SCRIPT_PATTERNS.BUILD))
               .map((script) => `${PACKAGE_MANAGER_COMMANDS.NPM_RUN} ${script}`),
-            testCommands: Object.keys(packageJson.scripts)
+            testCommands: keys(packageJson.scripts)
               .filter((script) => script.includes(SCRIPT_PATTERNS.TEST))
               .map((script) => `${PACKAGE_MANAGER_COMMANDS.NPM_RUN} ${script}`),
-          };
+          });
         }
 
         // Detect framework
-        for (const [framework, patterns] of Object.entries(
-          FRAMEWORK_PATTERNS,
-        )) {
+        for (const [framework, patterns] of entries(FRAMEWORK_PATTERNS)) {
           const hasFramework = patterns.some((pattern) => {
             if (pattern.endsWith('/')) {
               return existsSync(join(directoryPath, pattern));
@@ -167,14 +165,14 @@ export const analyzeProjectInfo = async (
           });
 
           if (hasFramework) {
-            projectInfo = { ...projectInfo, framework };
+            projectInfo = merge(projectInfo, { framework });
             break;
           }
         }
       } catch (error) {
         // Log parsing errors in debug mode
         console.debug(ERROR_MESSAGES.PACKAGE_JSON_PARSE_ERROR, error);
-        projectInfo = { ...projectInfo, isIncomplete: true };
+        projectInfo = merge(projectInfo, { isIncomplete: true });
       }
     }
 
