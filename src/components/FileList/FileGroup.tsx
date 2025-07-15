@@ -43,7 +43,7 @@ export const FileGroup = React.memo(function FileGroup({
   return (
     <Box>
       {isSelected ? (
-        <Text backgroundColor="blue" color="white">
+        <Text backgroundColor="cyan" color="black">
           {expandIcon} {label} ({fileCount})
         </Text>
       ) : (

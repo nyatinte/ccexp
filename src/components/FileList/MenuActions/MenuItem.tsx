@@ -11,8 +11,8 @@ const MenuItemDisplay = ({ action, isSelected }: MenuItemProps) => (
   <Box>
     <Text
       {...(isSelected && {
-        backgroundColor: 'blue',
-        color: 'white',
+        backgroundColor: 'cyan',
+        color: 'black',
       })}
     >
       {isSelected ? '► ' : '  '}[{action.key.toUpperCase()}] {action.label}

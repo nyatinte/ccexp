@@ -66,7 +66,7 @@ export const FileItem = React.memo(function FileItem({
     <Box justifyContent="space-between" width="100%">
       <Box>
         {isSelected ? (
-          <Text backgroundColor="blue" color="white">
+          <Text backgroundColor="cyan" color="black">
             {prefix}
             {getFileIcon(file)} {displayName}
           </Text>
