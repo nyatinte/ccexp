@@ -30,7 +30,7 @@
     "ccexp"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19.3"
   },
   "exports": {
     ".": "./dist/index.js"
@@ -48,7 +48,7 @@
     "dev": "bun run ./src/index.tsx --watch",
     "test": "CI=true vitest run",
     "test:watch": "CI=true vitest --watch",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo --noEmit",
     "check": "biome check .",
     "check:write": "biome check --config-path='biome.jsonc' --write .",
     "check:unsafe": "biome check --config-path='biome.jsonc' --write --unsafe .",
@@ -58,28 +58,27 @@
     "release": "bun run ci && bumpp --no-verify"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.0.6",
-    "@inkjs/ui": "^2.0.0",
+    "@biomejs/biome": "2.1.1",
     "@types/bun": "^1.2.18",
     "@types/marked-terminal": "^6.1.1",
     "@types/react": "^19.1.8",
+    "@typescript/native-preview": "7.0.0-dev.20250712.1",
     "bumpp": "^10.2.0",
     "clean-pkg-json": "^1.3.0",
     "concurrently": "^9.2.0",
     "fs-fixture": "^2.8.1",
     "ink-testing-library": "^4.0.0",
     "knip": "^5.61.3",
-    "lefthook": "^1.11.14",
+    "lefthook": "^1.12.2",
     "publint": "^0.3.12",
-    "ts-pattern": "^5.5.0",
     "tsdown": "^0.12.9",
-    "typescript": "^5.7.2",
     "vitest": "^3.2.4"
   },
   "overrides": {
     "vite": "npm:rolldown-vite@latest"
   },
   "dependencies": {
+    "@inkjs/ui": "^2.0.0",
     "clipboardy": "^4.0.0",
     "commander": "^14.0.0",
     "fdir": "^6.4.6",
@@ -91,6 +90,7 @@
     "open": "^10.1.2",
     "open-editor": "^5.1.0",
     "react": "^19.1.0",
-    "zod": "^3.25.76"
+    "ts-pattern": "^5.5.0",
+    "zod": "^4.0.5"
   }
 }
