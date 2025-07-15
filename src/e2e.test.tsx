@@ -62,7 +62,7 @@ if (import.meta.vitest) {
         interaction.verifyContent('Claude Files'); // Don't check exact count as it may vary
 
         // Verify header is shown
-        interaction.verifyContent('Claude Code Explorer');
+        interaction.verifyContent('ccexp');
 
         // WORKAROUND: The initial state might be problematic
         // Let's try to get into a known good state first

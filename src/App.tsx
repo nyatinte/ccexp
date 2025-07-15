@@ -64,7 +64,7 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
         {/* Header */}
         <Box paddingX={1} paddingY={0} borderStyle="single" borderBottom={true}>
           <Text bold color="blue">
-            Claude Code Explorer
+            ccexp
           </Text>
           <Text dimColor> | Interactive File Browser</Text>
         </Box>

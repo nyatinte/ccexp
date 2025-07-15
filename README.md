@@ -1,27 +1,30 @@
-# Claude Code Explorer
+# ccexp (claude-code-explorer)
 
 <div align="center">
-  <img src="assets/icon.svg" alt="Claude Code Explorer Icon" width="128" height="128">
+  <img src="assets/icon.svg" alt="ccexp Icon" width="128" height="128">
   <br><br>
   <strong>Interactive CLI tool for exploring and managing Claude Code settings and slash commands</strong>
   <br><br>
-  <a href="https://www.npmjs.com/package/claude-code-explorer">
-    <img src="https://img.shields.io/npm/v/claude-code-explorer.svg" alt="npm version">
+  <a href="https://www.npmjs.com/package/ccexp">
+    <img src="https://img.shields.io/npm/v/ccexp.svg" alt="npm version">
   </a>
-  <a href="https://www.npmjs.com/package/claude-code-explorer">
-    <img src="https://img.shields.io/npm/dm/claude-code-explorer.svg" alt="npm downloads">
+  <a href="https://www.npmjs.com/package/ccexp">
+    <img src="https://img.shields.io/npm/dm/ccexp.svg" alt="npm downloads">
   </a>
-  <a href="https://github.com/nyante/claude-code-explorer/blob/main/LICENSE">
-    <img src="https://img.shields.io/npm/l/claude-code-explorer.svg" alt="license">
+  <a href="https://github.com/nyatinte/ccexp/blob/main/LICENSE">
+    <img src="https://img.shields.io/npm/l/ccexp.svg" alt="license">
   </a>
-  <a href="https://github.com/nyante/claude-code-explorer">
+  <a href="https://github.com/nyatinte/ccexp">
     <img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg" alt="node version">
   </a>
 </div>
 
 ## Overview
 
-**Claude Code Explorer** is a React Ink-based CLI tool that provides an interactive terminal interface for discovering, previewing, and managing Claude Code configuration files and slash commands. Navigate through your codebase to find CLAUDE.md files, slash command definitions, and other Claude-related configurations with a beautiful terminal UI.
+> [!IMPORTANT]
+> **ccexp** is the shortened name for **claude-code-explorer**. The npm package [claude-code-explorer](https://www.npmjs.com/package/claude-code-explorer) is the previous version of this tool. The name was shortened to **ccexp** for brevity and easier command-line usage.
+
+**ccexp** (short for **claude-code-explorer**) is a React Ink-based CLI tool that provides an interactive terminal interface for discovering, previewing, and managing Claude Code configuration files and slash commands. Navigate through your codebase to find CLAUDE.md files, slash command definitions, and other Claude-related configurations with a beautiful terminal UI.
 
 ## Features
 
@@ -36,14 +39,14 @@
 ## Screenshots
 
 <div align="center">
-  <img src="assets/thumbnail.png" alt="Claude Code Explorer Thumbnail" width="600">
+  <img src="assets/thumbnail.png" alt="ccexp Thumbnail" width="600">
   <br><br>
-  <img src="assets/screenshot.png" alt="Claude Code Explorer Screenshot" width="800">
+  <img src="assets/screenshot.png" alt="ccexp Screenshot" width="800">
 </div>
 
 ## Target Files
 
-Claude Code Explorer automatically discovers these configuration files:
+ccexp (claude-code-explorer) automatically discovers these configuration files:
 
 - **CLAUDE.md** → Project-level configuration (most common)
 - **CLAUDE.local.md** → Local overrides (gitignored)
@@ -58,42 +61,15 @@ No installation required! Run directly with:
 
 ```bash
 # Using Bun (fastest)
-bunx claude-code-explorer@latest
+bunx ccexp@latest
 
 # Using npm
-npx claude-code-explorer@latest
+npx ccexp@latest
 
 # Using pnpm
-pnpm dlx claude-code-explorer@latest
+pnpm dlx ccexp@latest
 ```
 
-### Shell Alias (Recommended for Frequent Use)
-
-The command `npx claude-code-explorer` can be lengthy to type. We recommend setting up a shell alias:
-
-```bash
-# Add to ~/.bashrc, ~/.zshrc, or your shell's config file
-alias ccexp="npx claude-code-explorer@latest"
-
-# For Bun users
-alias ccexp="bunx claude-code-explorer@latest"
-
-# For pnpm users
-alias ccexp="pnpm dlx claude-code-explorer@latest"
-```
-
-After adding the alias, reload your shell configuration:
-
-```bash
-source ~/.bashrc    # or ~/.zshrc
-```
-
-Now you can simply run:
-
-```bash
-ccexp               # Launch in current directory
-ccexp --path ~/projects  # Scan specific directory
-```
 
 ### Global Installation
 
@@ -101,20 +77,20 @@ For frequent use, install globally:
 
 ```bash
 # npm
-npm install -g claude-code-explorer
+npm install -g ccexp
 
 # Bun
-bun install -g claude-code-explorer
+bun install -g ccexp
 
 
 # pnpm
-pnpm add -g claude-code-explorer
+pnpm add -g ccexp
 ```
 
 Then run from anywhere:
 
 ```bash
-claude-code-explorer
+ccexp
 ```
 
 ## Usage
@@ -122,35 +98,35 @@ claude-code-explorer
 ### Interactive Mode (Default)
 
 ```bash
-claude-code-explorer                    # Launch interactive TUI
-claude-code-explorer --path ~/projects # Scan specific directory
+ccexp                    # Launch interactive TUI
+ccexp --path ~/projects # Scan specific directory
 ```
 
 ### Command Line Options
 
 ```bash
-claude-code-explorer --help             # Show help information
-claude-code-explorer --version          # Show version number
-claude-code-explorer --path <path>      # Specify directory to scan
+ccexp --help             # Show help information
+ccexp --version          # Show version number
+ccexp --path <path>      # Specify directory to scan
 ```
 
 ### Examples
 
 ```bash
 # Launch in current directory
-bunx claude-code-explorer@latest
+bunx ccexp@latest
 
 # Scan specific project
-bunx claude-code-explorer@latest --path ~/my-project
+bunx ccexp@latest --path ~/my-project
 
 # Quick exploration without installation
-npx claude-code-explorer@latest
+npx ccexp@latest
 
 # Show help
-bunx claude-code-explorer@latest --help
+bunx ccexp@latest --help
 
 # Show version
-bunx claude-code-explorer@latest --version
+bunx ccexp@latest --version
 ```
 
 ### Common Use Cases
@@ -158,13 +134,13 @@ bunx claude-code-explorer@latest --version
 ```bash
 # Find all Claude configuration in your workspace
 cd ~/workspace
-bunx claude-code-explorer@latest
+bunx ccexp@latest
 
 # Check Claude settings in a specific project
-bunx claude-code-explorer@latest --path ./my-project
+bunx ccexp@latest --path ./my-project
 
 # Explore global Claude configuration
-bunx claude-code-explorer@latest --path ~/.claude
+bunx ccexp@latest --path ~/.claude
 
 # Using alias (after setup)
 ccexp                      # Current directory
