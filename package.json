@@ -59,7 +59,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.1.1",
-    "@inkjs/ui": "^2.0.0",
     "@types/bun": "^1.2.18",
     "@types/marked-terminal": "^6.1.1",
     "@types/react": "^19.1.8",
@@ -72,7 +71,6 @@
     "knip": "^5.61.3",
     "lefthook": "^1.12.2",
     "publint": "^0.3.12",
-    "ts-pattern": "^5.7.1",
     "tsdown": "^0.12.9",
     "vitest": "^3.2.4"
   },
@@ -80,6 +78,7 @@
     "vite": "npm:rolldown-vite@latest"
   },
   "dependencies": {
+    "@inkjs/ui": "^2.0.0",
     "clipboardy": "^4.0.0",
     "commander": "^14.0.0",
     "fdir": "^6.4.6",
@@ -91,6 +90,7 @@
     "open": "^10.1.2",
     "open-editor": "^5.1.0",
     "react": "^19.1.0",
+    "ts-pattern": "^5.5.0",
     "zod": "^4.0.5"
   }
 }
