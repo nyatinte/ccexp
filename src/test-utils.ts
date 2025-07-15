@@ -3,9 +3,6 @@
  */
 import { delay } from 'es-toolkit/promise';
 
-// Re-export delay from es-toolkit for backward compatibility
-export { delay };
-
 /**
  * Wait for React effects to complete
  * Useful for testing components with useEffect

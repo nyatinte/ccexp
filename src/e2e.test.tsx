@@ -1,3 +1,4 @@
+import { delay } from 'es-toolkit/promise';
 import { render } from 'ink-testing-library';
 import { App } from './App.js';
 import {
@@ -6,7 +7,7 @@ import {
 } from './test-fixture-helpers.js';
 import { createTestInteraction } from './test-interaction-helpers.js';
 import { typeKeys } from './test-keyboard-helpers.js';
-import { delay, waitForEffects } from './test-utils.js';
+import { waitForEffects } from './test-utils.js';
 
 // Mock clipboardy with default export
 vi.mock('clipboardy', () => ({

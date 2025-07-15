@@ -1,7 +1,7 @@
+import { delay } from 'es-toolkit/promise';
 import { render } from 'ink-testing-library';
 import { vi } from 'vitest';
 import { keyboard } from '../../../test-keyboard-helpers.js';
-import { delay } from '../../../test-utils.js';
 import { ThemedConfirmInput } from './ThemedConfirmInput.js';
 
 if (import.meta.vitest) {
