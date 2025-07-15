@@ -35,14 +35,17 @@ afterAll(() => {
   process.exit = originalExit;
 });
 
-// Suppress console.error for expected errors in tests
+// Suppress console.error and console.debug for expected errors in tests
 const originalConsoleError = console.error;
+const originalConsoleDebug = console.debug;
 beforeEach(() => {
   console.error = vi.fn();
+  console.debug = vi.fn();
 });
 
 afterEach(() => {
   console.error = originalConsoleError;
+  console.debug = originalConsoleDebug;
 });
 
 // Clean up fixture cache after all tests complete

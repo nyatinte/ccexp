@@ -24,7 +24,6 @@ vi.mock('open', () => ({
 }));
 
 // Mock process.exit to prevent test termination
-const _originalProcessExit = process.exit;
 vi.spyOn(process, 'exit').mockImplementation(
   (code?: string | number | null) => {
     // process.exit called, preventing actual exit
