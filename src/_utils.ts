@@ -4,6 +4,8 @@ import { match, P } from 'ts-pattern';
 import type { ClaudeFilePath, ClaudeFileType } from './_types.ts';
 import { createClaudeFilePath } from './_types.ts';
 
+const HOME_DIR = homedir();
+
 // File path utilities
 export const parseSlashCommandName = (fileName: string): string => {
   return fileName.replace(/\.md$/, '').replace(/\//g, ':');
@@ -11,7 +13,7 @@ export const parseSlashCommandName = (fileName: string): string => {
 
 const normalizeFilePath = (filePath: string): ClaudeFilePath => {
   const normalized = filePath.startsWith('~')
-    ? filePath.replace('~', homedir())
+    ? filePath.replace('~', HOME_DIR)
     : filePath;
 
   try {
@@ -22,18 +24,17 @@ const normalizeFilePath = (filePath: string): ClaudeFilePath => {
 };
 
 export const getFileScope = (filePath: string): 'project' | 'user' => {
-  return filePath.includes(homedir()) ? 'user' : 'project';
+  return filePath.includes(HOME_DIR) ? 'user' : 'project';
 };
 
 // File type detection
 export const detectClaudeFileType = (filePath: string): ClaudeFileType => {
   const fileName = basename(filePath);
   const dirPath = dirname(filePath);
-  const homeDir = homedir();
 
   return match([fileName, dirPath])
     .with(
-      ['CLAUDE.md', P.when((dir) => dir === join(homeDir, '.claude'))],
+      ['CLAUDE.md', P.when((dir) => dir === join(HOME_DIR, '.claude'))],
       () => 'global-md' as const,
     )
     .with(['CLAUDE.md', P._], () => 'claude-md' as const)
@@ -168,8 +169,7 @@ if (import.meta.vitest != null) {
     });
 
     test('should detect global CLAUDE.md files', () => {
-      const homeDir = homedir();
-      const globalPath = join(homeDir, '.claude', 'CLAUDE.md');
+      const globalPath = join(HOME_DIR, '.claude', 'CLAUDE.md');
       expect(detectClaudeFileType(globalPath)).toBe('global-md');
     });
 
@@ -203,8 +203,7 @@ if (import.meta.vitest != null) {
 
   describe('getFileScope', () => {
     test('should detect user scope for home directory files', () => {
-      const homePath = homedir();
-      expect(getFileScope(`${homePath}/.claude/CLAUDE.md`)).toBe('user');
+      expect(getFileScope(`${HOME_DIR}/.claude/CLAUDE.md`)).toBe('user');
     });
 
     test('should detect project scope for non-home files', () => {
@@ -214,10 +213,9 @@ if (import.meta.vitest != null) {
 
   describe('normalizeFilePath', () => {
     test('should expand ~ to home directory', () => {
-      const homePath = homedir();
-      expect(normalizeFilePath('~/test.md')).toBe(`${homePath}/test.md`);
+      expect(normalizeFilePath('~/test.md')).toBe(`${HOME_DIR}/test.md`);
       expect(normalizeFilePath('~/.claude/CLAUDE.md')).toBe(
-        `${homePath}/.claude/CLAUDE.md`,
+        `${HOME_DIR}/.claude/CLAUDE.md`,
       );
     });
 
