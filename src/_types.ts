@@ -15,6 +15,8 @@ export type ClaudeFileType =
   | 'claude-local-md'
   | 'global-md'
   | 'slash-command'
+  | 'settings-json'
+  | 'settings-local-json'
   | 'unknown';
 
 type _CommandInfo = {
@@ -58,6 +60,9 @@ export type FileScanner = {
   readonly scanSlashCommands: (
     options?: ScanOptions,
   ) => Promise<SlashCommandInfo[]>;
+  readonly scanSettingsJson: (
+    options?: ScanOptions,
+  ) => Promise<ClaudeFileInfo[]>;
 };
 
 // Grouped files for UI display

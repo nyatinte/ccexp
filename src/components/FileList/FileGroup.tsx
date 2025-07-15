@@ -16,6 +16,8 @@ const getGroupLabel = (type: ClaudeFileType): string => {
     .with('claude-local-md', () => 'LOCAL')
     .with('slash-command', () => 'COMMAND')
     .with('global-md', () => 'GLOBAL')
+    .with('settings-json', () => 'SETTINGS')
+    .with('settings-local-json', () => 'LOCAL SETTINGS')
     .with('unknown', () => 'OTHER')
     .exhaustive();
 };
@@ -26,6 +28,8 @@ const getGroupColor = (type: ClaudeFileType): string => {
     .with('claude-local-md', () => 'yellow')
     .with('slash-command', () => 'green')
     .with('global-md', () => 'magenta')
+    .with('settings-json', () => 'cyan')
+    .with('settings-local-json', () => 'yellowBright')
     .with('unknown', () => 'gray')
     .exhaustive();
 };

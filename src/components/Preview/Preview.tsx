@@ -7,6 +7,17 @@ import type { ClaudeFileInfo } from '../../_types.js';
 import { isBinaryFile } from '../../_utils.js';
 import { MarkdownPreview } from './MarkdownPreview.js';
 
+// Format JSON content for better readability
+const formatJsonContent = (content: string): string => {
+  try {
+    const parsed = JSON.parse(content);
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    // If parsing fails, return original content
+    return content;
+  }
+};
+
 type PreviewProps = {
   readonly file?: ClaudeFileInfo | undefined;
 };
@@ -137,6 +148,8 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
         <Box flexDirection="column" paddingRight={1}>
           {fileName.endsWith('.md') ? (
             <MarkdownPreview content={previewContent} />
+          ) : fileName.endsWith('.json') ? (
+            <Text>{formatJsonContent(previewContent)}</Text>
           ) : (
             <Text>{previewContent}</Text>
           )}

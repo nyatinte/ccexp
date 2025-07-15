@@ -3,6 +3,7 @@ import { render } from 'ink-testing-library';
 import React from 'react';
 import type { ClaudeFileInfo, FileScanner } from '../_types.js';
 import { scanClaudeFiles } from '../claude-md-scanner.js';
+import { scanSettingsJson } from '../settings-json-scanner.js';
 import { scanSlashCommands } from '../slash-command-scanner.js';
 import { delay } from '../test-utils.js';
 import { useFileNavigation } from './useFileNavigation.js';
@@ -80,6 +81,12 @@ if (import.meta.vitest) {
             path: fixture.getPath('test-project'),
             recursive: false,
           }),
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('test-project'),
+            recursive: false,
+          }),
       };
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
@@ -104,6 +111,7 @@ if (import.meta.vitest) {
           throw new Error('EACCES: permission denied');
         },
         scanSlashCommands: async () => [],
+        scanSettingsJson: async () => [],
       };
 
       let capturedError: string | undefined;
@@ -157,6 +165,12 @@ if (import.meta.vitest) {
             path: fixture.getPath('accessible'),
             recursive: false,
           }),
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('accessible'),
+            recursive: false,
+          }),
       };
 
       // Re-render with working scanner to test recovery
@@ -190,6 +204,12 @@ if (import.meta.vitest) {
               }),
             scanSlashCommands: (options) =>
               scanSlashCommands({
+                ...options,
+                path: f.getPath('empty-project'),
+                recursive: false,
+              }),
+            scanSettingsJson: (options) =>
+              scanSettingsJson({
                 ...options,
                 path: f.getPath('empty-project'),
                 recursive: false,
@@ -228,6 +248,12 @@ if (import.meta.vitest) {
           }),
         scanSlashCommands: (options) =>
           scanSlashCommands({
+            ...options,
+            path: fixture.getPath('my-app'),
+            recursive: false,
+          }),
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
             ...options,
             path: fixture.getPath('my-app'),
             recursive: false,
@@ -286,6 +312,12 @@ if (import.meta.vitest) {
             path: fixture.getPath('project'),
             recursive: false,
           }),
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('project'),
+            recursive: false,
+          }),
       };
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
@@ -317,6 +349,12 @@ if (import.meta.vitest) {
           }),
         scanSlashCommands: (options) =>
           scanSlashCommands({
+            ...options,
+            path: fixture.getPath('slash-project'),
+            recursive: false,
+          }),
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
             ...options,
             path: fixture.getPath('slash-project'),
             recursive: false,
@@ -356,6 +394,12 @@ if (import.meta.vitest) {
             path: fixture.getPath('mixed-project'),
             recursive: false,
           }),
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('mixed-project'),
+            recursive: false,
+          }),
       };
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
@@ -385,6 +429,12 @@ if (import.meta.vitest) {
           }),
         scanSlashCommands: (options) =>
           scanSlashCommands({
+            ...options,
+            path: fixture.getPath('update-test'),
+            recursive: false,
+          }),
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
             ...options,
             path: fixture.getPath('update-test'),
             recursive: false,
@@ -429,6 +479,12 @@ if (import.meta.vitest) {
           }),
         scanSlashCommands: (options) =>
           scanSlashCommands({
+            ...options,
+            path: fixture.getPath('nested-project'),
+            recursive: true, // This test specifically tests recursive scanning
+          }),
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
             ...options,
             path: fixture.getPath('nested-project'),
             recursive: true, // This test specifically tests recursive scanning

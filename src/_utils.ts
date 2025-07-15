@@ -44,6 +44,20 @@ export const detectClaudeFileType = (filePath: string): ClaudeFileType => {
       ],
       () => 'slash-command' as const,
     )
+    .with(
+      [
+        'settings.json',
+        P.when((dir) => dir.endsWith('/.claude') || dir.includes('/.claude/')),
+      ],
+      () => 'settings-json' as const,
+    )
+    .with(
+      [
+        'settings.local.json',
+        P.when((dir) => dir.endsWith('/.claude') || dir.includes('/.claude/')),
+      ],
+      () => 'settings-local-json' as const,
+    )
     .otherwise(() => 'unknown' as const);
 };
 
@@ -169,6 +183,31 @@ if (import.meta.vitest != null) {
     test('should detect slash command files', () => {
       expect(detectClaudeFileType('/project/.claude/commands/deploy.md')).toBe(
         'slash-command',
+      );
+    });
+
+    test('should detect settings.json files', () => {
+      expect(detectClaudeFileType('/project/.claude/settings.json')).toBe(
+        'settings-json',
+      );
+      expect(detectClaudeFileType('/Users/name/.claude/settings.json')).toBe(
+        'settings-json',
+      );
+    });
+
+    test('should detect settings.local.json files', () => {
+      expect(detectClaudeFileType('/project/.claude/settings.local.json')).toBe(
+        'settings-local-json',
+      );
+      expect(
+        detectClaudeFileType('/Users/name/.claude/settings.local.json'),
+      ).toBe('settings-local-json');
+    });
+
+    test('should not detect settings files outside .claude', () => {
+      expect(detectClaudeFileType('/project/settings.json')).toBe('unknown');
+      expect(detectClaudeFileType('/project/settings.local.json')).toBe(
+        'unknown',
       );
     });
   });

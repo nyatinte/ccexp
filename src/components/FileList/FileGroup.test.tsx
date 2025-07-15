@@ -29,6 +29,8 @@ if (import.meta.vitest) {
         'claude-local-md': 'LOCAL',
         'slash-command': 'COMMAND',
         'global-md': 'GLOBAL',
+        'settings-json': 'SETTINGS',
+        'settings-local-json': 'LOCAL SETTINGS',
         unknown: 'OTHER',
       };
 
