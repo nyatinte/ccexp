@@ -48,7 +48,7 @@
     "dev": "bun run ./src/index.tsx --watch",
     "test": "vitest run",
     "test:watch": "vitest --watch",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsgo --noEmit",
     "check": "biome check .",
     "check:write": "biome check --config-path='biome.jsonc' --write .",
     "check:unsafe": "biome check --config-path='biome.jsonc' --write --unsafe .",
@@ -63,6 +63,7 @@
     "@types/bun": "^1.2.18",
     "@types/marked-terminal": "^6.1.1",
     "@types/react": "^19.1.8",
+    "@typescript/native-preview": "7.0.0-dev.20250712.1",
     "bumpp": "^10.2.0",
     "clean-pkg-json": "^1.3.0",
     "concurrently": "^9.2.0",
@@ -73,7 +74,6 @@
     "publint": "^0.3.12",
     "ts-pattern": "^5.7.1",
     "tsdown": "^0.12.9",
-    "typescript": "^5.7.2",
     "vitest": "^3.2.4"
   },
   "overrides": {
