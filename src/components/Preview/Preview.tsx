@@ -129,7 +129,8 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
           {file.type === 'global-md' && (
             <Box marginTop={1}>
               <Text color="magenta" italic>
-                📌 This is your private global configuration file that provides instructions to Claude across all projects
+                📌 This is your private global configuration file that provides
+                instructions to Claude across all projects
               </Text>
             </Box>
           )}
