@@ -17,15 +17,6 @@ export type ClaudeFileType =
   | 'slash-command'
   | 'unknown';
 
-export type ProjectInfo = {
-  readonly framework?: string | undefined;
-  readonly language?: string | undefined;
-  readonly buildCommands?: string[] | undefined;
-  readonly testCommands?: string[] | undefined;
-  readonly dependencies?: string[] | undefined;
-  readonly isIncomplete?: boolean | undefined;
-};
-
 type _CommandInfo = {
   readonly name: string;
   readonly description?: string | undefined;
@@ -37,7 +28,6 @@ export type ClaudeFileInfo = {
   readonly type: ClaudeFileType;
   readonly size: number;
   readonly lastModified: Date;
-  readonly projectInfo?: ProjectInfo | undefined;
   readonly commands: _CommandInfo[];
   readonly tags: string[];
 };
