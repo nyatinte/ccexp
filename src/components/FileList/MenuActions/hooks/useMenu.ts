@@ -1,9 +1,9 @@
-import { dirname, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import clipboardy from 'clipboardy';
 import { useInput } from 'ink';
 import open from 'open';
 import openEditor from 'open-editor';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ClaudeFileInfo } from '../../../../_types.js';
 import type { MenuAction } from '../types.js';
 
@@ -16,6 +16,12 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isExecuting, setIsExecuting] = useState(false);
   const [message, setMessage] = useState('');
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [pendingAction, setPendingAction] = useState<
+    (() => Promise<string>) | null
+  >(null);
+  const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const copyToClipboard = useCallback(async (text: string): Promise<void> => {
     try {
@@ -64,6 +70,45 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
     }
   }, []);
 
+  const handleConfirm = useCallback(async () => {
+    if (pendingAction) {
+      setIsExecuting(true);
+      setIsConfirming(false);
+      setConfirmMessage('');
+      const action = pendingAction;
+      setPendingAction(null);
+
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+
+      try {
+        const successMessage = await action();
+        setMessage(successMessage);
+        messageTimeoutRef.current = setTimeout(() => {
+          setMessage('');
+          messageTimeoutRef.current = null;
+        }, 2000);
+      } catch (error) {
+        setMessage(
+          `❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        );
+        messageTimeoutRef.current = setTimeout(() => {
+          setMessage('');
+          messageTimeoutRef.current = null;
+        }, 3000);
+      } finally {
+        setIsExecuting(false);
+      }
+    }
+  }, [pendingAction]);
+
+  const handleCancel = useCallback(() => {
+    setIsConfirming(false);
+    setConfirmMessage('');
+    setPendingAction(null);
+  }, []);
+
   const actions: MenuAction[] = useMemo(
     () => [
       {
@@ -98,12 +143,66 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
       },
       {
         key: 'd',
-        label: 'Copy Current Directory',
-        description: 'Copy directory path to clipboard',
+        label: 'Copy to Current Directory',
+        description: 'Copy file to current working directory',
         action: async () => {
-          const dirPath = dirname(file.path);
-          await copyToClipboard(dirPath);
-          return '✅ Directory path copied to clipboard';
+          const fs = await import('node:fs/promises');
+          const cwd = process.cwd();
+
+          // Determine destination path based on file type
+          let destPath: string;
+          if (file.type === 'slash-command') {
+            // For slash commands, preserve the directory structure under .claude/commands/
+            const commandsIndex = file.path.indexOf('.claude/commands/');
+            if (commandsIndex !== -1) {
+              const relativePath = file.path.slice(commandsIndex);
+              destPath = join(cwd, relativePath);
+            } else {
+              // Fallback for slash commands not in expected location
+              destPath = join(cwd, '.claude', 'commands', basename(file.path));
+            }
+          } else {
+            // For CLAUDE.md and CLAUDE.local.md, copy to current directory
+            destPath = join(cwd, basename(file.path));
+          }
+
+          // Copy operation encapsulated in a function
+          const performCopy = async () => {
+            const destDir = dirname(destPath);
+            await fs.mkdir(destDir, { recursive: true });
+            await fs.copyFile(file.path, destPath);
+            return `✅ Copied to ${destPath}`;
+          };
+
+          // Check if file already exists
+          try {
+            await fs.access(destPath);
+            // File exists, need confirmation
+            setConfirmMessage(
+              `File "${basename(destPath)}" already exists. Overwrite?`,
+            );
+            setIsConfirming(true);
+            // The action to be executed after confirmation
+            setPendingAction(() => performCopy);
+
+            // Return early, action will be executed after confirmation
+            return '';
+          } catch (error) {
+            // Handle specific error cases
+            if (
+              error &&
+              typeof error === 'object' &&
+              'code' in error &&
+              error.code === 'ENOENT'
+            ) {
+              // File doesn't exist, proceed with copy immediately
+              return await performCopy();
+            }
+            // Other errors (permissions, disk full, etc.)
+            throw new Error(
+              `Failed to check destination file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            );
+          }
         },
       },
       {
@@ -125,7 +224,7 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
         },
       },
     ],
-    [file.path, copyToClipboard, openFile, editFile],
+    [file.path, file.type, copyToClipboard, openFile, editFile],
   );
 
   const executeAction = useCallback(
@@ -135,15 +234,29 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
       try {
         const successMessage = await action.action();
         setMessage(successMessage);
-        setTimeout(() => {
+
+        // Clear any existing message timeout
+        if (messageTimeoutRef.current) {
+          clearTimeout(messageTimeoutRef.current);
+        }
+
+        messageTimeoutRef.current = setTimeout(() => {
           setMessage('');
+          messageTimeoutRef.current = null;
         }, 2000);
       } catch (error) {
         setMessage(
           `❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         );
-        setTimeout(() => {
+
+        // Clear any existing message timeout
+        if (messageTimeoutRef.current) {
+          clearTimeout(messageTimeoutRef.current);
+        }
+
+        messageTimeoutRef.current = setTimeout(() => {
           setMessage('');
+          messageTimeoutRef.current = null;
         }, 3000);
       } finally {
         setIsExecuting(false);
@@ -154,7 +267,7 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
 
   useInput(
     async (input, key) => {
-      if (isExecuting) return;
+      if (isExecuting || isConfirming) return;
 
       if (key.escape) {
         onClose();
@@ -179,13 +292,26 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
         }
       }
     },
-    { isActive: true },
+    { isActive: !isConfirming },
   );
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return {
     actions,
     selectedIndex,
     isExecuting,
     message,
+    isConfirming,
+    confirmMessage,
+    handleConfirm,
+    handleCancel,
   };
 };

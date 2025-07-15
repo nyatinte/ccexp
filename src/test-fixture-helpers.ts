@@ -16,16 +16,17 @@ const fixturePool = new Map<string, FsFixture>();
 function hashFileTree(fileTree: FileTree): string {
   const hash = createHash('sha256');
   // Sort keys recursively for consistent serialization
-  const sortedStringify = (obj: any): string => {
+  const sortedStringify = (obj: unknown): string => {
     if (obj === null || typeof obj !== 'object') {
       return JSON.stringify(obj);
     }
     if (Array.isArray(obj)) {
       return `[${obj.map(sortedStringify).join(',')}]`;
     }
-    const sortedKeys = Object.keys(obj).sort();
+    const sortedKeys = Object.keys(obj as Record<string, unknown>).sort();
     const pairs = sortedKeys.map(
-      (key) => `${JSON.stringify(key)}:${sortedStringify(obj[key])}`,
+      (key) =>
+        `${JSON.stringify(key)}:${sortedStringify((obj as Record<string, unknown>)[key])}`,
     );
     return `{${pairs.join(',')}}`;
   };
