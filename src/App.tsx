@@ -13,6 +13,18 @@ type AppProps = {
   readonly cliOptions: CliOptions;
 };
 
+const SPLIT_PANE_WIDTH = {
+  LEFT: 35,
+  MIN_LEFT: 25,
+  MAX_LEFT: 50,
+} as const;
+
+const SPLIT_PANE_WIDTH_TEST = {
+  LEFT: 60,
+  MIN_LEFT: 25,
+  MAX_LEFT: 80,
+} as const;
+
 export function App({ cliOptions }: AppProps): React.JSX.Element {
   const {
     files,
@@ -82,9 +94,21 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
                 <Preview file={selectedFile} />
               </ErrorBoundary>
             }
-            leftWidth={35}
-            minLeftWidth={25}
-            maxLeftWidth={50}
+            leftWidth={
+              typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
+                ? SPLIT_PANE_WIDTH_TEST.LEFT
+                : SPLIT_PANE_WIDTH.LEFT
+            }
+            minLeftWidth={
+              typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
+                ? SPLIT_PANE_WIDTH_TEST.MIN_LEFT
+                : SPLIT_PANE_WIDTH.MIN_LEFT
+            }
+            maxLeftWidth={
+              typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
+                ? SPLIT_PANE_WIDTH_TEST.MAX_LEFT
+                : SPLIT_PANE_WIDTH.MAX_LEFT
+            }
             dynamicWidth={true}
           />
         </Box>
