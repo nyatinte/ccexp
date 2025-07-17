@@ -2,7 +2,7 @@ import { Box, Text } from 'ink';
 import React from 'react';
 import { match } from 'ts-pattern';
 import type { ClaudeFileType } from '../../_types.js';
-import { selectionColors } from '../../styles/theme.js';
+import { theme } from '../../styles/theme.js';
 
 type FileGroupProps = {
   readonly type: ClaudeFileType;
@@ -23,11 +23,11 @@ const getGroupLabel = (type: ClaudeFileType): string => {
 
 const getGroupColor = (type: ClaudeFileType): string => {
   return match(type)
-    .with('claude-md', () => 'blue')
-    .with('claude-local-md', () => 'yellow')
-    .with('slash-command', () => 'green')
-    .with('global-md', () => 'magenta')
-    .with('unknown', () => 'gray')
+    .with('claude-md', () => theme.fileTypes.claudeMd)
+    .with('claude-local-md', () => theme.fileTypes.claudeLocalMd)
+    .with('slash-command', () => theme.fileTypes.slashCommand)
+    .with('global-md', () => theme.fileTypes.globalMd)
+    .with('unknown', () => theme.fileTypes.unknown)
     .exhaustive();
 };
 
@@ -44,7 +44,10 @@ export const FileGroup = React.memo(function FileGroup({
   return (
     <Box>
       {isSelected ? (
-        <Text {...selectionColors}>
+        <Text
+          backgroundColor={theme.selection.backgroundColor}
+          color={theme.selection.color}
+        >
           {expandIcon} {label} ({fileCount})
         </Text>
       ) : (

@@ -8,6 +8,7 @@ import { SplitPane } from './components/Layout/index.js';
 import { LoadingScreen } from './components/LoadingScreen.js';
 import { Preview } from './components/Preview/index.js';
 import { useFileNavigation } from './hooks/index.js';
+import { theme } from './styles/theme.js';
 
 type AppProps = {
   readonly cliOptions: CliOptions;
@@ -48,7 +49,7 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
         justifyContent="center"
         alignItems="center"
       >
-        <Text bold color="yellow">
+        <Text bold color={theme.status.warning}>
           No Claude files found
         </Text>
         <Text dimColor>Create a CLAUDE.md file to get started</Text>
@@ -63,7 +64,7 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
       <Box flexDirection="column" width="100%" height="100%">
         {/* Header */}
         <Box paddingX={1} paddingY={0} borderStyle="single" borderBottom={true}>
-          <Text bold color="blue">
+          <Text bold color={theme.ui.appTitle}>
             ccexp
           </Text>
           <Text dimColor> | Interactive File Browser</Text>

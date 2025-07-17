@@ -1,6 +1,6 @@
 import { Box, Text } from 'ink';
 import React from 'react';
-import { selectionColors } from '../../../styles/theme.js';
+import { theme } from '../../../styles/theme.js';
 import type { MenuAction } from './types.js';
 
 type MenuItemProps = {
@@ -14,9 +14,18 @@ function MenuItemDisplay({
 }: MenuItemProps): React.JSX.Element {
   return (
     <Box>
-      <Text {...(isSelected && selectionColors)}>
-        {isSelected ? '► ' : '  '}[{action.key.toUpperCase()}] {action.label}
-      </Text>
+      {isSelected ? (
+        <Text
+          backgroundColor={theme.selection.backgroundColor}
+          color={theme.selection.color}
+        >
+          ► [{action.key.toUpperCase()}] {action.label}
+        </Text>
+      ) : (
+        <Text>
+          {'  '}[{action.key.toUpperCase()}] {action.label}
+        </Text>
+      )}
     </Box>
   );
 }

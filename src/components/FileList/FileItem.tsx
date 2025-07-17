@@ -4,7 +4,7 @@ import { Box, Text } from 'ink';
 import React from 'react';
 import { match } from 'ts-pattern';
 import type { ClaudeFileInfo } from '../../_types.js';
-import { selectionColors } from '../../styles/theme.js';
+import { theme } from '../../styles/theme.js';
 
 type FileItemProps = {
   readonly file: ClaudeFileInfo;
@@ -20,17 +20,26 @@ export const FileItem = React.memo(function FileItem({
   // File type badge color and label
   const getFileBadge = (file: ClaudeFileInfo) => {
     return match(file.type)
-      .with('claude-md', () => ({ color: 'blue' as const, label: 'PROJECT' }))
+      .with('claude-md', () => ({
+        color: theme.fileTypes.claudeMd,
+        label: 'PROJECT',
+      }))
       .with('claude-local-md', () => ({
-        color: 'yellow' as const,
+        color: theme.fileTypes.claudeLocalMd,
         label: 'LOCAL',
       }))
       .with('slash-command', () => ({
-        color: 'green' as const,
+        color: theme.fileTypes.slashCommand,
         label: 'COMMAND',
       }))
-      .with('global-md', () => ({ color: 'magenta' as const, label: 'GLOBAL' }))
-      .with('unknown', () => ({ color: 'gray' as const, label: 'FILE' }))
+      .with('global-md', () => ({
+        color: theme.fileTypes.globalMd,
+        label: 'GLOBAL',
+      }))
+      .with('unknown', () => ({
+        color: theme.fileTypes.unknown,
+        label: 'FILE',
+      }))
       .exhaustive();
   };
 
@@ -67,12 +76,15 @@ export const FileItem = React.memo(function FileItem({
     <Box justifyContent="space-between" width="100%">
       <Box>
         {isSelected ? (
-          <Text {...selectionColors}>
+          <Text
+            backgroundColor={theme.selection.backgroundColor}
+            color={theme.selection.color}
+          >
             {prefix}
             {getFileIcon(file)} {displayName}
           </Text>
         ) : isFocused ? (
-          <Text color="white">
+          <Text color={theme.ui.focus}>
             {prefix}
             {getFileIcon(file)} {displayName}
           </Text>
