@@ -4,6 +4,7 @@ import { Box, Text } from 'ink';
 import React from 'react';
 import { match } from 'ts-pattern';
 import type { ClaudeFileInfo } from '../../_types.js';
+import { selectionColors } from '../../styles/theme.js';
 
 type FileItemProps = {
   readonly file: ClaudeFileInfo;
@@ -66,7 +67,7 @@ export const FileItem = React.memo(function FileItem({
     <Box justifyContent="space-between" width="100%">
       <Box>
         {isSelected ? (
-          <Text backgroundColor="cyan" color="black">
+          <Text {...selectionColors}>
             {prefix}
             {getFileIcon(file)} {displayName}
           </Text>

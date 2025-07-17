@@ -2,6 +2,7 @@ import { Box, Text } from 'ink';
 import React from 'react';
 import { match } from 'ts-pattern';
 import type { ClaudeFileType } from '../../_types.js';
+import { selectionColors } from '../../styles/theme.js';
 
 type FileGroupProps = {
   readonly type: ClaudeFileType;
@@ -43,7 +44,7 @@ export const FileGroup = React.memo(function FileGroup({
   return (
     <Box>
       {isSelected ? (
-        <Text backgroundColor="cyan" color="black">
+        <Text {...selectionColors}>
           {expandIcon} {label} ({fileCount})
         </Text>
       ) : (
