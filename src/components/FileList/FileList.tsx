@@ -18,7 +18,7 @@ import { MenuActions } from './MenuActions/index.js';
  * - Our implementation allows instant "type to search" while navigating
  */
 
-const RESERVED_LINES = 11;
+const RESERVED_LINES = 9;
 
 type FileListProps = {
   readonly files: ClaudeFileInfo[];
@@ -70,8 +70,8 @@ const FileList = React.memo(function FileList({
       return 100;
     }
 
-    const calculatedHeight = Math.max(3, (stdout?.rows ?? 24) - RESERVED_LINES);
-    return Math.min(calculatedHeight, 15);
+    const calculatedHeight = Math.max(5, (stdout?.rows ?? 24) - RESERVED_LINES);
+    return Math.min(calculatedHeight, 20);
   }, [stdout?.rows]);
 
   const totalLines = useMemo(() => {
