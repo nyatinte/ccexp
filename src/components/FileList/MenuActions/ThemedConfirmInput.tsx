@@ -7,14 +7,15 @@ import {
 } from '@inkjs/ui';
 import { Box, Text, type TextProps } from 'ink';
 import type React from 'react';
+import { theme } from '../../../styles/theme.js';
 
 const confirmInputTheme = {
   styles: {
     input: (): TextProps => ({
-      color: 'cyan',
+      color: theme.status.info,
     }),
     prefix: (): TextProps => ({
-      color: 'yellow',
+      color: theme.status.warning,
     }),
   },
 } satisfies ComponentTheme;
@@ -42,11 +43,11 @@ export function ThemedConfirmInput({
         <Text bold>{message}</Text>
         <Box>
           <Text bold>Press </Text>
-          <Text bold color="green">
+          <Text bold color={theme.status.success}>
             Y
           </Text>
           <Text bold> to confirm or </Text>
-          <Text bold color="red">
+          <Text bold color={theme.status.error}>
             n
           </Text>
           <Text bold> to cancel: </Text>

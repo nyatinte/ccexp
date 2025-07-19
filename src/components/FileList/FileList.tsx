@@ -6,6 +6,7 @@ import type {
   ClaudeFileType,
   FileGroup,
 } from '../../_types.js';
+import { theme } from '../../styles/theme.js';
 import { FileGroup as FileGroupComponent } from './FileGroup.js';
 import { FileItem } from './FileItem.js';
 import { MenuActions } from './MenuActions/index.js';
@@ -327,7 +328,7 @@ const FileList = React.memo(function FileList({
     <Box flexDirection="column" height="100%">
       {/* Header - always visible */}
       <Box marginBottom={1}>
-        <Text bold color="cyan">
+        <Text bold color={theme.ui.sectionTitle}>
           Claude Files (
           {isMenuMode
             ? files.length

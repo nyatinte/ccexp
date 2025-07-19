@@ -28,7 +28,7 @@ if (import.meta.vitest) {
         'claude-md': 'PROJECT',
         'claude-local-md': 'LOCAL',
         'slash-command': 'COMMAND',
-        'global-md': 'GLOBAL',
+        'global-md': 'USER MEMORY',
         unknown: 'OTHER',
       };
 
