@@ -95,22 +95,19 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
                 <Preview file={selectedFile} />
               </ErrorBoundary>
             }
-            leftWidth={
-              typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
-                ? SPLIT_PANE_WIDTH_TEST.LEFT
-                : SPLIT_PANE_WIDTH.LEFT
-            }
-            minLeftWidth={
-              typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
-                ? SPLIT_PANE_WIDTH_TEST.MIN_LEFT
-                : SPLIT_PANE_WIDTH.MIN_LEFT
-            }
-            maxLeftWidth={
-              typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
-                ? SPLIT_PANE_WIDTH_TEST.MAX_LEFT
-                : SPLIT_PANE_WIDTH.MAX_LEFT
-            }
-            dynamicWidth={true}
+            {...(() => {
+              const config =
+                typeof process !== 'undefined' &&
+                process.env.NODE_ENV === 'test'
+                  ? SPLIT_PANE_WIDTH_TEST
+                  : SPLIT_PANE_WIDTH;
+              return {
+                leftWidth: config.LEFT,
+                minLeftWidth: config.MIN_LEFT,
+                maxLeftWidth: config.MAX_LEFT,
+                dynamicWidth: true,
+              };
+            })()}
           />
         </Box>
       </Box>

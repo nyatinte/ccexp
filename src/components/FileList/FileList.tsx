@@ -19,6 +19,10 @@ import { MenuActions } from './MenuActions/index.js';
  */
 
 const RESERVED_LINES = 9;
+const DEFAULT_TERMINAL_ROWS = 24;
+const MAX_VIEWPORT_HEIGHT = 20;
+const MIN_VIEWPORT_HEIGHT = 5;
+const TEST_VIEWPORT_HEIGHT = 100;
 
 type FileListProps = {
   readonly files: ClaudeFileInfo[];
@@ -67,22 +71,40 @@ const FileList = React.memo(function FileList({
   const viewportHeight = useMemo(() => {
     // In test environment, use large viewport to avoid scrolling issues
     if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-      return 100;
+      return TEST_VIEWPORT_HEIGHT;
     }
 
-    const calculatedHeight = Math.max(5, (stdout?.rows ?? 24) - RESERVED_LINES);
-    return Math.min(calculatedHeight, 20);
+    const calculatedHeight = Math.max(
+      MIN_VIEWPORT_HEIGHT,
+      (stdout?.rows ?? DEFAULT_TERMINAL_ROWS) - RESERVED_LINES,
+    );
+    return Math.min(calculatedHeight, MAX_VIEWPORT_HEIGHT);
   }, [stdout?.rows]);
 
-  const totalLines = useMemo(() => {
-    return filteredGroups.reduce((total, group) => {
-      let lines = 1;
+  // Create a flattened list of all displayable items for better performance
+  const flatItems = useMemo(() => {
+    const items: Array<{
+      type: 'group' | 'file';
+      groupIndex: number;
+      fileIndex?: number;
+    }> = [];
+
+    for (let groupIndex = 0; groupIndex < filteredGroups.length; groupIndex++) {
+      const group = filteredGroups[groupIndex];
+      if (!group) continue;
+
+      items.push({ type: 'group', groupIndex });
+
       if (group.isExpanded) {
-        lines += group.files.length;
+        for (let fileIndex = 0; fileIndex < group.files.length; fileIndex++) {
+          items.push({ type: 'file', groupIndex, fileIndex });
+        }
       }
-      return total + lines;
-    }, 0);
+    }
+    return items;
   }, [filteredGroups]);
+
+  const totalLines = useMemo(() => flatItems.length, [flatItems]);
 
   const getCurrentLinePosition = useCallback(() => {
     let linePos = 0;
@@ -113,49 +135,16 @@ const FileList = React.memo(function FileList({
   }, [currentGroupIndex, currentFileIndex, isGroupSelected, filteredGroups]);
 
   const visibleItems = useMemo(() => {
-    const items: Array<{
-      type: 'group' | 'file';
-      groupIndex: number;
-      fileIndex?: number;
-    }> = [];
-    let currentLine = 0;
-
     const effectiveScrollOffset = Math.max(
       0,
       Math.min(scrollOffset, totalLines - viewportHeight),
     );
 
-    for (let groupIndex = 0; groupIndex < filteredGroups.length; groupIndex++) {
-      const group = filteredGroups[groupIndex];
-      if (!group) continue;
-
-      if (
-        currentLine >= effectiveScrollOffset &&
-        currentLine < effectiveScrollOffset + viewportHeight
-      ) {
-        items.push({ type: 'group', groupIndex });
-      }
-      currentLine++;
-
-      if (group.isExpanded) {
-        for (let fileIndex = 0; fileIndex < group.files.length; fileIndex++) {
-          if (
-            currentLine >= effectiveScrollOffset &&
-            currentLine < effectiveScrollOffset + viewportHeight
-          ) {
-            items.push({ type: 'file', groupIndex, fileIndex });
-          }
-          currentLine++;
-
-          if (currentLine >= effectiveScrollOffset + viewportHeight) {
-            return items;
-          }
-        }
-      }
-    }
-
-    return items;
-  }, [filteredGroups, scrollOffset, viewportHeight, totalLines]);
+    return flatItems.slice(
+      effectiveScrollOffset,
+      effectiveScrollOffset + viewportHeight,
+    );
+  }, [flatItems, scrollOffset, viewportHeight, totalLines]);
 
   const getCurrentFile = () => {
     if (isGroupSelected || filteredGroups.length === 0) return null;
