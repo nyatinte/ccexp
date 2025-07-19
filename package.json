@@ -30,7 +30,7 @@
     "ccexp"
   ],
   "engines": {
-    "node": ">=20.19.3"
+    "node": ">=22.17.1"
   },
   "exports": {
     ".": "./dist/index.js"
