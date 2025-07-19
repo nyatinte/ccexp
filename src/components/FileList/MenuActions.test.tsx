@@ -1,11 +1,11 @@
 import { join } from 'node:path';
+import { delay } from 'es-toolkit/promise';
 import { render } from 'ink-testing-library';
 import type { ClaudeFileInfo } from '../../_types.js';
 import { createClaudeFilePath } from '../../_types.js';
 import { withCachedReadOnlyFixture } from '../../test-fixture-helpers.js';
 import { createTestInteraction } from '../../test-interaction-helpers.js';
 import { keyboard } from '../../test-keyboard-helpers.js';
-import { delay } from '../../test-utils.js';
 import { MenuActions } from './MenuActions/index.js';
 
 if (import.meta.vitest) {

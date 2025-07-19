@@ -1,3 +1,4 @@
+import { clamp } from 'es-toolkit/math';
 import { Box } from 'ink';
 import type React from 'react';
 
@@ -13,7 +14,7 @@ export function SplitPane({
   leftWidth = 50,
 }: SplitPaneProps): React.JSX.Element {
   // Validate percentage range
-  const validLeftWidth = Math.max(0, Math.min(100, leftWidth));
+  const validLeftWidth = clamp(leftWidth, 0, 100);
   const rightWidth = 100 - validLeftWidth;
 
   return (

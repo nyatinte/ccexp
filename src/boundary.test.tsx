@@ -1,4 +1,5 @@
 import { join } from 'node:path';
+import { delay } from 'es-toolkit/promise';
 import { render } from 'ink-testing-library';
 import type { ClaudeFileInfo, FileGroup } from './_types.js';
 import { createClaudeFilePath } from './_types.js';
@@ -7,7 +8,7 @@ import { FileList } from './components/FileList/FileList.js';
 import { withTempFixture } from './test-fixture-helpers.js';
 import { createTestInteraction } from './test-interaction-helpers.js';
 import { typeText } from './test-keyboard-helpers.js';
-import { delay, waitForEffects } from './test-utils.js';
+import { waitForEffects } from './test-utils.js';
 
 if (import.meta.vitest) {
   const { describe, test, expect } = import.meta.vitest;

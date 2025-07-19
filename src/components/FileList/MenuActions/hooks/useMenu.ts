@@ -1,5 +1,6 @@
 import { basename, dirname, join, resolve } from 'node:path';
 import clipboardy from 'clipboardy';
+import { isError } from 'es-toolkit/predicate';
 import { useInput } from 'ink';
 import open from 'open';
 import openEditor from 'open-editor';
@@ -52,7 +53,7 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
       await openEditor([path]);
     } catch (error) {
       // Handle specific error cases
-      if (error instanceof Error) {
+      if (isError(error)) {
         // Command not found error
         if (error.message.includes('ENOENT')) {
           const editor = process.env.EDITOR || process.env.VISUAL || 'not set';
@@ -91,7 +92,7 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
         }, 2000);
       } catch (error) {
         setMessage(
-          `❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `❌ Error: ${isError(error) ? error.message : 'Unknown error'}`,
         );
         messageTimeoutRef.current = setTimeout(() => {
           setMessage('');
@@ -200,7 +201,7 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
             }
             // Other errors (permissions, disk full, etc.)
             throw new Error(
-              `Failed to check destination file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+              `Failed to check destination file: ${isError(error) ? error.message : 'Unknown error'}`,
             );
           }
         },
@@ -246,7 +247,7 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
         }, 2000);
       } catch (error) {
         setMessage(
-          `❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `❌ Error: ${isError(error) ? error.message : 'Unknown error'}`,
         );
 
         // Clear any existing message timeout

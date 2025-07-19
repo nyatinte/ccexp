@@ -2,6 +2,8 @@ import type { Stats } from 'node:fs';
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
+import { truncate } from 'es-toolkit/compat';
+import { isError } from 'es-toolkit/predicate';
 import { FILE_SIZE_LIMITS } from './_consts.ts';
 import type { ScanOptions, SlashCommandInfo } from './_types.ts';
 import { createClaudeFilePath } from './_types.ts';
@@ -55,7 +57,7 @@ export const scanSlashCommands = async (
     return allCommands.sort((a, b) => a.name.localeCompare(b.name));
   } catch (error) {
     throw new Error(
-      `Failed to scan slash commands: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      `Failed to scan slash commands: ${isError(error) ? error.message : 'Unknown error'}`,
     );
   }
 };
@@ -144,7 +146,7 @@ const extractDescription = (content: string): string | undefined => {
   for (const line of lines) {
     const trimmed = line.trim();
     if (trimmed && !trimmed.startsWith('<!--')) {
-      return trimmed.length > 100 ? `${trimmed.slice(0, 97)}...` : trimmed;
+      return truncate(trimmed, { length: 100 });
     }
   }
 

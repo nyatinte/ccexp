@@ -1,3 +1,4 @@
+import { isArray } from 'es-toolkit/compat';
 import { keyboard, typeText } from './test-keyboard-helpers.js';
 import { createNavigation } from './test-navigation.js';
 import { waitForEffects } from './test-utils.js';
@@ -64,7 +65,7 @@ export const createTestInteraction = (
    */
   const verifyContent = (expected: string | string[]) => {
     const output = lastFrame();
-    const expectations = Array.isArray(expected) ? expected : [expected];
+    const expectations = isArray(expected) ? expected : [expected];
 
     for (const exp of expectations) {
       expect(output).toContain(exp);
@@ -76,9 +77,7 @@ export const createTestInteraction = (
    */
   const verifyNotContent = (unexpected: string | string[]) => {
     const output = lastFrame();
-    const unexpectations = Array.isArray(unexpected)
-      ? unexpected
-      : [unexpected];
+    const unexpectations = isArray(unexpected) ? unexpected : [unexpected];
 
     for (const unexp of unexpectations) {
       expect(output).not.toContain(unexp);

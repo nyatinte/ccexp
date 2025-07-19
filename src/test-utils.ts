@@ -1,14 +1,7 @@
 /**
  * Test utilities for async operations
  */
-
-/**
- * Wait for a specified number of milliseconds
- * @param ms - milliseconds to wait
- * @returns Promise that resolves after the specified time
- */
-export const delay = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+import { delay } from 'es-toolkit/promise';
 
 /**
  * Wait for React effects to complete

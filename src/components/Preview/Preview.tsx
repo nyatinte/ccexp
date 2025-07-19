@@ -1,5 +1,6 @@
 import { open, readFile, stat } from 'node:fs/promises';
 import { basename } from 'node:path';
+import { isError } from 'es-toolkit/predicate';
 import { Box, Text } from 'ink';
 import type React from 'react';
 import { useEffect, useState } from 'react';
@@ -54,8 +55,7 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
         }
         setIsLoading(false);
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Unknown error';
+        const errorMessage = isError(err) ? err.message : 'Unknown error';
         setError(`Failed to read file: ${errorMessage}`);
         setIsLoading(false);
       }
