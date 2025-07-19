@@ -126,6 +126,15 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
             Type: {file.type} | Lines: {totalLines} | Size: {content.length}{' '}
             chars
           </Text>
+          {/* User memory description */}
+          {file.type === 'global-md' && (
+            <Box marginTop={1}>
+              <Text color="magenta" italic>
+                📌 This is your private global configuration file that provides
+                instructions to Claude across all projects
+              </Text>
+            </Box>
+          )}
         </Box>
       </Box>
 

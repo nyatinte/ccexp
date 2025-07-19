@@ -49,7 +49,7 @@ export const FileItem = React.memo(function FileItem({
       .with('claude-md', () => '📝')
       .with('claude-local-md', () => '🔒')
       .with('slash-command', () => '⚡')
-      .with('global-md', () => '🌐')
+      .with('global-md', () => '🧠')
       .with('unknown', () => '📄')
       .exhaustive();
   };
