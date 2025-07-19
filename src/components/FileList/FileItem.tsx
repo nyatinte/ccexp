@@ -55,7 +55,7 @@ export const FileItem = React.memo(function FileItem({
   };
 
   // Get filename and parent directory
-  const fileName = basename(file.path);
+  const fileName = basename(file.path).replace(/\t/g, ' '); // Replace tabs with spaces for display
   const dirPath = dirname(file.path);
   const parentDir = basename(dirPath);
 
