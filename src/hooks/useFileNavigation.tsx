@@ -20,7 +20,6 @@ const convertSlashCommandToFileInfo = (
   type: 'slash-command' as const,
   size: 0, // No size information for slash commands
   lastModified: command.lastModified,
-  projectInfo: undefined,
   commands: [
     {
       name: command.name,
@@ -97,10 +96,10 @@ export function useFileNavigation(
 
         // Create FileGroup array (in predefined order)
         const orderedTypes: ClaudeFileType[] = [
+          'global-md',
           'claude-md',
           'claude-local-md',
           'slash-command',
-          'global-md',
           'unknown',
         ];
         const groups: FileGroup[] = orderedTypes

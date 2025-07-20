@@ -1,5 +1,6 @@
 import { Box, Text } from 'ink';
 import React from 'react';
+import { theme } from '../../../styles/theme.js';
 import type { MenuAction } from './types.js';
 
 type MenuItemProps = {
@@ -7,17 +8,26 @@ type MenuItemProps = {
   readonly isSelected: boolean;
 };
 
-const MenuItemDisplay = ({ action, isSelected }: MenuItemProps) => (
-  <Box>
-    <Text
-      {...(isSelected && {
-        backgroundColor: 'blue',
-        color: 'white',
-      })}
-    >
-      {isSelected ? '► ' : '  '}[{action.key.toUpperCase()}] {action.label}
-    </Text>
-  </Box>
-);
+function MenuItemDisplay({
+  action,
+  isSelected,
+}: MenuItemProps): React.JSX.Element {
+  return (
+    <Box>
+      {isSelected ? (
+        <Text
+          backgroundColor={theme.selection.backgroundColor}
+          color={theme.selection.color}
+        >
+          ► [{action.key.toUpperCase()}] {action.label}
+        </Text>
+      ) : (
+        <Text>
+          {'  '}[{action.key.toUpperCase()}] {action.label}
+        </Text>
+      )}
+    </Box>
+  );
+}
 
 export const MenuItem = React.memo(MenuItemDisplay);
