@@ -25,7 +25,7 @@ vi.mock('open', () => ({
 // Mock process.exit to prevent test runner from exiting
 const originalExit = process.exit;
 // @ts-ignore - Mocking process.exit
-process.exit = vi.fn((code?: number) => {
+process.exit = vi.fn((_code?: number) => {
   // Exit call intercepted, code captured
   // Don't actually exit during tests
 }) as typeof process.exit;

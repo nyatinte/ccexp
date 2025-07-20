@@ -25,7 +25,7 @@ vi.mock('open', () => ({
 
 // Mock process.exit to prevent test termination
 vi.spyOn(process, 'exit').mockImplementation(
-  (code?: string | number | null) => {
+  (_code?: string | number | null) => {
     // process.exit called, preventing actual exit
     return undefined as never;
   },
@@ -94,7 +94,7 @@ if (import.meta.vitest) {
 
         // Check what's the initial state
         const clearSearchOutput = interaction.assertOutput();
-        const hasInitialSelection = clearSearchOutput.includes('►');
+        const _hasInitialSelection = clearSearchOutput.includes('►');
         // Initial state has selection marker
 
         // Navigate to PROJECT group first
