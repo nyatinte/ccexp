@@ -17,7 +17,6 @@ export const FileItem = React.memo(function FileItem({
   isSelected,
   isFocused,
 }: FileItemProps): React.JSX.Element {
-  // File type badge color and label
   const getFileBadge = (file: ClaudeFileInfo) => {
     return match(file.type)
       .with('claude-md', () => ({
@@ -43,7 +42,6 @@ export const FileItem = React.memo(function FileItem({
       .exhaustive();
   };
 
-  // File type icon
   const getFileIcon = (file: ClaudeFileInfo): string => {
     return match(file.type)
       .with('claude-md', () => '📝')
@@ -54,18 +52,15 @@ export const FileItem = React.memo(function FileItem({
       .exhaustive();
   };
 
-  // Get filename and parent directory
-  const fileName = basename(file.path).replace(/\t/g, ' '); // Replace tabs with spaces for display
+  const fileName = basename(file.path).replace(/\t/g, ' ');
   const dirPath = dirname(file.path);
   const parentDir = basename(dirPath);
 
-  // Display name (including parent directory)
-  // Special handling for home directory
   const displayName =
     file.type === 'global-md'
       ? `~/.claude/${fileName}`
       : file.type === 'slash-command'
-        ? fileName.replace('.md', '') // Remove .md for commands
+        ? fileName.replace('.md', '')
         : `${parentDir}/${fileName}`;
 
   const prefix = isFocused ? '► ' : '  ';

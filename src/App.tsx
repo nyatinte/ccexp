@@ -1,6 +1,7 @@
 import { StatusMessage } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import type React from 'react';
+import { useMemo } from 'react';
 import type { CliOptions } from './_types.js';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
 import { FileList } from './components/FileList/index.js';
@@ -36,6 +37,19 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
     selectFile,
     toggleGroup,
   } = useFileNavigation({ path: cliOptions.path });
+
+  const splitPaneConfig = useMemo(() => {
+    const config =
+      typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
+        ? SPLIT_PANE_WIDTH_TEST
+        : SPLIT_PANE_WIDTH;
+    return {
+      leftWidth: config.LEFT,
+      minLeftWidth: config.MIN_LEFT,
+      maxLeftWidth: config.MAX_LEFT,
+      dynamicWidth: true,
+    };
+  }, []);
 
   if (error) {
     return (
@@ -95,19 +109,10 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
                 <Preview file={selectedFile} />
               </ErrorBoundary>
             }
-            {...(() => {
-              const config =
-                typeof process !== 'undefined' &&
-                process.env.NODE_ENV === 'test'
-                  ? SPLIT_PANE_WIDTH_TEST
-                  : SPLIT_PANE_WIDTH;
-              return {
-                leftWidth: config.LEFT,
-                minLeftWidth: config.MIN_LEFT,
-                maxLeftWidth: config.MAX_LEFT,
-                dynamicWidth: true,
-              };
-            })()}
+            leftWidth={splitPaneConfig.leftWidth}
+            minLeftWidth={splitPaneConfig.minLeftWidth}
+            maxLeftWidth={splitPaneConfig.maxLeftWidth}
+            dynamicWidth={splitPaneConfig.dynamicWidth}
           />
         </Box>
       </Box>
