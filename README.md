@@ -17,6 +17,9 @@
   <a href="https://github.com/nyatinte/ccexp">
     <img src="https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg" alt="node version">
   </a>
+  <a href="https://github.com/hesreallyhim/awesome-claude-code">
+    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code">
+  </a>
 </div>
 
 ## Overview

@@ -1,3 +1,4 @@
+import { isError } from 'es-toolkit/predicate';
 import { Box, Text } from 'ink';
 import type React from 'react';
 import { Component } from 'react';
@@ -23,10 +24,9 @@ export class ErrorBoundary extends Component<
   }
 
   static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
-    const errorObject =
-      error instanceof Error
-        ? error
-        : new Error(String(error || 'Unknown error'));
+    const errorObject = isError(error)
+      ? error
+      : new Error(String(error || 'Unknown error'));
     return { hasError: true, error: errorObject };
   }
 

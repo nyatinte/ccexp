@@ -1,3 +1,4 @@
+import { clamp } from 'es-toolkit/math';
 import { Box } from 'ink';
 import type React from 'react';
 
@@ -21,13 +22,10 @@ export function SplitPane({
   let adjustedLeftWidth = leftWidth;
 
   if (dynamicWidth) {
-    adjustedLeftWidth = Math.max(
-      minLeftWidth,
-      Math.min(maxLeftWidth, leftWidth),
-    );
+    adjustedLeftWidth = clamp(leftWidth, minLeftWidth, maxLeftWidth);
   }
 
-  const validLeftWidth = Math.max(0, Math.min(100, adjustedLeftWidth));
+  const validLeftWidth = clamp(adjustedLeftWidth, 0, 100);
   const rightWidth = 100 - validLeftWidth;
 
   return (
