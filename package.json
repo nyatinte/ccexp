@@ -1,17 +1,17 @@
 {
-  "name": "claude-code-explorer",
+  "name": "ccexp",
   "type": "module",
-  "version": "1.1.1",
+  "version": "3.0.0",
   "description": "CLI tool for exploring and managing Claude Code settings and slash commands",
   "author": "nyatinte <takumi.062757@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nyatinte/claude-code-explorer.git"
+    "url": "https://github.com/nyatinte/ccexp.git"
   },
-  "homepage": "https://github.com/nyatinte/claude-code-explorer#readme",
+  "homepage": "https://github.com/nyatinte/ccexp#readme",
   "bugs": {
-    "url": "https://github.com/nyatinte/claude-code-explorer/issues"
+    "url": "https://github.com/nyatinte/ccexp/issues"
   },
   "keywords": [
     "claude",
@@ -27,10 +27,10 @@
     "claude-config",
     "slash-commands",
     "developer-tools",
-    "code-explorer"
+    "ccexp"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19.3"
   },
   "exports": {
     ".": "./dist/index.js"
@@ -48,40 +48,40 @@
     "dev": "bun run ./src/index.tsx --watch",
     "test": "vitest run",
     "test:watch": "vitest --watch",
-    "typecheck": "tsc --noEmit",
-    "check": "biome check .",
-    "check:write": "biome check --config-path='biome.jsonc' --write .",
-    "check:unsafe": "biome check --config-path='biome.jsonc' --write --unsafe .",
+    "typecheck": "tsgo --noEmit",
+    "check": "biome check --config-path=\"$(pwd)/biome.jsonc\" .",
+    "check:write": "biome check --config-path=\"$(pwd)/biome.jsonc\" --write .",
+    "check:unsafe": "biome check --config-path=\"$(pwd)/biome.jsonc\" --write --unsafe .",
     "knip": "knip",
     "ci": "concurrently --kill-others-on-fail --success all -n \"build,check,typecheck,knip,test\" -c \"cyan,green,yellow,magenta,blue\" \"bun run build\" \"bun run check\" \"bun run typecheck\" \"bun run knip\" \"bun run test\"",
     "prepack": "bun run build && clean-pkg-json",
     "release": "bun run ci && bumpp --no-verify"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.0.6",
-    "@inkjs/ui": "^2.0.0",
+    "@biomejs/biome": "2.1.1",
     "@types/bun": "^1.2.18",
     "@types/marked-terminal": "^6.1.1",
     "@types/react": "^19.1.8",
+    "@typescript/native-preview": "7.0.0-dev.20250712.1",
     "bumpp": "^10.2.0",
     "clean-pkg-json": "^1.3.0",
     "concurrently": "^9.2.0",
     "fs-fixture": "^2.8.1",
     "ink-testing-library": "^4.0.0",
     "knip": "^5.61.3",
-    "lefthook": "^1.11.14",
+    "lefthook": "^1.12.2",
     "publint": "^0.3.12",
-    "ts-pattern": "^5.5.0",
     "tsdown": "^0.12.9",
-    "typescript": "^5.7.2",
     "vitest": "^3.2.4"
   },
   "overrides": {
     "vite": "npm:rolldown-vite@latest"
   },
   "dependencies": {
+    "@inkjs/ui": "^2.0.0",
     "clipboardy": "^4.0.0",
     "commander": "^14.0.0",
+    "es-toolkit": "^1.39.7",
     "fdir": "^6.4.6",
     "ink": "^6.0.1",
     "ink-big-text": "^2.0.0",
@@ -91,6 +91,7 @@
     "open": "^10.1.2",
     "open-editor": "^5.1.0",
     "react": "^19.1.0",
-    "zod": "^3.25.76"
+    "ts-pattern": "^5.7.1",
+    "zod": "^4.0.5"
   }
 }

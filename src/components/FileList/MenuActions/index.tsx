@@ -6,6 +6,7 @@ import { Header } from './Header.js';
 import { useMenu } from './hooks/useMenu.js';
 import { MenuList } from './MenuList.js';
 import { StatusMessage } from './StatusMessage.js';
+import { ThemedConfirmInput } from './ThemedConfirmInput.js';
 
 type MenuActionsProps = {
   readonly file: ClaudeFileInfo;
@@ -16,7 +17,16 @@ export function MenuActions({
   file,
   onClose,
 }: MenuActionsProps): React.JSX.Element {
-  const { actions, selectedIndex, isExecuting, message } = useMenu({
+  const {
+    actions,
+    selectedIndex,
+    isExecuting,
+    message,
+    isConfirming,
+    confirmMessage,
+    handleConfirm,
+    handleCancel,
+  } = useMenu({
     file,
     onClose,
   });
@@ -25,7 +35,15 @@ export function MenuActions({
     <Box flexDirection="column" borderStyle="single" padding={1}>
       <Header filePath={file.path} />
       <StatusMessage isExecuting={isExecuting} message={message} />
-      <MenuList actions={actions} selectedIndex={selectedIndex} />
+      {isConfirming ? (
+        <ThemedConfirmInput
+          message={confirmMessage}
+          onConfirm={handleConfirm}
+          onCancel={handleCancel}
+        />
+      ) : (
+        <MenuList actions={actions} selectedIndex={selectedIndex} />
+      )}
       <Footer />
     </Box>
   );

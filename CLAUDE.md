@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-**claude-code-explorer** - React Ink-based CLI tool for exploring and managing Claude Code settings and slash commands. The tool provides an interactive terminal UI for file navigation, content preview, and file management operations.
+**ccexp** (short for claude-code-explorer) - React Ink-based CLI tool for exploring and managing Claude Code settings and slash commands. The tool provides an interactive terminal UI for file navigation, content preview, and file management operations. The package was renamed from `claude-code-explorer` to `ccexp` for brevity and easier command-line usage.
 
 ## Core Commands
 
@@ -105,6 +105,8 @@ src/
 ├── boundary.test.tsx  # Error boundary integration tests
 ├── e2e.test.tsx       # End-to-end tests
 ├── vitest.d.ts        # Vitest type definitions
+├── styles/
+│   └── theme.ts       # UI color theme constants
 ├── App.tsx            # Main React application
 └── index.tsx          # Entry point with React Ink render
 ```
@@ -124,17 +126,18 @@ src/
    }
    ```
 
-2. **Branded Types + Runtime Validation**: Compile-time & runtime type safety
+2. **Simplified Type System**: Clean types with runtime validation where needed
 
    ```typescript
-   // Type-level branding
-   export type ClaudeFilePath = string & { readonly [ClaudeFilePathBrand]: true };
-   
-   // Runtime validation
-   export const ClaudeFilePathSchema = z.string().refine(/* validation */);
+   // Simple type alias approach
+   export type ClaudeFilePath = string;
+
+   // Runtime validation helper
    export const createClaudeFilePath = (path: string): ClaudeFilePath => {
-     ClaudeFilePathSchema.parse(path);
-     return path as ClaudeFilePath;
+     if (path.length === 0) {
+       throw new Error('Path must not be empty');
+     }
+     return path;
    };
    ```
 
@@ -144,11 +147,11 @@ src/
    export function FileList({ files, onFileSelect }: FileListProps) {
      const [currentIndex, setCurrentIndex] = useState(0);
      const [isMenuMode, setIsMenuMode] = useState(false);
-     
+
      useInput((input, key) => {
        // Handle keyboard navigation
      }, { isActive: !isMenuMode });
-     
+
      return (
        <Box flexDirection="column">
          {/* File list UI */}
@@ -219,7 +222,7 @@ src/
   - `slash-command-scanner.ts` → Slash command discovery
   - `default-scanner.ts` → Combined scanner for all file types
   - `fast-scanner.ts` → High-performance directory traversal
-- **Type System**: `_types.ts` → branded types + zod schemas for data integrity  
+- **Type System**: `_types.ts` → branded types + zod schemas for data integrity
 - **React State**: `useFileNavigation` hook → file loading and selection state
 - **Components**: React Ink components → interactive terminal UI
 - **File Operations**: clipboard, file opening via system integrations
@@ -230,7 +233,7 @@ src/
 The tool automatically discovers these file types:
 
 - **CLAUDE.md** → Project-level configuration (most common)
-- **CLAUDE.local.md** → Local overrides (gitignored)  
+- **CLAUDE.local.md** → Local overrides (gitignored)
 - **~/.claude/CLAUDE.md** → Global user configuration
 - **.claude/commands/**/*.md** → Slash command definitions
 
@@ -359,7 +362,7 @@ This configuration enables:
 # Complete pipeline (run in sequence)
 bun run typecheck              # TypeScript: 0 errors required
 bun run check:write           # Biome: Auto-fix + 0 errors required
-bun run knip                  # Dependency cleanup: 0 unused items required  
+bun run knip                  # Dependency cleanup: 0 unused items required
 bun run test                  # Tests: 100% pass rate required
 bun run build                 # Build: Must complete without errors
 ```
@@ -382,7 +385,7 @@ bun run ci                    # Runs build + check + typecheck + knip + test in 
 
 - **No shortcuts**: Never skip quality checks or claim completion with failing tests
 - **No flag shortcuts**: NEVER use `-n` or similar flags to skip quality checks
-- **Fix, don't disable**: Resolve lint errors rather than adding ignore comments  
+- **Fix, don't disable**: Resolve lint errors rather than adding ignore comments
 - **Test coverage**: InSource tests required for all utility functions
 - **Error handling**: Graceful degradation with user-friendly error messages
 - **Dependency management**: Keep dependencies clean - remove unused imports and exports immediately
@@ -406,6 +409,17 @@ bun run ci                    # Runs build + check + typecheck + knip + test in 
 - Use `bun run test:watch` during development
 - Run `bun run check:write` frequently to auto-fix formatting
 - Verify with `bun run ci` before considering task complete
+
+## Git Hooks
+
+The project uses Lefthook for pre-commit hooks:
+
+```bash
+# Automatically runs on git commit:
+bun run ci  # Full quality pipeline
+```
+
+This ensures all code meets quality standards before committing.
 
 ## Release Management
 
@@ -448,7 +462,24 @@ Follow [Semantic Versioning](https://semver.org/):
 Before first release:
 
 1. Add `NPM_TOKEN` to GitHub repository secrets
-2. Verify package name availability: `npm view claude-code-explorer`
+2. Verify package name availability: `npm view ccexp`
 3. Ensure npm account has publishing permissions
 
 See `VERSIONING.md` for detailed versioning strategy and commit message conventions.
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration:
+
+### CI Workflow (`.github/workflows/ci.yml`)
+
+Runs on every push and pull request with the following jobs:
+
+1. **Build** - Verifies the project builds correctly
+2. **Lint & Format** - Ensures code style compliance with Biome
+3. **TypeScript Check** - Validates type safety
+4. **Knip** - Checks for unused dependencies
+5. **Tests** - Runs all unit and integration tests
+6. **Preview Package** - Publishes preview packages for PRs via `pkg-pr-new`
+
+All jobs run in parallel for efficiency, with PR preview packages only published after all checks pass.

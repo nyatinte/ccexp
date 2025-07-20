@@ -1,16 +1,10 @@
 import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { match, P } from 'ts-pattern';
-import { z } from 'zod/v4';
-import {
-  ERROR_MESSAGES,
-  FRAMEWORK_PATTERNS,
-  PACKAGE_MANAGER_COMMANDS,
-  PROJECT_INDICATORS,
-  SCRIPT_PATTERNS,
-} from './_consts.ts';
-import type { ClaudeFilePath, ClaudeFileType, ProjectInfo } from './_types.ts';
+import type { ClaudeFilePath, ClaudeFileType } from './_types.ts';
 import { createClaudeFilePath } from './_types.ts';
+
+const HOME_DIR = homedir();
 
 // File path utilities
 export const parseSlashCommandName = (fileName: string): string => {
@@ -19,7 +13,7 @@ export const parseSlashCommandName = (fileName: string): string => {
 
 const normalizeFilePath = (filePath: string): ClaudeFilePath => {
   const normalized = filePath.startsWith('~')
-    ? filePath.replace('~', homedir())
+    ? filePath.replace('~', HOME_DIR)
     : filePath;
 
   try {
@@ -30,7 +24,7 @@ const normalizeFilePath = (filePath: string): ClaudeFilePath => {
 };
 
 export const getFileScope = (filePath: string): 'project' | 'user' => {
-  return filePath.includes(homedir()) ? 'user' : 'project';
+  return filePath.includes(HOME_DIR) ? 'user' : 'project';
 };
 
 // File type detection
@@ -39,12 +33,12 @@ export const detectClaudeFileType = (filePath: string): ClaudeFileType => {
   const dirPath = dirname(filePath);
 
   return match([fileName, dirPath])
-    .with(['CLAUDE.md', P._], () => 'claude-md' as const)
-    .with(['CLAUDE.local.md', P._], () => 'claude-local-md' as const)
     .with(
-      [P._, P.when((dir) => dir.includes('.claude/CLAUDE.md'))],
+      ['CLAUDE.md', P.when((dir) => dir === join(HOME_DIR, '.claude'))],
       () => 'global-md' as const,
     )
+    .with(['CLAUDE.md', P._], () => 'claude-md' as const)
+    .with(['CLAUDE.local.md', P._], () => 'claude-local-md' as const)
     .with(
       [
         P.when((name) => name.endsWith('.md')),
@@ -102,89 +96,6 @@ export const extractCommandsFromContent = (
   return commands;
 };
 
-// Zod schemas for external data validation
-const PackageJsonSchema = z
-  .object({
-    name: z.string().optional(),
-    version: z.string().optional(),
-    dependencies: z.record(z.string(), z.string()).optional(),
-    devDependencies: z.record(z.string(), z.string()).optional(),
-    scripts: z.record(z.string(), z.string()).optional(),
-  })
-  .passthrough();
-
-// Project analysis
-export const analyzeProjectInfo = async (
-  directoryPath: string,
-): Promise<ProjectInfo> => {
-  try {
-    const { readFile } = await import('node:fs/promises');
-    const { existsSync } = await import('node:fs');
-
-    let projectInfo: ProjectInfo = {};
-
-    // Check for package.json
-    const packageJsonPath = join(
-      directoryPath,
-      PROJECT_INDICATORS.PACKAGE_JSON,
-    );
-    if (existsSync(packageJsonPath)) {
-      try {
-        const packageContent = await readFile(packageJsonPath, 'utf-8');
-        const rawPackageJson = JSON.parse(packageContent);
-        const packageJson = PackageJsonSchema.parse(rawPackageJson);
-
-        projectInfo = {
-          ...projectInfo,
-          language: 'JavaScript/TypeScript',
-          dependencies: Object.keys(packageJson.dependencies || {}),
-        };
-
-        if (packageJson.scripts) {
-          projectInfo = {
-            ...projectInfo,
-            buildCommands: Object.keys(packageJson.scripts)
-              .filter((script) => script.includes(SCRIPT_PATTERNS.BUILD))
-              .map((script) => `${PACKAGE_MANAGER_COMMANDS.NPM_RUN} ${script}`),
-            testCommands: Object.keys(packageJson.scripts)
-              .filter((script) => script.includes(SCRIPT_PATTERNS.TEST))
-              .map((script) => `${PACKAGE_MANAGER_COMMANDS.NPM_RUN} ${script}`),
-          };
-        }
-
-        // Detect framework
-        for (const [framework, patterns] of Object.entries(
-          FRAMEWORK_PATTERNS,
-        )) {
-          const hasFramework = patterns.some((pattern) => {
-            if (pattern.endsWith('/')) {
-              return existsSync(join(directoryPath, pattern));
-            }
-            return (
-              existsSync(join(directoryPath, pattern)) ||
-              projectInfo.dependencies?.includes(pattern.toLowerCase())
-            );
-          });
-
-          if (hasFramework) {
-            projectInfo = { ...projectInfo, framework };
-            break;
-          }
-        }
-      } catch (error) {
-        // Log parsing errors in debug mode
-        console.debug(ERROR_MESSAGES.PACKAGE_JSON_PARSE_ERROR, error);
-        projectInfo = { ...projectInfo, isIncomplete: true };
-      }
-    }
-
-    return projectInfo;
-  } catch (error) {
-    console.debug('Failed to analyze project info:', error);
-    return { isIncomplete: true };
-  }
-};
-
 // File content utilities
 export const isBinaryFile = async (filePath: string): Promise<boolean> => {
   try {
@@ -208,11 +119,9 @@ export const isBinaryFile = async (filePath: string): Promise<boolean> => {
 // InSource tests
 if (import.meta.vitest != null) {
   const { describe, test, expect } = import.meta.vitest;
-  const {
-    createClaudeProjectFixture,
-    createComplexProjectFixture,
-    testWithFixture,
-  } = await import('./test-fixture-helpers.js');
+  const { createClaudeProjectFixture, testWithFixture } = await import(
+    './test-fixture-helpers.js'
+  );
 
   describe('parseSlashCommandName', () => {
     test('should convert file path to command name', () => {
@@ -259,6 +168,11 @@ if (import.meta.vitest != null) {
       );
     });
 
+    test('should detect global CLAUDE.md files', () => {
+      const globalPath = join(HOME_DIR, '.claude', 'CLAUDE.md');
+      expect(detectClaudeFileType(globalPath)).toBe('global-md');
+    });
+
     test('should detect slash command files', () => {
       expect(detectClaudeFileType('/project/.claude/commands/deploy.md')).toBe(
         'slash-command',
@@ -289,8 +203,7 @@ if (import.meta.vitest != null) {
 
   describe('getFileScope', () => {
     test('should detect user scope for home directory files', () => {
-      const homePath = homedir();
-      expect(getFileScope(`${homePath}/.claude/CLAUDE.md`)).toBe('user');
+      expect(getFileScope(`${HOME_DIR}/.claude/CLAUDE.md`)).toBe('user');
     });
 
     test('should detect project scope for non-home files', () => {
@@ -300,10 +213,9 @@ if (import.meta.vitest != null) {
 
   describe('normalizeFilePath', () => {
     test('should expand ~ to home directory', () => {
-      const homePath = homedir();
-      expect(normalizeFilePath('~/test.md')).toBe(`${homePath}/test.md`);
+      expect(normalizeFilePath('~/test.md')).toBe(`${HOME_DIR}/test.md`);
       expect(normalizeFilePath('~/.claude/CLAUDE.md')).toBe(
-        `${homePath}/.claude/CLAUDE.md`,
+        `${HOME_DIR}/.claude/CLAUDE.md`,
       );
     });
 
@@ -407,159 +319,6 @@ if (import.meta.vitest != null) {
             // Restore permissions for cleanup
             await chmod(filePath, 0o644);
           }
-        },
-      );
-    });
-  });
-
-  describe('analyzeProjectInfo', () => {
-    test('should analyze JavaScript/TypeScript project', async () => {
-      await using fixture = await createComplexProjectFixture();
-
-      const projectInfo = await analyzeProjectInfo(fixture.getPath('my-app'));
-
-      expect(projectInfo.language).toBe('JavaScript/TypeScript');
-      expect(projectInfo.dependencies).toContain('react');
-      expect(projectInfo.dependencies).toContain('typescript');
-      expect(projectInfo.buildCommands).toContain('npm run build');
-      expect(projectInfo.testCommands).toContain('npm run test');
-    });
-
-    test('should detect framework from package.json', async () => {
-      await testWithFixture(
-        {
-          nextjs: {
-            'package.json': JSON.stringify({
-              name: 'nextjs-app',
-              dependencies: {
-                next: '^14.0.0',
-                react: '^18.0.0',
-              },
-              scripts: {
-                build: 'next build',
-                test: 'jest',
-              },
-            }),
-            'next.config.js':
-              '/** @type {import("next").NextConfig} */\nmodule.exports = {}',
-          },
-          react: {
-            'package.json': JSON.stringify({
-              name: 'react-app',
-              dependencies: {
-                react: '^18.0.0',
-                'react-dom': '^18.0.0',
-              },
-            }),
-            src: {
-              'App.tsx': 'export const App = () => <div>Hello</div>',
-            },
-          },
-        },
-        async (f) => {
-          const nextjsInfo = await analyzeProjectInfo(f.getPath('nextjs'));
-          expect(nextjsInfo.framework).toBe('Next.js');
-
-          const reactInfo = await analyzeProjectInfo(f.getPath('react'));
-          expect(reactInfo.framework).toBe('React');
-        },
-      );
-    });
-
-    test('should handle missing package.json', async () => {
-      await testWithFixture(
-        {
-          'no-package': {
-            'README.md': '# Project without package.json',
-          },
-        },
-        async (f) => {
-          const projectInfo = await analyzeProjectInfo(f.getPath('no-package'));
-          expect(projectInfo.language).toBeUndefined();
-          expect(projectInfo.dependencies).toBeUndefined();
-          expect(projectInfo.buildCommands).toBeUndefined();
-        },
-      );
-    });
-
-    test('should handle invalid package.json gracefully', async () => {
-      await testWithFixture(
-        {
-          'invalid-package': {
-            'package.json': '{ invalid json }',
-          },
-        },
-        async (f) => {
-          const projectInfo = await analyzeProjectInfo(
-            f.getPath('invalid-package'),
-          );
-          expect(projectInfo.isIncomplete).toBe(true);
-        },
-      );
-    });
-
-    test('should detect various build and test commands', async () => {
-      await testWithFixture(
-        {
-          'multi-scripts': {
-            'package.json': JSON.stringify({
-              scripts: {
-                build: 'webpack',
-                'build:prod': 'webpack --mode production',
-                'build:dev': 'webpack --mode development',
-                test: 'jest',
-                'test:watch': 'jest --watch',
-                'test:coverage': 'jest --coverage',
-              },
-            }),
-          },
-        },
-        async (f) => {
-          const projectInfo = await analyzeProjectInfo(
-            f.getPath('multi-scripts'),
-          );
-          expect(projectInfo.buildCommands).toHaveLength(3);
-          expect(projectInfo.buildCommands).toContain('npm run build');
-          expect(projectInfo.buildCommands).toContain('npm run build:prod');
-          expect(projectInfo.buildCommands).toContain('npm run build:dev');
-          expect(projectInfo.testCommands).toHaveLength(3);
-          expect(projectInfo.testCommands).toContain('npm run test');
-          expect(projectInfo.testCommands).toContain('npm run test:watch');
-          expect(projectInfo.testCommands).toContain('npm run test:coverage');
-        },
-      );
-    });
-
-    test('should handle directory read errors gracefully', async () => {
-      const result = await analyzeProjectInfo('/non/existent/directory');
-      // analyzeProjectInfo returns empty object for missing directories
-      expect(result.language).toBeUndefined();
-      expect(result.dependencies).toBeUndefined();
-      expect(result.buildCommands).toBeUndefined();
-    });
-
-    test('should handle malformed package.json with extra properties', async () => {
-      await testWithFixture(
-        {
-          'edge-case': {
-            'package.json': JSON.stringify({
-              name: 'edge-case-project',
-              unknownField: 'should be ignored',
-              dependencies: {
-                react: '^18.0.0',
-              },
-              scripts: {
-                build: 'webpack',
-              },
-            }),
-          },
-        },
-        async (f) => {
-          const projectInfo = await analyzeProjectInfo(f.getPath('edge-case'));
-          // Should still parse successfully due to passthrough()
-          expect(projectInfo.language).toBe('JavaScript/TypeScript');
-          expect(projectInfo.dependencies).toContain('react');
-          expect(projectInfo.buildCommands).toContain('npm run build');
         },
       );
     });

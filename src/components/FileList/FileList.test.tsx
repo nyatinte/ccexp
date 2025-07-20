@@ -209,13 +209,13 @@ if (import.meta.vitest) {
             expect(frame).toContain('📝'); // claude-md
             expect(frame).toContain('🔒'); // claude-local-md
             expect(frame).toContain('⚡'); // slash-command
-            expect(frame).toContain('🌐'); // global-md
+            expect(frame).toContain('🧠'); // global-md
 
             // Badges
             expect(frame).toContain('PROJECT');
             expect(frame).toContain('LOCAL');
             expect(frame).toContain('COMMAND');
-            expect(frame).toContain('GLOBAL');
+            expect(frame).toContain('USER MEMORY');
           },
         );
       });

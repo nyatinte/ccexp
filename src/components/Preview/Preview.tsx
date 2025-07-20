@@ -5,6 +5,7 @@ import type React from 'react';
 import { useEffect, useState } from 'react';
 import type { ClaudeFileInfo } from '../../_types.js';
 import { isBinaryFile } from '../../_utils.js';
+import { theme } from '../../styles/theme.js';
 import { MarkdownPreview } from './MarkdownPreview.js';
 
 type PreviewProps = {
@@ -92,7 +93,7 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
   if (error) {
     return (
       <Box flexDirection="column" height="100%" padding={1}>
-        <Text color="red">Error: {error}</Text>
+        <Text color={theme.status.error}>Error: {error}</Text>
       </Box>
     );
   }
@@ -121,10 +122,19 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
         <Box flexDirection="column">
           <Text bold>{fileName}</Text>
           <Text dimColor>{file.path}</Text>
-          <Text color="cyan">
+          <Text color={theme.status.info}>
             Type: {file.type} | Lines: {totalLines} | Size: {content.length}{' '}
             chars
           </Text>
+          {/* User memory description */}
+          {file.type === 'global-md' && (
+            <Box marginTop={1}>
+              <Text color="magenta" italic>
+                📌 This is your private global configuration file that provides
+                instructions to Claude across all projects
+              </Text>
+            </Box>
+          )}
         </Box>
       </Box>
 

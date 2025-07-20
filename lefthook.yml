@@ -1,4 +1,4 @@
-# Lefthook configuration for claude-code-explorer
+# Lefthook configuration for ccexp
 # https://github.com/evilmartians/lefthook
 
 pre-commit:
