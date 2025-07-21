@@ -25,11 +25,9 @@ vi.mock('open', () => ({
 }));
 
 // Mock process.exit to prevent test termination
-const _originalProcessExit = process.exit;
 vi.spyOn(process, 'exit').mockImplementation(
-  (code?: string | number | null) => {
-    console.log(`process.exit called with code: ${code}`);
-    // Don't actually exit in tests
+  (_code?: string | number | null) => {
+    // process.exit called, preventing actual exit
     return undefined as never;
   },
 );
@@ -57,7 +55,7 @@ if (import.meta.vitest) {
         await waitForEffects();
 
         // Debug: Print initial state
-        console.log('Initial state:', interaction.getOutput());
+        // Initial state captured
 
         // Verify initial state - files are loaded
         interaction.verifyContent('Claude Files'); // Don't check exact count as it may vary
@@ -67,7 +65,7 @@ if (import.meta.vitest) {
 
         // WORKAROUND: The initial state might be problematic
         // Let's try to get into a known good state first
-        console.log('Getting into a known navigation state...');
+        // Getting into a known navigation state
 
         // Navigate up first to potentially reset state
         await interaction.navigateUp();
@@ -76,14 +74,14 @@ if (import.meta.vitest) {
         // Now navigate down to PROJECT group
         await interaction.navigateDown();
         await waitForEffects();
-        console.log('Should be on PROJECT group now');
+        // Should be on PROJECT group now
 
         // Search for "local"
         await interaction.search('local');
         await waitForEffects();
 
         // Debug: Print after search
-        console.log('After search "local":', interaction.getOutput());
+        // After search "local"
 
         // Verify search filters results
         interaction.verifyContent(['CLAUDE.local.md']);
@@ -93,23 +91,21 @@ if (import.meta.vitest) {
         await waitForEffects();
 
         // Debug: Print after clear search
-        console.log('After clear search:', interaction.getOutput());
+        // After clear search
 
         // Check what's the initial state
         const clearSearchOutput = interaction.assertOutput();
-        const hasInitialSelection = clearSearchOutput.includes('►');
-        console.log('Initial state has selection marker:', hasInitialSelection);
+        const _hasInitialSelection = clearSearchOutput.includes('►');
+        // Initial state has selection marker
 
         // Navigate to PROJECT group first
         // Based on the code, initial state has isGroupSelected=false and indices at 0
         // So we might already be "on" a file but without focus indicator
-        console.log(
-          'Initial navigation - trying to get to a selectable state...',
-        );
+        // Initial navigation - trying to get to a selectable state
 
         // Skip the complex navigation logic for now
         // Instead, let's directly test what we can
-        console.log('Simplified test approach - skipping menu for now');
+        // Simplified test approach - skipping menu for now
 
         // Just verify we can navigate and see files
         await interaction.navigateDown();
@@ -121,9 +117,7 @@ if (import.meta.vitest) {
         // We'll need to fix the focus/selection issue in FileList component separately
 
         // Skip menu verification and clipboard test due to focus issues
-        console.log(
-          'Test completed with navigation only - menu/clipboard tests skipped due to focus issues',
-        );
+        // Test completed with navigation only - menu/clipboard tests skipped due to focus issues
 
         unmount();
       });
