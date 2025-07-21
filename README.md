@@ -73,7 +73,6 @@ npx ccexp@latest
 pnpm dlx ccexp@latest
 ```
 
-
 ### Global Installation
 
 For frequent use, install globally:
@@ -84,7 +83,6 @@ npm install -g ccexp
 
 # Bun
 bun install -g ccexp
-
 
 # pnpm
 pnpm add -g ccexp
@@ -150,19 +148,6 @@ ccexp                      # Current directory
 ccexp --path ~/workspace   # Specific directory
 ```
 
-### Development Mode
-
-```bash
-bun run start      # Run with hot reload
-bun run dev        # Development mode with watch
-```
-
-### Building
-
-```bash
-bun run build      # Build for production
-```
-
 ## Keyboard Shortcuts
 
 - **↑/↓** - Navigate file list
@@ -171,60 +156,19 @@ bun run build      # Build for production
 - **Tab** - Switch between panes
 - **/** - Focus search input
 - **c** - Copy file content (in menu)
-- **p** - Copy file path (in menu)
+- **p** - Copy absolute path (in menu)
+- **r** - Copy relative path (in menu)
+- **d** - Copy file to current directory (in menu)
+- **e** - Edit file with $EDITOR (in menu)
 - **o** - Open file in default application (in menu)
 
 ## Development
 
-### Tech Stack
-
-- **Runtime**: Bun + Node.js (>= 20)
-- **UI Framework**: React Ink v6
-- **Components**: @inkjs/ui for enhanced terminal components
-- **Build**: tsdown (Rolldown/Oxc) with shebang executable
-- **Testing**: vitest + ink-testing-library
-- **Linting**: Biome with strict rules
-- **Type Safety**: TypeScript with ultra-strict configuration
-
-### CLI Reference
-
-| Option      | Short | Description           | Default           |
-| ----------- | ----- | --------------------- | ----------------- |
-| `--help`    | `-h`  | Show help information | -                 |
-| `--version` | `-V`  | Show version number   | -                 |
-| `--path`    | `-p`  | Directory to scan     | Current directory |
-
-### Development Commands
-
-```bash
-# Quality pipeline
-bun run ci                    # Full CI pipeline
-bun run typecheck            # TypeScript checking
-bun run check:write          # Auto-fix formatting
-bun run test                 # Run all tests
-bun run test:watch           # Test in watch mode
-
-# Development
-bun run start                # Run CLI in development
-bun run dev                  # Development with watch
-bun run build                # Build for production
-```
-
-### Architecture
-
-- **InSource Testing** - Tests alongside source code
-- **Branded Types** - Compile-time and runtime type safety
-- **React Ink Components** - Terminal UI with proper focus management
-- **Pattern Matching** - File type detection with ts-pattern
-- **Immutable Design** - Readonly properties throughout
+For development setup, commands, and contribution guidelines, see [DEVELOPMENT.md](./DEVELOPMENT.md).
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run the quality pipeline: `bun run ci`
-5. Submit a pull request
+Contributions are welcome! Please see [DEVELOPMENT.md](./DEVELOPMENT.md#contributing) for detailed contribution guidelines.
 
 ## License
 
