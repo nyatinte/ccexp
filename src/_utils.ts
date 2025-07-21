@@ -316,8 +316,10 @@ if (import.meta.vitest != null) {
             const result = await isBinaryFile(filePath);
             expect(result).toBe(false); // Should return false on error
           } finally {
-            // Restore permissions for cleanup
-            await chmod(filePath, 0o644);
+            // Best effort cleanup - ignore errors
+            await chmod(filePath, 0o644).catch(() => {
+              // Ignore cleanup errors
+            });
           }
         },
       );

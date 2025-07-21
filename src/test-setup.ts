@@ -25,9 +25,8 @@ vi.mock('open', () => ({
 // Mock process.exit to prevent test runner from exiting
 const originalExit = process.exit;
 // @ts-ignore - Mocking process.exit
-process.exit = vi.fn((code?: number) => {
-  // Log exit call for debugging
-  console.log(`process.exit called with code: ${code}`);
+process.exit = vi.fn((_code?: number) => {
+  // Exit call intercepted, code captured
   // Don't actually exit during tests
 }) as typeof process.exit;
 
@@ -36,14 +35,17 @@ afterAll(() => {
   process.exit = originalExit;
 });
 
-// Suppress console.error for expected errors in tests
+// Suppress console.error and console.debug for expected errors in tests
 const originalConsoleError = console.error;
+const originalConsoleDebug = console.debug;
 beforeEach(() => {
   console.error = vi.fn();
+  console.debug = vi.fn();
 });
 
 afterEach(() => {
   console.error = originalConsoleError;
+  console.debug = originalConsoleDebug;
 });
 
 // Clean up fixture cache after all tests complete
