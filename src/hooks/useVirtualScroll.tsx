@@ -2,15 +2,15 @@ import { useStdout } from 'ink';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FlatItem } from '../_types.js';
 
-interface UseVirtualScrollOptions {
+type UseVirtualScrollOptions = {
   items: FlatItem[];
   currentGroupIndex: number;
   currentFileIndex: number;
   isGroupSelected: boolean;
   reservedLines: number;
-}
+};
 
-interface UseVirtualScrollReturn {
+type UseVirtualScrollReturn = {
   scrollOffset: number;
   viewportHeight: number;
   viewStart: number;
@@ -19,7 +19,7 @@ interface UseVirtualScrollReturn {
   hasTopIndicator: boolean;
   hasBottomIndicator: boolean;
   totalLines: number;
-}
+};
 
 export function useVirtualScroll({
   items,
