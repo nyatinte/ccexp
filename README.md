@@ -45,6 +45,10 @@
   <img src="assets/thumbnail.png" alt="ccexp Thumbnail" width="600">
   <br><br>
   <img src="assets/screenshot.png" alt="ccexp Screenshot" width="800">
+  <br><br>
+  <img src="assets/screenshot_filelist.png" alt="ccexp File List" width="800">
+  <br><br>
+  <img src="assets/screenshot_actionmenu.png" alt="ccexp Action Menu" width="800">
 </div>
 
 ## Target Files
