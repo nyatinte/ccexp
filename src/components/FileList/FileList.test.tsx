@@ -978,15 +978,14 @@ if (import.meta.vitest) {
 
         await waitForEffects();
 
-        // Navigate down a reasonable amount
         for (let i = 0; i < 20; i++) {
-          stdin.write('\x1B[B'); // ↓
-          await waitForEffects();
+          stdin.write('\x1B[B');
         }
+        await waitForEffects();
 
         // The selected item should always be visible in the viewport
         const frame = lastFrame();
-        expect(frame).toContain('►'); // Selection indicator
+        expect(frame).toContain('►');
       });
 
       test('flattened item list performance', async () => {
@@ -1032,7 +1031,7 @@ if (import.meta.vitest) {
         const renderTime = performance.now() - startTime;
 
         // Rendering should be fast even with many files
-        expect(renderTime).toBeLessThan(1000); // 1 second max
+        expect(renderTime).toBeLessThan(1000);
 
         // Verify basic rendering
         expect(lastFrame()).toContain('Claude Files (150)');
@@ -1058,11 +1057,10 @@ if (import.meta.vitest) {
 
         await waitForEffects();
 
-        // Navigate down a bit
         for (let i = 0; i < 10; i++) {
-          stdin.write('\x1B[B'); // ↓
-          await waitForEffects();
+          stdin.write('\x1B[B');
         }
+        await waitForEffects();
 
         // Type search query
         stdin.write('file1');
@@ -1071,7 +1069,7 @@ if (import.meta.vitest) {
         // Should reset to top and show filtered results
         const afterSearch = lastFrame();
         expect(afterSearch).toContain('Search: file1');
-        expect(afterSearch).toContain('file1.md'); // First result should be visible
+        expect(afterSearch).toContain('file1.md');
       });
     });
 

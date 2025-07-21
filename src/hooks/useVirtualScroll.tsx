@@ -2,6 +2,12 @@ import { useStdout } from 'ink';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FlatItem } from '../_types.js';
 
+// Viewport height constants
+const MIN_VIEWPORT_HEIGHT = 5;
+const MAX_VIEWPORT_HEIGHT = 20;
+const DEFAULT_TERMINAL_ROWS = 24;
+const TEST_VIEWPORT_HEIGHT = 100;
+
 type UseVirtualScrollOptions = {
   items: FlatItem[];
   currentGroupIndex: number;
@@ -33,14 +39,14 @@ export function useVirtualScroll({
 
   const viewportHeight = useMemo(() => {
     if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-      return 100; // Large viewport for test environment
+      return TEST_VIEWPORT_HEIGHT;
     }
 
     const calculatedHeight = Math.max(
-      5, // MIN_VIEWPORT_HEIGHT
-      (stdout?.rows ?? 24) - reservedLines, // DEFAULT_TERMINAL_ROWS = 24
+      MIN_VIEWPORT_HEIGHT,
+      (stdout?.rows ?? DEFAULT_TERMINAL_ROWS) - reservedLines,
     );
-    return Math.min(calculatedHeight, 20); // MAX_VIEWPORT_HEIGHT = 20
+    return Math.min(calculatedHeight, MAX_VIEWPORT_HEIGHT);
   }, [stdout?.rows, reservedLines]);
 
   const totalLines = items.length;
@@ -258,7 +264,7 @@ if (import.meta.vitest != null) {
         />,
       );
 
-      expect(hookResult?.viewportHeight).toBe(100);
+      expect(hookResult?.viewportHeight).toBe(TEST_VIEWPORT_HEIGHT);
 
       process.env.NODE_ENV = originalEnv;
     });
