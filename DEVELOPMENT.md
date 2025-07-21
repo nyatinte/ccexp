@@ -6,7 +6,7 @@ This guide contains all the information needed for developing and contributing t
 
 ### Prerequisites
 
-- Node.js >= 20.19.3
+- Node.js >= 20.11.0
 - Bun (recommended) or npm/pnpm
 - Git
 
@@ -33,7 +33,7 @@ bun run build      # Build for production
 
 ## Tech Stack
 
-- **Runtime**: Bun + Node.js (>= 20)
+- **Runtime**: Bun + Node.js (>= 20.11.0)
 - **UI Framework**: React Ink v6
 - **Components**: @inkjs/ui for enhanced terminal components
 - **Build**: tsdown (Rolldown/Oxc) with shebang executable
@@ -197,7 +197,10 @@ bun run test src/file.ts  # Test specific file
 - **Tab** - Switch between panes
 - **/** - Focus search input
 - **c** - Copy file content (in menu)
-- **p** - Copy file path (in menu)
+- **p** - Copy absolute path (in menu)
+- **r** - Copy relative path (in menu)
+- **d** - Copy file to current directory (in menu)
+- **e** - Edit file with $EDITOR (in menu)
 - **o** - Open file in default application (in menu)
 
 ### Action Menu Operations
