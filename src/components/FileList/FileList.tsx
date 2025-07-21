@@ -1,11 +1,13 @@
 import { basename } from 'node:path';
-import { Box, Text, useInput, useStdout } from 'ink';
+import { Box, Text, useInput } from 'ink';
 import React, { useEffect, useMemo, useState } from 'react';
 import type {
   ClaudeFileInfo,
   ClaudeFileType,
   FileGroup,
+  FlatItem,
 } from '../../_types.js';
+import { useVirtualScroll } from '../../hooks/index.js';
 import { theme } from '../../styles/theme.js';
 import { FileGroup as FileGroupComponent } from './FileGroup.js';
 import { FileItem } from './FileItem.js';
@@ -18,15 +20,16 @@ import { MenuActions } from './MenuActions/index.js';
  * - Our implementation allows instant "type to search" while navigating
  */
 
-const RESERVED_LINES = 9; // Terminal UI components (header, borders, search bar, status messages) occupy these lines
-const DEFAULT_TERMINAL_ROWS = 24; // Default terminal height if we can't detect the actual size
-const MAX_VIEWPORT_HEIGHT = 20; // Maximum viewport height to ensure readability on larger terminals
-const MIN_VIEWPORT_HEIGHT = 5; // Minimum viewport height to maintain usability
-const TEST_VIEWPORT_HEIGHT = 100; // Large viewport for test environment to avoid scrolling issues
-
-type FlatItem =
-  | { type: 'group'; groupIndex: number }
-  | { type: 'file'; groupIndex: number; fileIndex: number };
+/**
+ * RESERVED_LINES breakdown:
+ * - Search input field: 3 lines (label + input + margin)
+ * - Top scroll indicator: 1 line (when visible)
+ * - Bottom scroll indicator: 1 line (when visible)
+ * - Status/help text: 2 lines
+ * - Terminal borders/padding: 2 lines
+ * Total: 9 lines reserved for UI chrome
+ */
+const RESERVED_LINES = 9;
 
 type FileListProps = {
   readonly files: ClaudeFileInfo[];
@@ -52,8 +55,6 @@ const FileList = React.memo(function FileList({
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [isMenuMode, setIsMenuMode] = useState(false);
   const [isGroupSelected, setIsGroupSelected] = useState(false);
-  const [scrollOffset, setScrollOffset] = useState(0);
-  const { stdout } = useStdout();
 
   const filteredGroups = useMemo(() => {
     if (!searchQuery) return fileGroups;
@@ -71,18 +72,6 @@ const FileList = React.memo(function FileList({
       }))
       .filter((group) => group.files.length > 0);
   }, [fileGroups, searchQuery]);
-
-  const viewportHeight = useMemo(() => {
-    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-      return TEST_VIEWPORT_HEIGHT;
-    }
-
-    const calculatedHeight = Math.max(
-      MIN_VIEWPORT_HEIGHT,
-      (stdout?.rows ?? DEFAULT_TERMINAL_ROWS) - RESERVED_LINES,
-    );
-    return Math.min(calculatedHeight, MAX_VIEWPORT_HEIGHT);
-  }, [stdout?.rows]);
 
   const flatItems = useMemo(() => {
     const items: FlatItem[] = [];
@@ -102,45 +91,20 @@ const FileList = React.memo(function FileList({
     return items;
   }, [filteredGroups]);
 
-  const totalLines = useMemo(() => flatItems.length, [flatItems]);
-
-  const getCurrentLinePosition = useMemo(() => {
-    let linePos = 0;
-
-    for (let i = 0; i < currentGroupIndex; i++) {
-      const group = filteredGroups[i];
-      if (group) {
-        linePos += 1;
-        if (group.isExpanded) {
-          linePos += group.files.length;
-        }
-      }
-    }
-
-    if (isGroupSelected) {
-      return linePos;
-    }
-
-    const currentGroup = filteredGroups[currentGroupIndex];
-    if (currentGroup?.isExpanded) {
-      linePos += 1;
-      linePos += currentFileIndex;
-    }
-
-    return linePos;
-  }, [currentGroupIndex, currentFileIndex, isGroupSelected, filteredGroups]);
-
-  const visibleItems = useMemo(() => {
-    const effectiveScrollOffset = Math.max(
-      0,
-      Math.min(scrollOffset, totalLines - viewportHeight),
-    );
-
-    return flatItems.slice(
-      effectiveScrollOffset,
-      effectiveScrollOffset + viewportHeight,
-    );
-  }, [flatItems, scrollOffset, viewportHeight, totalLines]);
+  const {
+    scrollOffset,
+    viewportHeight,
+    visibleItems,
+    hasTopIndicator,
+    hasBottomIndicator,
+    totalLines,
+  } = useVirtualScroll({
+    items: flatItems,
+    currentGroupIndex,
+    currentFileIndex,
+    isGroupSelected,
+    reservedLines: RESERVED_LINES,
+  });
 
   const getCurrentFile = () => {
     if (isGroupSelected || filteredGroups.length === 0) return null;
@@ -166,7 +130,6 @@ const FileList = React.memo(function FileList({
     setCurrentGroupIndex(0);
     setCurrentFileIndex(0);
     setIsGroupSelected(false);
-    setScrollOffset(0);
   }, [searchQuery]);
 
   useEffect(() => {
@@ -184,17 +147,6 @@ const FileList = React.memo(function FileList({
     isGroupSelected,
     onFileSelect,
   ]);
-
-  useEffect(() => {
-    const currentLine = getCurrentLinePosition;
-    const maxScroll = Math.max(0, totalLines - viewportHeight);
-
-    if (currentLine < scrollOffset) {
-      setScrollOffset(Math.max(0, currentLine));
-    } else if (currentLine >= scrollOffset + viewportHeight) {
-      setScrollOffset(Math.min(maxScroll, currentLine - viewportHeight + 1));
-    }
-  }, [viewportHeight, scrollOffset, getCurrentLinePosition, totalLines]);
 
   useInput(
     (input, key) => {
@@ -297,9 +249,8 @@ const FileList = React.memo(function FileList({
     { isActive: !isMenuMode },
   );
 
-  const hasTopIndicator = !isMenuMode && scrollOffset > 0;
-  const hasBottomIndicator =
-    !isMenuMode && scrollOffset + viewportHeight < totalLines;
+  const showTopIndicator = !isMenuMode && hasTopIndicator;
+  const showBottomIndicator = !isMenuMode && hasBottomIndicator;
 
   return (
     <Box flexDirection="column" height="100%">
@@ -320,7 +271,7 @@ const FileList = React.memo(function FileList({
       </Box>
 
       <Box flexDirection="column" flexGrow={1}>
-        {hasTopIndicator && (
+        {showTopIndicator && (
           <Box justifyContent="center" height={1}>
             <Text dimColor>▲ {scrollOffset} more above</Text>
           </Box>
@@ -332,8 +283,8 @@ const FileList = React.memo(function FileList({
             isMenuMode
               ? 0
               : viewportHeight -
-                (hasTopIndicator ? 1 : 0) -
-                (hasBottomIndicator ? 1 : 0)
+                (showTopIndicator ? 1 : 0) -
+                (showBottomIndicator ? 1 : 0)
           }
           overflow="hidden"
         >
@@ -356,7 +307,7 @@ const FileList = React.memo(function FileList({
                 );
               }
               const group = filteredGroups[item.groupIndex];
-              if (!group || item.fileIndex == null) return null;
+              if (!group) return null;
               const file = group.files[item.fileIndex];
               if (!file) return null;
               return (
@@ -383,7 +334,7 @@ const FileList = React.memo(function FileList({
             })}
         </Box>
 
-        {hasBottomIndicator && (
+        {showBottomIndicator && (
           <Box justifyContent="center" height={1}>
             <Text dimColor>
               ▼ {totalLines - scrollOffset - viewportHeight} more below

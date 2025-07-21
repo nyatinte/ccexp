@@ -16,8 +16,8 @@ type AppProps = {
 };
 
 const SPLIT_PANE_WIDTH = {
-  LEFT: 45,
-  MIN_LEFT: 35,
+  LEFT: 35,
+  MIN_LEFT: 30,
   MAX_LEFT: 60,
 } as const;
 

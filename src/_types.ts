@@ -67,6 +67,15 @@ export type FileGroup = {
   readonly isExpanded: boolean;
 };
 
+// Virtual scrolling types
+export type FlatItem =
+  | { readonly type: 'group'; readonly groupIndex: number }
+  | {
+      readonly type: 'file';
+      readonly groupIndex: number;
+      readonly fileIndex: number;
+    };
+
 // Output formats
 
 // CLI argument types
