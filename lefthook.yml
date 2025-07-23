@@ -3,7 +3,7 @@
 
 pre-commit:
   skip:
-    - run: test "$CLAUDECODE" != 1  # Claude Code以外はスキップ
+    - run: test "$CLAUDECODE" != 1  # Skip for non-Claude Code environments
   commands:
     ci:
       run: bun run ci
