@@ -2,6 +2,8 @@
 # https://github.com/evilmartians/lefthook
 
 pre-commit:
+  skip:
+    - run: test "$CLAUDECODE" != 1  # Claude Code以外はスキップ
   commands:
     ci:
       run: bun run ci
