@@ -14,6 +14,31 @@ type PreviewProps = {
   readonly file?: ClaudeFileInfo | undefined;
 };
 
+type FrontmatterParseResult = {
+  readonly metadata:
+    | {
+        readonly name?: string;
+        readonly description?: string;
+      }
+    | undefined;
+  readonly content: string;
+};
+
+const tryParseFrontmatter = (content: string): FrontmatterParseResult => {
+  try {
+    const parsed = matter(content);
+    return {
+      metadata: {
+        name: parsed.data.name,
+        description: parsed.data.description,
+      },
+      content: parsed.content,
+    };
+  } catch {
+    return { metadata: undefined, content };
+  }
+};
+
 export function Preview({ file }: PreviewProps): React.JSX.Element {
   const [content, setContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -102,20 +127,13 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
   const fileName = basename(file.path);
 
   // Parse sub-agent metadata if applicable
-  let subAgentMeta: { name?: string; description?: string } | undefined;
-  let actualContent = content;
-  if (file.type === 'project-agent' || file.type === 'user-agent') {
-    try {
-      const parsed = matter(content);
-      subAgentMeta = {
-        name: parsed.data.name,
-        description: parsed.data.description,
-      };
-      actualContent = parsed.content; // Content without frontmatter
-    } catch {
-      // Invalid frontmatter, use original content
-    }
-  }
+  const parseResult =
+    file.type === 'project-agent' || file.type === 'user-agent'
+      ? tryParseFrontmatter(content)
+      : { metadata: undefined, content };
+
+  const subAgentMeta = parseResult.metadata;
+  const actualContent = parseResult.content;
 
   // Split content by lines
   const lines = actualContent.split('\n');
@@ -152,20 +170,16 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
               </Text>
             </Box>
           )}
-          {/* Sub-agent metadata */}
-          {(file.type === 'project-agent' || file.type === 'user-agent') &&
-            subAgentMeta && (
-              <Box marginTop={1} flexDirection="column">
-                {subAgentMeta.name && (
-                  <Text color="cyan">🤖 Agent Name: {subAgentMeta.name}</Text>
-                )}
-                {subAgentMeta.description && (
-                  <Text color="yellow" italic>
-                    📝 Description: {subAgentMeta.description}
-                  </Text>
-                )}
-              </Box>
-            )}
+          {(file.type === 'project-agent' || file.type === 'user-agent') && (
+            <Box marginTop={1} flexDirection="column">
+              <Text color="cyan">
+                🤖 Agent Name: {subAgentMeta?.name ?? 'undefined'}
+              </Text>
+              <Text color="yellow" italic>
+                📝 Description: {subAgentMeta?.description ?? 'undefined'}
+              </Text>
+            </Box>
+          )}
         </Box>
       </Box>
 

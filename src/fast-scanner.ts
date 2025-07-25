@@ -1,8 +1,46 @@
 import { homedir } from 'node:os';
+import { basename } from 'node:path';
 import { fdir } from 'fdir';
 import type { FileTree } from 'fs-fixture';
 import type { ScanOptions } from './_types.ts';
 import { DEFAULT_EXCLUSIONS } from './scan-exclusions.ts';
+
+type CrawlerOptions = {
+  readonly includeHidden: boolean;
+  readonly recursive: boolean;
+  readonly maxDepth: number;
+};
+
+// Pre-compiled regex for better performance
+const CLAUDE_FILE_REGEX = /^CLAUDE\.(md|local\.md)$/;
+
+/**
+ * Create a base crawler with common configuration
+ */
+const createBaseCrawler = (options: CrawlerOptions): fdir => {
+  const crawler = new fdir().withFullPaths().exclude((dirName) => {
+    // Use comprehensive exclusion patterns for security and performance
+    const exclusions: readonly string[] = DEFAULT_EXCLUSIONS;
+    if (exclusions.includes(dirName)) {
+      return true;
+    }
+
+    // Handle hidden files (.claude is special case - always included)
+    if (
+      !options.includeHidden &&
+      dirName.startsWith('.') &&
+      dirName !== '.claude'
+    ) {
+      return true;
+    }
+
+    return false;
+  });
+
+  return options.recursive
+    ? crawler.withMaxDepth(options.maxDepth)
+    : crawler.withMaxDepth(options.maxDepth);
+};
 
 /**
  * Find Claude configuration files using fdir
@@ -18,38 +56,24 @@ export const findClaudeFiles = async (
     includeHidden = false,
   } = options;
 
-  let crawler = new fdir()
-    .withFullPaths()
-    .exclude((dirName) => {
-      // Use comprehensive exclusion patterns for security and performance
-      if ((DEFAULT_EXCLUSIONS as readonly string[]).includes(dirName)) {
-        return true;
-      }
-
-      // Handle hidden files (.claude is special case - always included)
-      if (!includeHidden && dirName.startsWith('.') && dirName !== '.claude') {
-        return true;
-      }
-
-      return false;
-    })
-    .filter((filePath) => {
-      const fileName = filePath.split('/').pop() || '';
-      return !!fileName.match(/^CLAUDE\.(md|local\.md)$/);
-    });
-
-  // Limit depth for performance
-  if (!recursive) {
-    crawler = crawler.withMaxDepth(1);
-  } else {
-    crawler = crawler.withMaxDepth(20); // Reasonable depth limit
-  }
+  const crawler = createBaseCrawler({
+    includeHidden,
+    recursive,
+    maxDepth: recursive ? 20 : 1,
+  }).filter((filePath) => {
+    const fileName = basename(filePath);
+    return CLAUDE_FILE_REGEX.test(fileName);
+  });
 
   try {
     const files = await crawler.crawl(path).withPromise();
     return files;
   } catch (error) {
-    console.warn(`Failed to scan Claude files in ${path}:`, error);
+    console.warn(
+      `Failed to scan Claude files in ${path}: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
+    );
     return [];
   }
 };
@@ -66,42 +90,28 @@ export const findSlashCommands = async (
     includeHidden = false,
   } = options;
 
-  let crawler = new fdir()
-    .withFullPaths()
-    .exclude((dirName) => {
-      // Use comprehensive exclusion patterns for security and performance
-      if ((DEFAULT_EXCLUSIONS as readonly string[]).includes(dirName)) {
-        return true;
-      }
-
-      // Handle hidden files (.claude is special case - always included)
-      if (!includeHidden && dirName.startsWith('.') && dirName !== '.claude') {
-        return true;
-      }
-
-      return false;
-    })
-    .filter((filePath) => {
-      // Look for files in .claude/commands or commands directories
-      return (
-        (filePath.includes('/.claude/commands/') ||
-          filePath.includes('/commands/')) &&
-        filePath.endsWith('.md')
-      );
-    });
-
-  // Limit depth for performance
-  if (!recursive) {
-    crawler = crawler.withMaxDepth(3); // Commands are usually nested
-  } else {
-    crawler = crawler.withMaxDepth(20);
-  }
+  const crawler = createBaseCrawler({
+    includeHidden,
+    recursive,
+    maxDepth: recursive ? 20 : 3,
+  }).filter((filePath) => {
+    // Look for files in .claude/commands or commands directories
+    return (
+      (filePath.includes('/.claude/commands/') ||
+        filePath.includes('/commands/')) &&
+      filePath.endsWith('.md')
+    );
+  });
 
   try {
     const files = await crawler.crawl(path).withPromise();
     return files;
   } catch (error) {
-    console.warn(`Failed to scan slash commands in ${path}:`, error);
+    console.warn(
+      `Failed to scan slash commands in ${path}: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
+    );
     return [];
   }
 };
@@ -122,38 +132,24 @@ export const findSubAgents = async (
   const results: string[] = [];
 
   // Search in project .claude/agents directory
-  let projectCrawler = new fdir()
-    .withFullPaths()
-    .exclude((dirName) => {
-      // Use comprehensive exclusion patterns for security and performance
-      if ((DEFAULT_EXCLUSIONS as readonly string[]).includes(dirName)) {
-        return true;
-      }
-
-      // Handle hidden files (.claude is special case - always included)
-      if (!includeHidden && dirName.startsWith('.') && dirName !== '.claude') {
-        return true;
-      }
-
-      return false;
-    })
-    .filter((filePath) => {
-      // Look for files in .claude/agents directories
-      return filePath.includes('/.claude/agents/') && filePath.endsWith('.md');
-    });
-
-  // Limit depth for performance
-  if (!recursive) {
-    projectCrawler = projectCrawler.withMaxDepth(4); // Agents are in .claude/agents/
-  } else {
-    projectCrawler = projectCrawler.withMaxDepth(20);
-  }
+  const projectCrawler = createBaseCrawler({
+    includeHidden,
+    recursive,
+    maxDepth: recursive ? 20 : 4,
+  }).filter((filePath) => {
+    // Look for files in .claude/agents directories
+    return filePath.includes('/.claude/agents/') && filePath.endsWith('.md');
+  });
 
   try {
     const projectFiles = await projectCrawler.crawl(path).withPromise();
     results.push(...projectFiles);
   } catch (error) {
-    console.warn(`Failed to scan project sub-agents in ${path}:`, error);
+    console.warn(
+      `Failed to scan project sub-agents in ${path}: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
+    );
   }
 
   // Search in user home directory ~/.claude/agents/
@@ -173,30 +169,29 @@ export const findSubAgents = async (
   return results;
 };
 
-/**
- * Check if fdir is available (always true since it's a dependency)
- * Internal function for testing only
- */
-const isAvailable = async (): Promise<boolean> => {
-  return true;
-};
-
-/**
- * Get fdir version information
- * Internal function for testing only
- */
-const getVersion = async (): Promise<string> => {
-  try {
-    // Get version from package.json
-    const pkg = await import('fdir/package.json');
-    return `fdir ${pkg.version}`;
-  } catch {
-    return 'fdir (version unknown)';
-  }
-};
-
 // InSource tests
 if (import.meta.vitest != null) {
+  /**
+   * Check if fdir is available (always true since it's a dependency)
+   * Internal function for testing only
+   */
+  const isAvailable = async (): Promise<boolean> => {
+    return true;
+  };
+
+  /**
+   * Get fdir version information
+   * Internal function for testing only
+   */
+  const getVersion = async (): Promise<string> => {
+    try {
+      // Get version from package.json
+      const pkg = await import('fdir/package.json');
+      return `fdir ${pkg.version}`;
+    } catch {
+      return 'fdir (version unknown)';
+    }
+  };
   const { describe, test, expect } = import.meta.vitest;
   const {
     createClaudeProjectFixture,
