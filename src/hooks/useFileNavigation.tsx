@@ -9,6 +9,7 @@ import type {
   FileScanner,
   ScanOptions,
   SlashCommandInfo,
+  SubAgentInfo,
 } from '../_types.js';
 import { defaultScanner } from '../default-scanner.js';
 
@@ -31,6 +32,16 @@ const convertSlashCommandToFileInfo = (
     },
   ],
   tags: command.namespace ? [command.namespace] : [],
+});
+
+// Convert SubAgentInfo to ClaudeFileInfo format
+const convertSubAgentToFileInfo = (agent: SubAgentInfo): ClaudeFileInfo => ({
+  path: agent.filePath,
+  type: agent.scope === 'project' ? 'project-agent' : 'user-agent',
+  size: 0, // No size information for sub-agents
+  lastModified: agent.lastModified,
+  commands: [], // No commands in sub-agents
+  tags: [], // No tags for sub-agents
 });
 
 type UseFileNavigationReturn = {
@@ -64,15 +75,23 @@ export function useFileNavigation(
     Promise.all([
       scanner.scanClaudeFiles(scanOptions),
       scanner.scanSlashCommands(scanOptions),
+      scanner.scanSubAgents(scanOptions),
     ])
-      .then(([claudeFiles, slashCommands]) => {
+      .then(([claudeFiles, slashCommands, subAgents]) => {
         // Convert slash commands to ClaudeFileInfo format
         const convertedCommands = slashCommands.map(
           convertSlashCommandToFileInfo,
         );
 
-        // Combine both results
-        const allFiles = [...claudeFiles, ...convertedCommands];
+        // Convert sub-agents to ClaudeFileInfo format
+        const convertedAgents = subAgents.map(convertSubAgentToFileInfo);
+
+        // Combine all results
+        const allFiles = [
+          ...claudeFiles,
+          ...convertedCommands,
+          ...convertedAgents,
+        ];
 
         // Group files by type using es-toolkit
         const groupedFiles = groupBy(allFiles, (file) => file.type) as Record<
@@ -94,6 +113,8 @@ export function useFileNavigation(
           'global-md',
           'claude-md',
           'claude-local-md',
+          'project-agent',
+          'user-agent',
           'slash-command',
           'unknown',
         ];

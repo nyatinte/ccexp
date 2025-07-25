@@ -1,3 +1,4 @@
+import { homedir } from 'node:os';
 import { fdir } from 'fdir';
 import type { FileTree } from 'fs-fixture';
 import type { ScanOptions } from './_types.ts';
@@ -103,6 +104,73 @@ export const findSlashCommands = async (
     console.warn(`Failed to scan slash commands in ${path}:`, error);
     return [];
   }
+};
+
+/**
+ * Find sub-agent files using fdir
+ */
+export const findSubAgents = async (
+  options: ScanOptions = {},
+): Promise<string[]> => {
+  const {
+    path = process.cwd(),
+    recursive = true,
+    includeHidden = false,
+  } = options;
+
+  // Collect results from both project and user directories
+  const results: string[] = [];
+
+  // Search in project .claude/agents directory
+  let projectCrawler = new fdir()
+    .withFullPaths()
+    .exclude((dirName) => {
+      // Use comprehensive exclusion patterns for security and performance
+      if ((DEFAULT_EXCLUSIONS as readonly string[]).includes(dirName)) {
+        return true;
+      }
+
+      // Handle hidden files (.claude is special case - always included)
+      if (!includeHidden && dirName.startsWith('.') && dirName !== '.claude') {
+        return true;
+      }
+
+      return false;
+    })
+    .filter((filePath) => {
+      // Look for files in .claude/agents directories
+      return filePath.includes('/.claude/agents/') && filePath.endsWith('.md');
+    });
+
+  // Limit depth for performance
+  if (!recursive) {
+    projectCrawler = projectCrawler.withMaxDepth(4); // Agents are in .claude/agents/
+  } else {
+    projectCrawler = projectCrawler.withMaxDepth(20);
+  }
+
+  try {
+    const projectFiles = await projectCrawler.crawl(path).withPromise();
+    results.push(...projectFiles);
+  } catch (error) {
+    console.warn(`Failed to scan project sub-agents in ${path}:`, error);
+  }
+
+  // Search in user home directory ~/.claude/agents/
+  const userAgentsPath = `${homedir()}/.claude/agents`;
+  const userCrawler = new fdir()
+    .withFullPaths()
+    .filter((filePath) => filePath.endsWith('.md'));
+
+  try {
+    const userFiles = await userCrawler.crawl(userAgentsPath).withPromise();
+    results.push(...userFiles);
+  } catch (_error) {
+    // User agents directory might not exist, which is fine
+    // Don't warn as this is expected behavior
+  }
+
+  return results;
 };
 
 /**

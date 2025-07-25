@@ -28,6 +28,14 @@ export const FileItem = React.memo(function FileItem({
         color: theme.fileTypes.claudeLocalMd,
         label: 'LOCAL',
       }))
+      .with('project-agent', () => ({
+        color: theme.fileTypes.slashCommand,
+        label: 'PROJECT AGENT',
+      }))
+      .with('user-agent', () => ({
+        color: theme.fileTypes.globalMd,
+        label: 'USER AGENT',
+      }))
       .with('slash-command', () => ({
         color: theme.fileTypes.slashCommand,
         label: 'COMMAND',
@@ -48,6 +56,8 @@ export const FileItem = React.memo(function FileItem({
     return match(file.type)
       .with('claude-md', () => '📝')
       .with('claude-local-md', () => '🔒')
+      .with('project-agent', () => '🤖')
+      .with('user-agent', () => '👤')
       .with('slash-command', () => '⚡')
       .with('global-md', () => '🧠')
       .with('unknown', () => '📄')
@@ -64,9 +74,11 @@ export const FileItem = React.memo(function FileItem({
   const displayName =
     file.type === 'global-md'
       ? `~/.claude/${fileName}`
-      : file.type === 'slash-command'
-        ? fileName.replace('.md', '') // Remove .md for commands
-        : `${parentDir}/${fileName}`;
+      : file.type === 'user-agent'
+        ? `~/.claude/agents/${fileName.replace('.md', '')}`
+        : file.type === 'project-agent' || file.type === 'slash-command'
+          ? fileName.replace('.md', '') // Remove .md for commands and agents
+          : `${parentDir}/${fileName}`;
 
   const prefix = isFocused ? '► ' : '  ';
 

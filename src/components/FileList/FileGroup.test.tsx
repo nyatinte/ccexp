@@ -27,6 +27,8 @@ if (import.meta.vitest) {
       const expectedLabels: Record<ClaudeFileType, string> = {
         'claude-md': 'PROJECT',
         'claude-local-md': 'LOCAL',
+        'project-agent': 'PROJECT AGENTS',
+        'user-agent': 'USER AGENTS',
         'slash-command': 'COMMAND',
         'global-md': 'USER MEMORY',
         unknown: 'OTHER',

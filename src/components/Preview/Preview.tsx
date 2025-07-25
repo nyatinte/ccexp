@@ -1,6 +1,7 @@
 import { open, readFile, stat } from 'node:fs/promises';
 import { basename } from 'node:path';
 import { isError } from 'es-toolkit/predicate';
+import matter from 'gray-matter';
 import { Box, Text } from 'ink';
 import type React from 'react';
 import { useEffect, useState } from 'react';
@@ -100,8 +101,24 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
 
   const fileName = basename(file.path);
 
+  // Parse sub-agent metadata if applicable
+  let subAgentMeta: { name?: string; description?: string } | undefined;
+  let actualContent = content;
+  if (file.type === 'project-agent' || file.type === 'user-agent') {
+    try {
+      const parsed = matter(content);
+      subAgentMeta = {
+        name: parsed.data.name,
+        description: parsed.data.description,
+      };
+      actualContent = parsed.content; // Content without frontmatter
+    } catch {
+      // Invalid frontmatter, use original content
+    }
+  }
+
   // Split content by lines
-  const lines = content.split('\n');
+  const lines = actualContent.split('\n');
   const totalLines = lines.length;
   const maxPreviewLines = 12; // Limit to 12 lines considering header space
   const isContentTruncated = totalLines > maxPreviewLines;
@@ -135,6 +152,20 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
               </Text>
             </Box>
           )}
+          {/* Sub-agent metadata */}
+          {(file.type === 'project-agent' || file.type === 'user-agent') &&
+            subAgentMeta && (
+              <Box marginTop={1} flexDirection="column">
+                {subAgentMeta.name && (
+                  <Text color="cyan">🤖 Agent Name: {subAgentMeta.name}</Text>
+                )}
+                {subAgentMeta.description && (
+                  <Text color="yellow" italic>
+                    📝 Description: {subAgentMeta.description}
+                  </Text>
+                )}
+              </Box>
+            )}
         </Box>
       </Box>
 
