@@ -57,6 +57,8 @@ ccexp (claude-code-explorer) automatically discovers these configuration files:
 - **CLAUDE.local.md** → Local overrides (gitignored)
 - **~/.claude/CLAUDE.md** → Global user configuration
 - **.claude/commands/**/*.md** → Slash command definitions
+- **.claude/agents/**/*.md** → Sub-agent definitions (project-level)
+- **~/.claude/agents/**/*.md** → Sub-agent definitions (user-level)
 
 ## Installation
 

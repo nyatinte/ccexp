@@ -220,6 +220,7 @@ src/
   - `base-file-scanner.ts` → Abstract base class for all scanners
   - `claude-md-scanner.ts` → CLAUDE.md file discovery
   - `slash-command-scanner.ts` → Slash command discovery
+  - `sub-agent-scanner.ts` → Sub-agent definition discovery
   - `default-scanner.ts` → Combined scanner for all file types
   - `fast-scanner.ts` → High-performance directory traversal
 - **Type System**: `_types.ts` → branded types + zod schemas for data integrity
@@ -236,6 +237,8 @@ The tool automatically discovers these file types:
 - **CLAUDE.local.md** → Local overrides (gitignored)
 - **~/.claude/CLAUDE.md** → Global user configuration
 - **.claude/commands/**/*.md** → Slash command definitions
+- **.claude/agents/**/*.md** → Sub-agent definitions (project-level)
+- **~/.claude/agents/**/*.md** → Sub-agent definitions (user-level)
 
 ### TypeScript Configuration
 
@@ -350,6 +353,7 @@ This configuration enables:
   - CLAUDE.local.md files (Local overrides)
   - Global CLAUDE.md (User-wide settings)
   - Slash commands (Custom command definitions)
+  - Sub-agents (Project and user-level agent definitions)
   - Groups can be collapsed/expanded with arrow keys
 
 ## Quality Management Rules
