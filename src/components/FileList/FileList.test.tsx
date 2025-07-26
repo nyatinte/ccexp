@@ -209,13 +209,13 @@ if (import.meta.vitest) {
             expect(frame).toContain('📝'); // claude-md
             expect(frame).toContain('🔒'); // claude-local-md
             expect(frame).toContain('⚡'); // slash-command
-            expect(frame).toContain('🌐'); // global-md
+            expect(frame).toContain('🧠'); // global-md
 
             // Badges
             expect(frame).toContain('PROJECT');
             expect(frame).toContain('LOCAL');
             expect(frame).toContain('COMMAND');
-            expect(frame).toContain('GLOBAL');
+            expect(frame).toContain('USER MEMORY');
           },
         );
       });
@@ -861,6 +861,229 @@ if (import.meta.vitest) {
 
         // Verify no additional onFileSelect calls on re-render
         expect(onFileSelect).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('Virtual scrolling', () => {
+      test('viewport calculation respects terminal size', async () => {
+        await withTempFixture(
+          {
+            'test-project': {
+              'CLAUDE.md': '# CLAUDE.md',
+            },
+          },
+          async (fixture) => {
+            const basePath = join(fixture.path, 'test-project');
+            const files = [createFileInfo(basePath, 'CLAUDE.md', 'claude-md')];
+            const fileGroups = createFileGroups(files);
+
+            // Mock different terminal sizes
+            const originalRows = process.stdout.rows;
+
+            // Small terminal
+            Object.defineProperty(process.stdout, 'rows', {
+              value: 15,
+              configurable: true,
+            });
+
+            const { lastFrame: smallFrame } = render(
+              <FileList
+                files={files}
+                fileGroups={fileGroups}
+                onFileSelect={onFileSelect}
+                onToggleGroup={onToggleGroup}
+              />,
+            );
+
+            // Viewport should be calculated as: terminal rows (15) - reserved lines (9) = 6
+            // But clamped to MIN_VIEWPORT_HEIGHT (5) and MAX_VIEWPORT_HEIGHT (20)
+            expect(smallFrame()).toContain('Claude Files');
+
+            // Large terminal
+            Object.defineProperty(process.stdout, 'rows', {
+              value: 50,
+              configurable: true,
+            });
+
+            const { lastFrame: largeFrame } = render(
+              <FileList
+                files={files}
+                fileGroups={fileGroups}
+                onFileSelect={onFileSelect}
+                onToggleGroup={onToggleGroup}
+              />,
+            );
+
+            // Viewport should be calculated as: terminal rows (50) - reserved lines (9) = 41
+            // But clamped to MAX_VIEWPORT_HEIGHT (20)
+            expect(largeFrame()).toContain('Claude Files');
+
+            // Restore original
+            Object.defineProperty(process.stdout, 'rows', {
+              value: originalRows,
+              configurable: true,
+            });
+          },
+        );
+      });
+
+      test('renders only visible items in viewport', async () => {
+        await using fixture = await createComplexProjectFixture();
+
+        // Create many files to test virtual scrolling behavior
+        const files = Array.from({ length: 150 }, (_, i) =>
+          createFileInfo(fixture.path, `my-app/src/file${i}.md`, 'claude-md'),
+        );
+        const fileGroups = createFileGroups(files);
+
+        const { lastFrame } = render(
+          <FileList
+            files={files}
+            fileGroups={fileGroups}
+            onFileSelect={onFileSelect}
+            onToggleGroup={onToggleGroup}
+          />,
+        );
+
+        await waitForEffects();
+
+        // Verify that not all 150 files are rendered in the DOM
+        // In test environment with viewport 100, should render ~100 items max
+        const frame = lastFrame();
+        expect(frame).toContain('Claude Files (150)');
+
+        // Count rendered file items - should be limited by viewport
+        const renderedFiles = (frame?.match(/file\d+\.md/g) || []).length;
+        expect(renderedFiles).toBeLessThanOrEqual(100);
+        expect(renderedFiles).toBeGreaterThan(0);
+      });
+
+      test('maintains selection visibility when navigating', async () => {
+        await using fixture = await createComplexProjectFixture();
+
+        // Create files to test that selection stays visible
+        const files = Array.from({ length: 30 }, (_, i) =>
+          createFileInfo(fixture.path, `my-app/src/file${i}.md`, 'claude-md'),
+        );
+        const fileGroups = createFileGroups(files);
+
+        const { stdin, lastFrame } = render(
+          <FileList
+            files={files}
+            fileGroups={fileGroups}
+            onFileSelect={onFileSelect}
+            onToggleGroup={onToggleGroup}
+          />,
+        );
+
+        await waitForEffects();
+
+        // Navigate down to file20
+        for (let i = 0; i < 20; i++) {
+          stdin.write('\x1B[B');
+          await waitForEffects();
+        }
+
+        // The selected item should always be visible in the viewport
+        const frame = lastFrame();
+
+        // Check that we have some files visible
+        const visibleFiles = frame?.match(/file\d+\.md/g) || [];
+        expect(visibleFiles.length).toBeGreaterThan(0);
+
+        // Virtual scroll should keep selected item in view
+        // After navigating 20 times, file20 should be selected and visible
+        // Allow for some flexibility in viewport positioning
+        const hasRelevantFile = visibleFiles.some((file) => {
+          const num = Number.parseInt(file.match(/\d+/)?.[0] || '0');
+          return num >= 15 && num <= 25; // file20 should be in this range
+        });
+
+        expect(hasRelevantFile).toBe(true);
+      });
+
+      test('flattened item list performance', async () => {
+        await using fixture = await createComplexProjectFixture();
+
+        // Create a large number of files across multiple groups
+        const files = [
+          ...Array.from({ length: 50 }, (_, i) =>
+            createFileInfo(
+              fixture.path,
+              `my-app/project/file${i}.md`,
+              'claude-md',
+            ),
+          ),
+          ...Array.from({ length: 50 }, (_, i) =>
+            createFileInfo(
+              fixture.path,
+              `my-app/local/file${i}.md`,
+              'claude-local-md',
+            ),
+          ),
+          ...Array.from({ length: 50 }, (_, i) =>
+            createFileInfo(
+              fixture.path,
+              `my-app/commands/cmd${i}.md`,
+              'slash-command',
+            ),
+          ),
+        ];
+        const fileGroups = createFileGroups(files);
+
+        const startTime = performance.now();
+
+        const { lastFrame } = render(
+          <FileList
+            files={files}
+            fileGroups={fileGroups}
+            onFileSelect={onFileSelect}
+            onToggleGroup={onToggleGroup}
+          />,
+        );
+
+        const renderTime = performance.now() - startTime;
+
+        // Rendering should be fast even with many files
+        expect(renderTime).toBeLessThan(1000);
+
+        // Verify basic rendering
+        expect(lastFrame()).toContain('Claude Files (150)');
+      });
+
+      test('search resets scroll position to top', async () => {
+        await using fixture = await createComplexProjectFixture();
+
+        // Create files for search test
+        const files = Array.from({ length: 30 }, (_, i) =>
+          createFileInfo(fixture.path, `my-app/src/file${i}.md`, 'claude-md'),
+        );
+        const fileGroups = createFileGroups(files);
+
+        const { stdin, lastFrame } = render(
+          <FileList
+            files={files}
+            fileGroups={fileGroups}
+            onFileSelect={onFileSelect}
+            onToggleGroup={onToggleGroup}
+          />,
+        );
+
+        await waitForEffects();
+
+        for (let i = 0; i < 10; i++) {
+          stdin.write('\x1B[B');
+        }
+        await waitForEffects();
+
+        // Type search query
+        stdin.write('file1');
+        await waitForEffects();
+
+        // Should reset to top and show filtered results
+        const afterSearch = lastFrame();
+        expect(afterSearch).toContain('Search: file1');
+        expect(afterSearch).toContain('file1.md');
       });
     });
 

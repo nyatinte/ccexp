@@ -2,6 +2,7 @@ import { Box, Text } from 'ink';
 import React from 'react';
 import { match } from 'ts-pattern';
 import type { ClaudeFileType } from '../../_types.js';
+import { theme } from '../../styles/theme.js';
 
 type FileGroupProps = {
   readonly type: ClaudeFileType;
@@ -15,7 +16,7 @@ const getGroupLabel = (type: ClaudeFileType): string => {
     .with('claude-md', () => 'PROJECT')
     .with('claude-local-md', () => 'LOCAL')
     .with('slash-command', () => 'COMMAND')
-    .with('global-md', () => 'GLOBAL')
+    .with('global-md', () => 'USER MEMORY')
     .with('settings-json', () => 'SETTINGS')
     .with('settings-local-json', () => 'LOCAL SETTINGS')
     .with('unknown', () => 'OTHER')
@@ -24,13 +25,13 @@ const getGroupLabel = (type: ClaudeFileType): string => {
 
 const getGroupColor = (type: ClaudeFileType): string => {
   return match(type)
-    .with('claude-md', () => 'blue')
-    .with('claude-local-md', () => 'yellow')
-    .with('slash-command', () => 'green')
-    .with('global-md', () => 'magenta')
-    .with('settings-json', () => 'cyan')
-    .with('settings-local-json', () => 'yellowBright')
-    .with('unknown', () => 'gray')
+    .with('claude-md', () => theme.fileTypes.claudeMd)
+    .with('claude-local-md', () => theme.fileTypes.claudeLocalMd)
+    .with('slash-command', () => theme.fileTypes.slashCommand)
+    .with('global-md', () => theme.fileTypes.globalMd)
+    .with('settings-json', () => theme.fileTypes.settingsJson)
+    .with('settings-local-json', () => theme.fileTypes.settingsLocalJson)
+    .with('unknown', () => theme.fileTypes.unknown)
     .exhaustive();
 };
 
@@ -47,7 +48,10 @@ export const FileGroup = React.memo(function FileGroup({
   return (
     <Box>
       {isSelected ? (
-        <Text backgroundColor="blue" color="white">
+        <Text
+          backgroundColor={theme.selection.backgroundColor}
+          color={theme.selection.color}
+        >
           {expandIcon} {label} ({fileCount})
         </Text>
       ) : (

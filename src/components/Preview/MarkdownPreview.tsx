@@ -2,6 +2,7 @@ import { Box, Text } from 'ink';
 import { marked } from 'marked';
 import { markedTerminal } from 'marked-terminal';
 import type React from 'react';
+import { theme } from '../../styles/theme.js';
 
 type MarkdownPreviewProps = {
   readonly content: string;
@@ -23,7 +24,7 @@ export function MarkdownPreview({
   } catch (_error) {
     return (
       <Box flexDirection="column">
-        <Text color="red">Failed to render Markdown</Text>
+        <Text color={theme.status.error}>Failed to render Markdown</Text>
         <Text>{content}</Text>
       </Box>
     );

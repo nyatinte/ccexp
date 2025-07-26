@@ -1,6 +1,8 @@
+import { isError } from 'es-toolkit/predicate';
 import { Box, Text } from 'ink';
 import type React from 'react';
 import { Component } from 'react';
+import { theme } from '../styles/theme.js';
 
 type ErrorBoundaryProps = {
   readonly children: React.ReactNode;
@@ -22,10 +24,9 @@ export class ErrorBoundary extends Component<
   }
 
   static getDerivedStateFromError(error: unknown): ErrorBoundaryState {
-    const errorObject =
-      error instanceof Error
-        ? error
-        : new Error(String(error || 'Unknown error'));
+    const errorObject = isError(error)
+      ? error
+      : new Error(String(error || 'Unknown error'));
     return { hasError: true, error: errorObject };
   }
 
@@ -41,10 +42,10 @@ export class ErrorBoundary extends Component<
 
       return (
         <Box flexDirection="column" padding={1}>
-          <Text color="red" bold>
+          <Text color={theme.status.error} bold>
             Something went wrong
           </Text>
-          <Text color="red">
+          <Text color={theme.status.error}>
             {this.state.error?.message || 'An unexpected error occurred'}
           </Text>
           <Text dimColor>

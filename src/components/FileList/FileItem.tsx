@@ -5,6 +5,7 @@ import { Box, Text } from 'ink';
 import React from 'react';
 import { match } from 'ts-pattern';
 import type { ClaudeFileInfo } from '../../_types.js';
+import { theme } from '../../styles/theme.js';
 
 type FileItemProps = {
   readonly file: ClaudeFileInfo;
@@ -17,46 +18,52 @@ export const FileItem = React.memo(function FileItem({
   isSelected,
   isFocused,
 }: FileItemProps): React.JSX.Element {
-  // File type badge color and label
   const getFileBadge = (file: ClaudeFileInfo) => {
     return match(file.type)
-      .with('claude-md', () => ({ color: 'blue' as const, label: 'PROJECT' }))
+      .with('claude-md', () => ({
+        color: theme.fileTypes.claudeMd,
+        label: 'PROJECT',
+      }))
       .with('claude-local-md', () => ({
-        color: 'yellow' as const,
+        color: theme.fileTypes.claudeLocalMd,
         label: 'LOCAL',
       }))
       .with('slash-command', () => ({
-        color: 'green' as const,
+        color: theme.fileTypes.slashCommand,
         label: 'COMMAND',
       }))
-      .with('global-md', () => ({ color: 'magenta' as const, label: 'GLOBAL' }))
+      .with('global-md', () => ({
+        color: theme.fileTypes.globalMd,
+        label: 'GLOBAL',
+      }))
       .with('settings-json', () => ({
-        color: 'cyan' as const,
+        color: theme.fileTypes.settingsJson,
         label: 'SETTINGS',
       }))
       .with('settings-local-json', () => ({
-        color: 'yellowBright' as const,
+        color: theme.fileTypes.settingsLocalJson,
         label: 'LOCAL SETTINGS',
       }))
-      .with('unknown', () => ({ color: 'gray' as const, label: 'FILE' }))
+      .with('unknown', () => ({
+        color: theme.fileTypes.unknown,
+        label: 'FILE',
+      }))
       .exhaustive();
   };
 
-  // File type icon
   const getFileIcon = (file: ClaudeFileInfo): string => {
     return match(file.type)
       .with('claude-md', () => '📝')
       .with('claude-local-md', () => '🔒')
       .with('slash-command', () => '⚡')
-      .with('global-md', () => '🌐')
+      .with('global-md', () => '🧠')
       .with('settings-json', () => '⚙️')
       .with('settings-local-json', () => '🔧')
       .with('unknown', () => '📄')
       .exhaustive();
   };
 
-  // Get filename and parent directory
-  const fileName = basename(file.path);
+  const fileName = basename(file.path).replace(/\t/g, ' ');
   const dirPath = dirname(file.path);
   const parentDir = basename(dirPath);
 
@@ -97,25 +104,29 @@ export const FileItem = React.memo(function FileItem({
 
   return (
     <Box justifyContent="space-between" width="100%">
-      <Box>
+      <Box flexGrow={1} marginRight={1}>
         {isSelected ? (
-          <Text backgroundColor="blue" color="white">
+          <Text
+            backgroundColor={theme.selection.backgroundColor}
+            color={theme.selection.color}
+            wrap="truncate-end"
+          >
             {prefix}
             {getFileIcon(file)} {displayName}
           </Text>
         ) : isFocused ? (
-          <Text color="white">
+          <Text color={theme.ui.focus} wrap="truncate-end">
             {prefix}
             {getFileIcon(file)} {displayName}
           </Text>
         ) : (
-          <Text>
+          <Text wrap="truncate-end">
             {prefix}
             {getFileIcon(file)} {displayName}
           </Text>
         )}
       </Box>
-      <Box>
+      <Box flexShrink={0}>
         <Badge color={fileBadge.color}>{fileBadge.label}</Badge>
       </Box>
     </Box>

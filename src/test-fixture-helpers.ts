@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
-import { sortBy } from 'es-toolkit';
+import { sortBy } from 'es-toolkit/array';
+import { isArray } from 'es-toolkit/compat';
 import type { FileTree } from 'fs-fixture';
 import { createFixture, type FsFixture } from 'fs-fixture';
 import { match } from 'ts-pattern';
@@ -21,7 +22,7 @@ function hashFileTree(fileTree: FileTree): string {
     if (obj === null || typeof obj !== 'object') {
       return JSON.stringify(obj);
     }
-    if (Array.isArray(obj)) {
+    if (isArray(obj)) {
       return `[${obj.map(sortedStringify).join(',')}]`;
     }
     const sortedEntries = sortBy(
@@ -432,6 +433,7 @@ export async function createNestedProjectFixture(
             'watch.md': createSlashCommandContent('watch'),
           },
         },
+        'settings.json': JSON.stringify({ testSetting: 'nested' }, null, 2),
       },
     },
   });

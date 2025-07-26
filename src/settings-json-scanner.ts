@@ -61,12 +61,13 @@ export const scanSettingsJson = async (
   // Also scan global Claude directory if scanning recursively
   if (recursive) {
     const { homedir } = await import('node:os');
-    const globalPath = homedir();
+    const { join } = await import('node:path');
+    const globalClaudePath = join(homedir(), '.claude');
 
-    // Only scan home directory if it's different from the current path
-    if (globalPath !== path) {
+    // Only scan global .claude directory if it's different from the current path
+    if (globalClaudePath !== path && !path.startsWith(globalClaudePath)) {
       const globalFiles = await findSettingsJson({
-        path: globalPath,
+        path: globalClaudePath,
         recursive: false,
         includeHidden,
       });

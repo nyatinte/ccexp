@@ -1,3 +1,4 @@
+import { delay } from 'es-toolkit/promise';
 import { Text } from 'ink';
 import { render } from 'ink-testing-library';
 import React from 'react';
@@ -5,7 +6,6 @@ import type { ClaudeFileInfo, FileScanner } from '../_types.js';
 import { scanClaudeFiles } from '../claude-md-scanner.js';
 import { scanSettingsJson } from '../settings-json-scanner.js';
 import { scanSlashCommands } from '../slash-command-scanner.js';
-import { delay } from '../test-utils.js';
 import { useFileNavigation } from './useFileNavigation.js';
 
 // Test component (for testing useFileNavigation)
@@ -493,10 +493,16 @@ if (import.meta.vitest) {
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
 
-      await delay(800); // Increased delay for recursive scanning
+      await delay(2000); // Increased delay for recursive scanning with settings files
 
       // Should find all files recursively
       const frame = lastFrame();
+
+      // Debug: log the frame if it's still loading
+      if (frame?.includes('Loading')) {
+        console.log('Still loading after 2s:', frame);
+      }
+
       expect(frame).toContain('Files:');
       // Should find multiple files from nested directories
       expect(frame).not.toContain('Files: 0');

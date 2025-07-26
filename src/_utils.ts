@@ -1,8 +1,10 @@
 import { homedir } from 'node:os';
-import { basename, dirname } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { match, P } from 'ts-pattern';
 import type { ClaudeFilePath, ClaudeFileType } from './_types.ts';
 import { createClaudeFilePath } from './_types.ts';
+
+const HOME_DIR = homedir();
 
 // File path utilities
 export const parseSlashCommandName = (fileName: string): string => {
@@ -11,7 +13,7 @@ export const parseSlashCommandName = (fileName: string): string => {
 
 const normalizeFilePath = (filePath: string): ClaudeFilePath => {
   const normalized = filePath.startsWith('~')
-    ? filePath.replace('~', homedir())
+    ? filePath.replace('~', HOME_DIR)
     : filePath;
 
   try {
@@ -22,7 +24,7 @@ const normalizeFilePath = (filePath: string): ClaudeFilePath => {
 };
 
 export const getFileScope = (filePath: string): 'project' | 'user' => {
-  return filePath.includes(homedir()) ? 'user' : 'project';
+  return filePath.includes(HOME_DIR) ? 'user' : 'project';
 };
 
 // File type detection
@@ -31,12 +33,12 @@ export const detectClaudeFileType = (filePath: string): ClaudeFileType => {
   const dirPath = dirname(filePath);
 
   return match([fileName, dirPath])
-    .with(['CLAUDE.md', P._], () => 'claude-md' as const)
-    .with(['CLAUDE.local.md', P._], () => 'claude-local-md' as const)
     .with(
-      [P._, P.when((dir) => dir.includes('.claude/CLAUDE.md'))],
+      ['CLAUDE.md', P.when((dir) => dir === join(HOME_DIR, '.claude'))],
       () => 'global-md' as const,
     )
+    .with(['CLAUDE.md', P._], () => 'claude-md' as const)
+    .with(['CLAUDE.local.md', P._], () => 'claude-local-md' as const)
     .with(
       [
         P.when((name) => name.endsWith('.md')),
@@ -180,6 +182,11 @@ if (import.meta.vitest != null) {
       );
     });
 
+    test('should detect global CLAUDE.md files', () => {
+      const globalPath = join(HOME_DIR, '.claude', 'CLAUDE.md');
+      expect(detectClaudeFileType(globalPath)).toBe('global-md');
+    });
+
     test('should detect slash command files', () => {
       expect(detectClaudeFileType('/project/.claude/commands/deploy.md')).toBe(
         'slash-command',
@@ -235,8 +242,7 @@ if (import.meta.vitest != null) {
 
   describe('getFileScope', () => {
     test('should detect user scope for home directory files', () => {
-      const homePath = homedir();
-      expect(getFileScope(`${homePath}/.claude/CLAUDE.md`)).toBe('user');
+      expect(getFileScope(`${HOME_DIR}/.claude/CLAUDE.md`)).toBe('user');
     });
 
     test('should detect project scope for non-home files', () => {
@@ -246,10 +252,9 @@ if (import.meta.vitest != null) {
 
   describe('normalizeFilePath', () => {
     test('should expand ~ to home directory', () => {
-      const homePath = homedir();
-      expect(normalizeFilePath('~/test.md')).toBe(`${homePath}/test.md`);
+      expect(normalizeFilePath('~/test.md')).toBe(`${HOME_DIR}/test.md`);
       expect(normalizeFilePath('~/.claude/CLAUDE.md')).toBe(
-        `${homePath}/.claude/CLAUDE.md`,
+        `${HOME_DIR}/.claude/CLAUDE.md`,
       );
     });
 
@@ -350,8 +355,10 @@ if (import.meta.vitest != null) {
             const result = await isBinaryFile(filePath);
             expect(result).toBe(false); // Should return false on error
           } finally {
-            // Restore permissions for cleanup
-            await chmod(filePath, 0o644);
+            // Best effort cleanup - ignore errors
+            await chmod(filePath, 0o644).catch(() => {
+              // Ignore cleanup errors
+            });
           }
         },
       );
