@@ -2,7 +2,7 @@ import type { Stats } from 'node:fs';
 import { homedir } from 'node:os';
 import matter from 'gray-matter';
 import { FILE_SIZE_LIMITS } from './_consts.ts';
-import type { ClaudeFileInfo, ScanOptions, SubAgentInfo } from './_types.ts';
+import type { ScanOptions, SubAgentInfo } from './_types.ts';
 import { BaseFileScanner } from './base-file-scanner.ts';
 import { findSubAgents } from './fast-scanner.ts';
 
@@ -16,15 +16,12 @@ class SubAgentScanner extends BaseFileScanner<SubAgentInfo> {
     stats: Stats,
   ): Promise<SubAgentInfo | null> {
     try {
-      // Parse YAML frontmatter
       const parsed = matter(content);
 
-      // Determine scope based on file path
       const scope = filePath.includes(`${homedir()}/.claude/agents/`)
         ? ('user' as const)
         : ('project' as const);
 
-      // Extract name from frontmatter or filename
       const name =
         parsed.data.name ||
         filePath.split('/').pop()?.replace('.md', '') ||
@@ -59,9 +56,6 @@ class SubAgentScanner extends BaseFileScanner<SubAgentInfo> {
 // Singleton instance
 const scanner = new SubAgentScanner();
 
-/**
- * Scan for sub-agent files
- */
 export const scanSubAgents = async (
   options: ScanOptions = {},
 ): Promise<SubAgentInfo[]> => {

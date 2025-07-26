@@ -34,7 +34,6 @@ const convertSlashCommandToFileInfo = (
   tags: command.namespace ? [command.namespace] : [],
 });
 
-// Convert SubAgentInfo to ClaudeFileInfo format
 const convertSubAgentToFileInfo = (agent: SubAgentInfo): ClaudeFileInfo => ({
   path: agent.filePath,
   type: agent.scope === 'project' ? 'project-agent' : 'user-agent',
@@ -78,15 +77,12 @@ export function useFileNavigation(
       scanner.scanSubAgents(scanOptions),
     ])
       .then(([claudeFiles, slashCommands, subAgents]) => {
-        // Convert slash commands to ClaudeFileInfo format
         const convertedCommands = slashCommands.map(
           convertSlashCommandToFileInfo,
         );
 
-        // Convert sub-agents to ClaudeFileInfo format
         const convertedAgents = subAgents.map(convertSubAgentToFileInfo);
 
-        // Combine all results
         const allFiles = [
           ...claudeFiles,
           ...convertedCommands,

@@ -95,7 +95,6 @@ export const findSlashCommands = async (
     recursive,
     maxDepth: recursive ? 20 : 3,
   }).filter((filePath) => {
-    // Look for files in .claude/commands or commands directories
     return (
       (filePath.includes('/.claude/commands/') ||
         filePath.includes('/commands/')) &&
@@ -128,16 +127,13 @@ export const findSubAgents = async (
     includeHidden = false,
   } = options;
 
-  // Collect results from both project and user directories
   const results: string[] = [];
 
-  // Search in project .claude/agents directory
   const projectCrawler = createBaseCrawler({
     includeHidden,
     recursive,
     maxDepth: recursive ? 20 : 4,
   }).filter((filePath) => {
-    // Look for files in .claude/agents directories
     return filePath.includes('/.claude/agents/') && filePath.endsWith('.md');
   });
 
@@ -152,7 +148,6 @@ export const findSubAgents = async (
     );
   }
 
-  // Search in user home directory ~/.claude/agents/
   const userAgentsPath = `${homedir()}/.claude/agents`;
   const userCrawler = new fdir()
     .withFullPaths()

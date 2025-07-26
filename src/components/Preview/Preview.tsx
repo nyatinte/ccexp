@@ -126,7 +126,6 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
 
   const fileName = basename(file.path);
 
-  // Parse sub-agent metadata if applicable
   const parseResult =
     file.type === 'project-agent' || file.type === 'user-agent'
       ? tryParseFrontmatter(content)
@@ -135,7 +134,6 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
   const subAgentMeta = parseResult.metadata;
   const actualContent = parseResult.content;
 
-  // Split content by lines
   const lines = actualContent.split('\n');
   const totalLines = lines.length;
   const maxPreviewLines = 12; // Limit to 12 lines considering header space
