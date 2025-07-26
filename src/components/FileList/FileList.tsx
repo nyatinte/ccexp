@@ -5,7 +5,6 @@ import type {
   ClaudeFileInfo,
   ClaudeFileType,
   FileGroup,
-  FlatItem,
 } from '../../_types.js';
 import { useVirtualScroll } from '../../hooks/index.js';
 import { theme } from '../../styles/theme.js';
@@ -20,15 +19,7 @@ import { MenuActions } from './MenuActions/index.js';
  * - Our implementation allows instant "type to search" while navigating
  */
 
-/**
- * RESERVED_LINES breakdown:
- * - Search input field: 3 lines (label + input + margin)
- * - Top scroll indicator: 1 line (when visible)
- * - Bottom scroll indicator: 1 line (when visible)
- * - Status/help text: 2 lines
- * - Terminal borders/padding: 2 lines
- * Total: 9 lines reserved for UI chrome
- */
+// UI chrome: search(3) + scrollbars(2) + status(2) + padding(2) = 9 lines
 const RESERVED_LINES = 9;
 
 type FileListProps = {
@@ -73,23 +64,20 @@ const FileList = React.memo(function FileList({
       .filter((group) => group.files.length > 0);
   }, [fileGroups, searchQuery]);
 
-  const flatItems = useMemo(() => {
-    const items: FlatItem[] = [];
-
-    for (let groupIndex = 0; groupIndex < filteredGroups.length; groupIndex++) {
-      const group = filteredGroups[groupIndex];
-      if (!group) continue;
-
-      items.push({ type: 'group', groupIndex });
-
-      if (group.isExpanded) {
-        for (let fileIndex = 0; fileIndex < group.files.length; fileIndex++) {
-          items.push({ type: 'file', groupIndex, fileIndex });
-        }
-      }
-    }
-    return items;
-  }, [filteredGroups]);
+  const flatItems = useMemo(
+    () =>
+      filteredGroups.flatMap((group, groupIndex) => [
+        { type: 'group' as const, groupIndex },
+        ...(group.isExpanded
+          ? group.files.map((_, fileIndex) => ({
+              type: 'file' as const,
+              groupIndex,
+              fileIndex,
+            }))
+          : []),
+      ]),
+    [filteredGroups],
+  );
 
   const {
     scrollOffset,

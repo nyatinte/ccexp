@@ -1,12 +1,12 @@
 import { useStdout } from 'ink';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { match, P } from 'ts-pattern';
 import type { FlatItem } from '../_types.js';
 
 // Viewport height constants
 const MIN_VIEWPORT_HEIGHT = 5;
 const MAX_VIEWPORT_HEIGHT = 20;
 const DEFAULT_TERMINAL_ROWS = 24;
-const TEST_VIEWPORT_HEIGHT = 100;
 
 type UseVirtualScrollOptions = {
   items: FlatItem[];
@@ -14,6 +14,7 @@ type UseVirtualScrollOptions = {
   currentFileIndex: number;
   isGroupSelected: boolean;
   reservedLines: number;
+  testViewportHeight?: number;
 };
 
 type UseVirtualScrollReturn = {
@@ -25,6 +26,7 @@ type UseVirtualScrollReturn = {
   hasTopIndicator: boolean;
   hasBottomIndicator: boolean;
   totalLines: number;
+  getAdjustedScrollOffset: (currentScrollOffset: number) => number;
 };
 
 export function useVirtualScroll({
@@ -33,13 +35,14 @@ export function useVirtualScroll({
   currentFileIndex,
   isGroupSelected,
   reservedLines,
+  testViewportHeight,
 }: UseVirtualScrollOptions): UseVirtualScrollReturn {
   const [scrollOffset, setScrollOffset] = useState(0);
   const { stdout } = useStdout();
 
   const viewportHeight = useMemo(() => {
-    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-      return TEST_VIEWPORT_HEIGHT;
+    if (testViewportHeight !== undefined) {
+      return testViewportHeight;
     }
 
     const calculatedHeight = Math.max(
@@ -47,7 +50,7 @@ export function useVirtualScroll({
       (stdout?.rows ?? DEFAULT_TERMINAL_ROWS) - reservedLines,
     );
     return Math.min(calculatedHeight, MAX_VIEWPORT_HEIGHT);
-  }, [stdout?.rows, reservedLines]);
+  }, [stdout?.rows, reservedLines, testViewportHeight]);
 
   const totalLines = items.length;
 
@@ -68,37 +71,59 @@ export function useVirtualScroll({
 
   const getCurrentLinePosition = useCallback((): number => {
     let position = 0;
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item?.type === 'group') {
-        if (isGroupSelected && item.groupIndex === currentGroupIndex) {
-          return position;
-        }
-        position++;
-      } else if (item?.type === 'file') {
-        if (
-          !isGroupSelected &&
-          item.groupIndex === currentGroupIndex &&
-          item.fileIndex === currentFileIndex
-        ) {
-          return position;
-        }
-        position++;
-      }
+
+    for (const item of items) {
+      const found = match(item)
+        .with(
+          {
+            type: 'group',
+            groupIndex: P.when(
+              (idx) => isGroupSelected && idx === currentGroupIndex,
+            ),
+          },
+          () => true,
+        )
+        .with(
+          {
+            type: 'file',
+            groupIndex: P.when(
+              (gIdx) => !isGroupSelected && gIdx === currentGroupIndex,
+            ),
+            fileIndex: P.when((fIdx) => fIdx === currentFileIndex),
+          },
+          () => true,
+        )
+        .otherwise(() => false);
+
+      if (found) return position;
+      position++;
     }
+
     return 0;
   }, [items, currentGroupIndex, currentFileIndex, isGroupSelected]);
 
-  useEffect(() => {
-    const currentLine = getCurrentLinePosition();
-    const maxScroll = Math.max(0, totalLines - viewportHeight);
+  const getAdjustedScrollOffset = useCallback(
+    (currentScrollOffset: number): number => {
+      const currentLine = getCurrentLinePosition();
+      const maxScroll = Math.max(0, totalLines - viewportHeight);
 
-    if (currentLine < scrollOffset) {
-      setScrollOffset(Math.max(0, currentLine));
-    } else if (currentLine >= scrollOffset + viewportHeight) {
-      setScrollOffset(Math.min(maxScroll, currentLine - viewportHeight + 1));
-    }
-  }, [viewportHeight, scrollOffset, getCurrentLinePosition, totalLines]);
+      if (currentLine < currentScrollOffset) {
+        return Math.max(0, currentLine);
+      }
+      if (currentLine >= currentScrollOffset + viewportHeight) {
+        return Math.min(maxScroll, currentLine - viewportHeight + 1);
+      }
+      return currentScrollOffset;
+    },
+    [viewportHeight, getCurrentLinePosition, totalLines],
+  );
+
+  useEffect(() => {
+    setScrollOffset((currentScrollOffset) => {
+      const adjustedOffset = getAdjustedScrollOffset(currentScrollOffset);
+      return adjustedOffset;
+    });
+  }, [getAdjustedScrollOffset]);
 
   const hasTopIndicator = scrollOffset > 0;
   const hasBottomIndicator = scrollOffset + viewportHeight < totalLines;
@@ -112,6 +137,7 @@ export function useVirtualScroll({
     hasTopIndicator,
     hasBottomIndicator,
     totalLines,
+    getAdjustedScrollOffset,
   };
 }
 
@@ -151,6 +177,7 @@ if (import.meta.vitest != null) {
     currentFileIndex,
     isGroupSelected,
     reservedLines,
+    testViewportHeight,
     onResult,
   }: UseVirtualScrollOptions & {
     onResult?: (result: ReturnType<typeof useVirtualScroll>) => void;
@@ -161,6 +188,7 @@ if (import.meta.vitest != null) {
       currentFileIndex,
       isGroupSelected,
       reservedLines,
+      ...(testViewportHeight !== undefined && { testViewportHeight }),
     });
 
     React.useEffect(() => {
@@ -245,10 +273,7 @@ if (import.meta.vitest != null) {
       expect(hookResult?.hasBottomIndicator).toBe(false);
     });
 
-    test('should respect test environment viewport height', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'test';
-
+    test('should respect test viewport height parameter', () => {
       let hookResult: ReturnType<typeof useVirtualScroll> | undefined;
 
       render(
@@ -258,15 +283,14 @@ if (import.meta.vitest != null) {
           currentFileIndex={0}
           isGroupSelected={false}
           reservedLines={5}
+          testViewportHeight={100}
           onResult={(result) => {
             hookResult = result;
           }}
         />,
       );
 
-      expect(hookResult?.viewportHeight).toBe(TEST_VIEWPORT_HEIGHT);
-
-      process.env.NODE_ENV = originalEnv;
+      expect(hookResult?.viewportHeight).toBe(100);
     });
 
     test('should handle group selection correctly', () => {

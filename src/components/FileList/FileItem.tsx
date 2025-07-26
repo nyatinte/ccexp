@@ -56,12 +56,10 @@ export const FileItem = React.memo(function FileItem({
   const dirPath = dirname(file.path);
   const parentDir = basename(dirPath);
 
-  const displayName =
-    file.type === 'global-md'
-      ? `~/.claude/${fileName}`
-      : file.type === 'slash-command'
-        ? fileName.replace('.md', '')
-        : `${parentDir}/${fileName}`;
+  const displayName = match(file.type)
+    .with('global-md', () => `~/.claude/${fileName}`)
+    .with('slash-command', () => fileName.replace('.md', ''))
+    .otherwise(() => `${parentDir}/${fileName}`);
 
   const prefix = isFocused ? '► ' : '  ';
 
