@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { sortBy } from 'es-toolkit';
+import { sortBy } from 'es-toolkit/array';
 import { isArray } from 'es-toolkit/compat';
 import type { FileTree } from 'fs-fixture';
 import { createFixture, type FsFixture } from 'fs-fixture';

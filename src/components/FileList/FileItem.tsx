@@ -17,7 +17,6 @@ export const FileItem = React.memo(function FileItem({
   isSelected,
   isFocused,
 }: FileItemProps): React.JSX.Element {
-  // File type badge color and label
   const getFileBadge = (file: ClaudeFileInfo) => {
     return match(file.type)
       .with('claude-md', () => ({
@@ -51,7 +50,6 @@ export const FileItem = React.memo(function FileItem({
       .exhaustive();
   };
 
-  // File type icon
   const getFileIcon = (file: ClaudeFileInfo): string => {
     return match(file.type)
       .with('claude-md', () => '📝')
@@ -64,21 +62,16 @@ export const FileItem = React.memo(function FileItem({
       .exhaustive();
   };
 
-  // Get filename and parent directory
-  const fileName = basename(file.path);
+  const fileName = basename(file.path).replace(/\t/g, ' ');
   const dirPath = dirname(file.path);
   const parentDir = basename(dirPath);
 
-  // Display name (including parent directory)
-  // Special handling for home directory
-  const displayName =
-    file.type === 'global-md'
-      ? `~/.claude/${fileName}`
-      : file.type === 'user-agent'
-        ? `~/.claude/agents/${fileName.replace('.md', '')}`
-        : file.type === 'project-agent' || file.type === 'slash-command'
-          ? fileName.replace('.md', '') // Remove .md for commands and agents
-          : `${parentDir}/${fileName}`;
+  const displayName = match(file.type)
+    .with('global-md', () => `~/.claude/${fileName}`)
+    .with('user-agent', () => `~/.claude/agents/${fileName.replace('.md', '')}`)
+    .with('project-agent', () => fileName.replace('.md', ''))
+    .with('slash-command', () => fileName.replace('.md', ''))
+    .otherwise(() => `${parentDir}/${fileName}`);
 
   const prefix = isFocused ? '► ' : '  ';
 
@@ -86,28 +79,29 @@ export const FileItem = React.memo(function FileItem({
 
   return (
     <Box justifyContent="space-between" width="100%">
-      <Box>
+      <Box flexGrow={1} marginRight={1}>
         {isSelected ? (
           <Text
             backgroundColor={theme.selection.backgroundColor}
             color={theme.selection.color}
+            wrap="truncate-end"
           >
             {prefix}
             {getFileIcon(file)} {displayName}
           </Text>
         ) : isFocused ? (
-          <Text color={theme.ui.focus}>
+          <Text color={theme.ui.focus} wrap="truncate-end">
             {prefix}
             {getFileIcon(file)} {displayName}
           </Text>
         ) : (
-          <Text>
+          <Text wrap="truncate-end">
             {prefix}
             {getFileIcon(file)} {displayName}
           </Text>
         )}
       </Box>
-      <Box>
+      <Box flexShrink={0}>
         <Badge color={fileBadge.color}>{fileBadge.label}</Badge>
       </Box>
     </Box>
