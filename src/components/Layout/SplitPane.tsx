@@ -5,21 +5,31 @@ import type React from 'react';
 type SplitPaneProps = {
   readonly left: React.ReactNode;
   readonly right: React.ReactNode;
-  readonly leftWidth?: number; // Specify left pane width as percentage (0-100)
+  readonly leftWidth?: number;
+  readonly minLeftWidth?: number;
+  readonly maxLeftWidth?: number;
+  readonly dynamicWidth?: boolean;
 };
 
 export function SplitPane({
   left,
   right,
   leftWidth = 50,
+  minLeftWidth = 30,
+  maxLeftWidth = 70,
+  dynamicWidth = false,
 }: SplitPaneProps): React.JSX.Element {
-  // Validate percentage range
-  const validLeftWidth = clamp(leftWidth, 0, 100);
+  let adjustedLeftWidth = leftWidth;
+
+  if (dynamicWidth) {
+    adjustedLeftWidth = clamp(leftWidth, minLeftWidth, maxLeftWidth);
+  }
+
+  const validLeftWidth = clamp(adjustedLeftWidth, 0, 100);
   const rightWidth = 100 - validLeftWidth;
 
   return (
     <Box flexDirection="row" width="100%" height="100%">
-      {/* Left pane: File list */}
       <Box
         width={`${validLeftWidth}%`}
         height="100%"
@@ -33,7 +43,6 @@ export function SplitPane({
         {left}
       </Box>
 
-      {/* Right pane: Preview */}
       <Box width={`${rightWidth}%`} height="100%" paddingX={1}>
         {right}
       </Box>
