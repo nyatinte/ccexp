@@ -72,7 +72,7 @@ export const typeText = (stdin: TestStdin, text: string): void => {
 /**
  * Type multiple keys in sequence
  */
-export const typeKeys = (stdin: TestStdin, ...keys: string[]): void => {
+const typeKeys = (stdin: TestStdin, ...keys: string[]): void => {
   keys.forEach((key) => stdin.write(key));
 };
 
