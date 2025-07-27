@@ -1,7 +1,5 @@
-import { basename } from 'node:path';
 import { Box, Text, useInput } from 'ink';
 import React, { useEffect, useMemo, useState } from 'react';
-import { match } from 'ts-pattern';
 import type {
   ClaudeFileInfo,
   ClaudeFileType,
@@ -12,6 +10,14 @@ import { theme } from '../../styles/theme.js';
 import { FileGroup as FileGroupComponent } from './FileGroup.js';
 import { FileItem } from './FileItem.js';
 import { MenuActions } from './MenuActions/index.js';
+import {
+  calculateNavigationPosition,
+  filterFileGroups,
+  flattenFileGroups,
+  getFileAtPosition,
+  handleDownArrowNavigation,
+  handleUpArrowNavigation,
+} from './navigation-utils.js';
 
 /**
  * Why not use @inkjs/ui TextInput:
@@ -22,24 +28,6 @@ import { MenuActions } from './MenuActions/index.js';
 
 // UI chrome: search(3) + scrollbars(2) + status(2) + padding(2) = 9 lines
 const RESERVED_LINES = 9;
-
-type NavigationPosition = {
-  type: 'group' | 'file';
-  isFirstInGroup: boolean;
-  hasFileAbove: boolean;
-  hasPrevGroup: boolean;
-  hasNextGroup: boolean;
-  prevGroup: {
-    index: number;
-    isExpanded: boolean;
-    files: ReadonlyArray<ClaudeFileInfo>;
-  } | null;
-  nextGroup: {
-    index: number;
-    isExpanded: boolean;
-    files: ReadonlyArray<ClaudeFileInfo>;
-  } | null;
-};
 
 type FileListProps = {
   readonly files: ClaudeFileInfo[];
@@ -66,35 +54,13 @@ const FileList = React.memo(function FileList({
   const [isMenuMode, setIsMenuMode] = useState(false);
   const [isGroupSelected, setIsGroupSelected] = useState(false);
 
-  const filteredGroups = useMemo(() => {
-    if (!searchQuery) return fileGroups;
-
-    return fileGroups
-      .map((group) => ({
-        ...group,
-        files: group.files.filter((file) => {
-          const fileName = basename(file.path);
-          return (
-            fileName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            file.path.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-        }),
-      }))
-      .filter((group) => group.files.length > 0);
-  }, [fileGroups, searchQuery]);
+  const filteredGroups = useMemo(
+    () => filterFileGroups(fileGroups, searchQuery),
+    [fileGroups, searchQuery],
+  );
 
   const flatItems = useMemo(
-    () =>
-      filteredGroups.flatMap((group, groupIndex) => [
-        { type: 'group' as const, groupIndex },
-        ...(group.isExpanded
-          ? group.files.map((_, fileIndex) => ({
-              type: 'file' as const,
-              groupIndex,
-              fileIndex,
-            }))
-          : []),
-      ]),
+    () => flattenFileGroups(filteredGroups),
     [filteredGroups],
   );
 
@@ -113,94 +79,47 @@ const FileList = React.memo(function FileList({
     reservedLines: RESERVED_LINES,
   });
 
-  const getCurrentFile = () => {
-    if (isGroupSelected || filteredGroups.length === 0) return null;
-    const group = filteredGroups[currentGroupIndex];
-    if (!group || !group.isExpanded || group.files.length === 0) return null;
-    return group.files[currentFileIndex];
-  };
-
-  const getCurrentPosition = (): NavigationPosition => {
-    const isFirstInGroup = currentFileIndex === 0;
-    const hasFileAbove = !isGroupSelected && currentFileIndex > 0;
-    const hasPrevGroup = currentGroupIndex > 0;
-    const hasNextGroup = currentGroupIndex < filteredGroups.length - 1;
-    const prevGroup = hasPrevGroup
-      ? filteredGroups[currentGroupIndex - 1]
-      : null;
-    const nextGroup = hasNextGroup
-      ? filteredGroups[currentGroupIndex + 1]
-      : null;
-
-    return {
-      type: isGroupSelected ? 'group' : 'file',
-      isFirstInGroup,
-      hasFileAbove,
-      hasPrevGroup,
-      hasNextGroup,
-      prevGroup: prevGroup
-        ? {
-            index: currentGroupIndex - 1,
-            isExpanded: prevGroup.isExpanded,
-            files: prevGroup.files,
-          }
-        : null,
-      nextGroup: nextGroup
-        ? {
-            index: currentGroupIndex + 1,
-            isExpanded: nextGroup.isExpanded,
-            files: nextGroup.files,
-          }
-        : null,
-    };
-  };
+  const getCurrentFile = () =>
+    getFileAtPosition(
+      filteredGroups,
+      currentGroupIndex,
+      currentFileIndex,
+      isGroupSelected,
+    );
 
   const handleUpArrow = () => {
-    const currentPosition = getCurrentPosition();
-
-    match(currentPosition)
-      .with({ type: 'file', hasFileAbove: true }, () => {
-        setCurrentFileIndex((prev) => prev - 1);
-      })
-      .with({ type: 'file', isFirstInGroup: true }, () => {
-        setIsGroupSelected(true);
-      })
-      .with({ type: 'group', hasPrevGroup: true }, ({ prevGroup }) => {
-        if (prevGroup && prevGroup.isExpanded && prevGroup.files.length > 0) {
-          setCurrentGroupIndex(prevGroup.index);
-          setCurrentFileIndex(prevGroup.files.length - 1);
-          setIsGroupSelected(false);
-        } else if (prevGroup) {
-          setCurrentGroupIndex(prevGroup.index);
-          setIsGroupSelected(true);
-        }
-      })
-      .otherwise(() => {});
+    const currentPosition = calculateNavigationPosition(
+      filteredGroups,
+      currentGroupIndex,
+      currentFileIndex,
+      isGroupSelected,
+    );
+    const result = handleUpArrowNavigation(
+      currentPosition,
+      currentGroupIndex,
+      currentFileIndex,
+    );
+    setCurrentGroupIndex(result.currentGroupIndex);
+    setCurrentFileIndex(result.currentFileIndex);
+    setIsGroupSelected(result.isGroupSelected);
   };
 
   const handleDownArrow = () => {
-    const currentPosition = getCurrentPosition();
-    const group = filteredGroups[currentGroupIndex];
-
-    match(currentPosition)
-      .with({ type: 'group' }, () => {
-        if (group?.isExpanded && group.files.length > 0) {
-          setIsGroupSelected(false);
-          setCurrentFileIndex(0);
-        } else if (currentPosition.hasNextGroup) {
-          setCurrentGroupIndex((prev) => prev + 1);
-        }
-      })
-      .with({ type: 'file' }, () => {
-        if (group && currentFileIndex < group.files.length - 1) {
-          setCurrentFileIndex((prev) => prev + 1);
-        } else if (currentPosition.hasNextGroup) {
-          setCurrentGroupIndex((prev) => prev + 1);
-          setIsGroupSelected(true);
-          setCurrentFileIndex(0);
-        }
-      })
-      .otherwise(() => {});
+    const currentPosition = calculateNavigationPosition(
+      filteredGroups,
+      currentGroupIndex,
+      currentFileIndex,
+      isGroupSelected,
+    );
+    const result = handleDownArrowNavigation(
+      currentPosition,
+      filteredGroups,
+      currentGroupIndex,
+      currentFileIndex,
+    );
+    setCurrentGroupIndex(result.currentGroupIndex);
+    setCurrentFileIndex(result.currentFileIndex);
+    setIsGroupSelected(result.isGroupSelected);
   };
 
   useEffect(() => {
