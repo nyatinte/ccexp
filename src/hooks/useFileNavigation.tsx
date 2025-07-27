@@ -64,15 +64,20 @@ export function useFileNavigation(
     Promise.all([
       scanner.scanClaudeFiles(scanOptions),
       scanner.scanSlashCommands(scanOptions),
+      scanner.scanSettingsJson(scanOptions),
     ])
-      .then(([claudeFiles, slashCommands]) => {
+      .then(([claudeFiles, slashCommands, settingsFiles]) => {
         // Convert slash commands to ClaudeFileInfo format
         const convertedCommands = slashCommands.map(
           convertSlashCommandToFileInfo,
         );
 
-        // Combine both results
-        const allFiles = [...claudeFiles, ...convertedCommands];
+        // Combine all results
+        const allFiles = [
+          ...claudeFiles,
+          ...convertedCommands,
+          ...settingsFiles,
+        ];
 
         // Group files by type using es-toolkit
         const groupedFiles = groupBy(allFiles, (file) => file.type) as Record<
@@ -94,6 +99,8 @@ export function useFileNavigation(
           'global-md',
           'claude-md',
           'claude-local-md',
+          'settings-json',
+          'settings-local-json',
           'slash-command',
           'unknown',
         ];

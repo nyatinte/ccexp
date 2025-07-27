@@ -9,6 +9,17 @@ import { isBinaryFile } from '../../_utils.js';
 import { theme } from '../../styles/theme.js';
 import { MarkdownPreview } from './MarkdownPreview.js';
 
+// Format JSON content for better readability
+const formatJsonContent = (content: string): string => {
+  try {
+    const parsed = JSON.parse(content);
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    // If parsing fails, return original content
+    return content;
+  }
+};
+
 type PreviewProps = {
   readonly file?: ClaudeFileInfo | undefined;
 };
@@ -129,7 +140,7 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
           {/* User memory description */}
           {file.type === 'global-md' && (
             <Box marginTop={1}>
-              <Text color="magenta" italic>
+              <Text color={theme.fileTypes.globalMd} italic>
                 📌 This is your private global configuration file that provides
                 instructions to Claude across all projects
               </Text>
@@ -147,6 +158,8 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
         <Box flexDirection="column" paddingRight={1}>
           {fileName.endsWith('.md') ? (
             <MarkdownPreview content={previewContent} />
+          ) : fileName.endsWith('.json') ? (
+            <Text>{formatJsonContent(previewContent)}</Text>
           ) : (
             <Text>{previewContent}</Text>
           )}

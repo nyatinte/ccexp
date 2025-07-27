@@ -1,8 +1,9 @@
+import { homedir } from 'node:os';
 import { basename, dirname } from 'node:path';
 import { Badge } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import React from 'react';
-import { match } from 'ts-pattern';
+import { match, P } from 'ts-pattern';
 import type { ClaudeFileInfo } from '../../_types.js';
 import { theme } from '../../styles/theme.js';
 
@@ -35,6 +36,14 @@ export const FileItem = React.memo(function FileItem({
         color: theme.fileTypes.globalMd,
         label: 'GLOBAL',
       }))
+      .with('settings-json', () => ({
+        color: theme.fileTypes.settingsJson,
+        label: 'SETTINGS',
+      }))
+      .with('settings-local-json', () => ({
+        color: theme.fileTypes.settingsLocalJson,
+        label: 'LOCAL SETTINGS',
+      }))
       .with('unknown', () => ({
         color: theme.fileTypes.unknown,
         label: 'FILE',
@@ -48,6 +57,8 @@ export const FileItem = React.memo(function FileItem({
       .with('claude-local-md', () => '🔒')
       .with('slash-command', () => '⚡')
       .with('global-md', () => '🧠')
+      .with('settings-json', () => '⚙️')
+      .with('settings-local-json', () => '🔧')
       .with('unknown', () => '📄')
       .exhaustive();
   };
@@ -56,10 +67,28 @@ export const FileItem = React.memo(function FileItem({
   const dirPath = dirname(file.path);
   const parentDir = basename(dirPath);
 
-  const displayName = match(file.type)
-    .with('global-md', () => `~/.claude/${fileName}`)
-    .with('slash-command', () => fileName.replace('.md', ''))
-    .otherwise(() => `${parentDir}/${fileName}`);
+  const getDisplayName = (): string => {
+    return match(file.type)
+      .with('global-md', () => `~/.claude/${fileName}`)
+      .with('slash-command', () => fileName.replace('.md', ''))
+      .with(P.union('settings-json', 'settings-local-json'), () => {
+        const homeDir = homedir();
+        if (file.path.startsWith(homeDir)) {
+          const relativePath = file.path.slice(homeDir.length);
+          return `~${relativePath}`;
+        }
+
+        const parts = file.path.split('/');
+        const claudeIndex = parts.lastIndexOf('.claude');
+        if (claudeIndex > 0 && parts[claudeIndex - 1]) {
+          return `${parts[claudeIndex - 1]}/.claude/${fileName}`;
+        }
+        return `${parentDir}/${fileName}`;
+      })
+      .otherwise(() => `${parentDir}/${fileName}`);
+  };
+
+  const displayName = getDisplayName();
 
   const prefix = isFocused ? '► ' : '  ';
 

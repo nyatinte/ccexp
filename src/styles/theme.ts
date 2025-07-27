@@ -8,6 +8,8 @@ export const theme = {
     claudeLocalMd: 'yellow',
     slashCommand: 'green',
     globalMd: 'magenta',
+    settingsJson: 'cyan',
+    settingsLocalJson: 'yellowBright',
     unknown: 'gray',
   },
   status: {
