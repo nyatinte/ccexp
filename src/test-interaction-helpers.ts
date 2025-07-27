@@ -1,7 +1,7 @@
 import { isArray } from 'es-toolkit/compat';
 import { keyboard, typeText } from './test-keyboard-helpers.js';
 import { createNavigation } from './test-navigation.js';
-import { waitForEffects } from './test-utils.js';
+import { waitFor, waitForEffects } from './test-utils.js';
 
 // Type for stdin mock object from ink-testing-library
 type TestStdin = {
@@ -100,6 +100,46 @@ export const createTestInteraction = (
     return output as string;
   };
 
+  /**
+   * Wait for specific content to appear
+   */
+  const waitForContent = async (
+    text: string,
+    timeout?: number,
+    interval?: number,
+  ) => {
+    await waitFor(
+      () => {
+        const output = lastFrame();
+        if (!output || !output.includes(text)) {
+          throw new Error(`Content "${text}" not found in output`);
+        }
+      },
+      timeout,
+      interval,
+    );
+  };
+
+  /**
+   * Wait for specific content to disappear
+   */
+  const waitForNotContent = async (
+    text: string,
+    timeout?: number,
+    interval?: number,
+  ) => {
+    await waitFor(
+      () => {
+        const output = lastFrame();
+        if (output?.includes(text)) {
+          throw new Error(`Content "${text}" still present in output`);
+        }
+      },
+      timeout,
+      interval,
+    );
+  };
+
   return {
     navigateUp,
     navigateDown,
@@ -114,6 +154,8 @@ export const createTestInteraction = (
     verifyNotContent,
     getOutput,
     assertOutput,
+    waitForContent,
+    waitForNotContent,
   };
 };
 

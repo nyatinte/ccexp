@@ -1,4 +1,3 @@
-import { delay } from 'es-toolkit/promise';
 import { render } from 'ink-testing-library';
 import { App } from './App.js';
 import {
@@ -51,7 +50,7 @@ if (import.meta.vitest) {
         const interaction = createTestInteraction(stdin, lastFrame);
 
         // Wait for initial load
-        await delay(100); // Reduced delay for file scanning
+        await interaction.waitForContent('Claude Files');
         await waitForEffects();
 
         // Debug: Print initial state
@@ -130,8 +129,8 @@ if (import.meta.vitest) {
         const { stdin, lastFrame, unmount } = render(<App cliOptions={{}} />);
         const interaction = createTestInteraction(stdin, lastFrame);
 
-        // Wait for files to load with delay for file scanning
-        await delay(200); // Reduced delay
+        // Wait for files to load
+        await interaction.waitForContent('Claude Files');
         await waitForEffects();
 
         // Verify initial groups display - counts may vary due to file reading issues
@@ -172,8 +171,8 @@ if (import.meta.vitest) {
         const { stdin, lastFrame, unmount } = render(<App cliOptions={{}} />);
         const interaction = createTestInteraction(stdin, lastFrame);
 
-        // Wait for files to load with delay for file scanning
-        await delay(200); // Reduced delay
+        // Wait for files to load
+        await interaction.waitForContent('Claude Files');
         await waitForEffects();
 
         // Search for ".md" (should match all .md files)
@@ -325,8 +324,8 @@ if (import.meta.vitest) {
         const { stdin, lastFrame, unmount } = render(<App cliOptions={{}} />);
         const interaction = createTestInteraction(stdin, lastFrame);
 
-        // Wait for files to load with delay for file scanning
-        await delay(200); // Reduced delay
+        // Wait for files to load
+        await interaction.waitForContent('Claude Files');
         await waitForEffects();
 
         // At top of list - check that we have some groups
@@ -419,8 +418,8 @@ if (import.meta.vitest) {
         const { stdin, lastFrame, unmount } = render(<App cliOptions={{}} />);
         const interaction = createTestInteraction(stdin, lastFrame);
 
-        // Wait for files to load with delay for file scanning
-        await delay(200); // Reduced delay
+        // Wait for files to load
+        await interaction.waitForContent('Claude Files');
         await waitForEffects();
 
         // Groups exist

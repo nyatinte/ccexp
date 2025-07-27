@@ -1,7 +1,7 @@
-import { delay } from 'es-toolkit/promise';
 import { render } from 'ink-testing-library';
 import { vi } from 'vitest';
 import { keyboard } from '../../../test-keyboard-helpers.js';
+import { waitFor } from '../../../test-utils.js';
 import { ThemedConfirmInput } from './ThemedConfirmInput.js';
 
 if (import.meta.vitest) {
@@ -63,7 +63,9 @@ if (import.meta.vitest) {
       );
 
       stdin.write('Y');
-      await delay(50);
+      await waitFor(() => {
+        // Small delay for input processing
+      }, 50);
 
       expect(onConfirm).toHaveBeenCalledTimes(1);
       expect(onCancel).not.toHaveBeenCalled();
@@ -83,7 +85,9 @@ if (import.meta.vitest) {
       );
 
       stdin.write('n');
-      await delay(50);
+      await waitFor(() => {
+        // Small delay for input processing
+      }, 50);
 
       expect(onCancel).toHaveBeenCalledTimes(1);
       expect(onConfirm).not.toHaveBeenCalled();
@@ -103,7 +107,9 @@ if (import.meta.vitest) {
       );
 
       stdin.write('y');
-      await delay(50);
+      await waitFor(() => {
+        // Small delay for input processing
+      }, 50);
 
       expect(onConfirm).toHaveBeenCalledTimes(1);
       expect(onCancel).not.toHaveBeenCalled();
@@ -123,7 +129,9 @@ if (import.meta.vitest) {
       );
 
       stdin.write('N');
-      await delay(50);
+      await waitFor(() => {
+        // Small delay for input processing
+      }, 50);
 
       expect(onCancel).toHaveBeenCalledTimes(1);
       expect(onConfirm).not.toHaveBeenCalled();
@@ -143,7 +151,9 @@ if (import.meta.vitest) {
       );
 
       stdin.write(keyboard.enter);
-      await delay(50);
+      await waitFor(() => {
+        // Small delay for input processing
+      }, 50);
 
       expect(onCancel).toHaveBeenCalledTimes(1);
       expect(onConfirm).not.toHaveBeenCalled();
@@ -216,7 +226,9 @@ if (import.meta.vitest) {
         />,
       );
 
-      await delay(100);
+      await waitFor(() => {
+        // Small delay for input processing
+      }, 100);
 
       expect(onConfirm).not.toHaveBeenCalled();
       expect(onCancel).not.toHaveBeenCalled();
@@ -238,7 +250,9 @@ if (import.meta.vitest) {
       stdin.write('x');
       stdin.write('1');
       stdin.write(' ');
-      await delay(50);
+      await waitFor(() => {
+        // Small delay for input processing
+      }, 50);
 
       expect(onConfirm).not.toHaveBeenCalled();
       expect(onCancel).not.toHaveBeenCalled();
@@ -323,7 +337,9 @@ if (import.meta.vitest) {
       );
 
       stdin.write('Y');
-      await delay(50);
+      await waitFor(() => {
+        // Small delay for input processing
+      }, 50);
 
       expect(onConfirm).toHaveBeenCalledTimes(1);
 

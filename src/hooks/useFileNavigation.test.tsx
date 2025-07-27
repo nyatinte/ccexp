@@ -1,4 +1,3 @@
-import { delay } from 'es-toolkit/promise';
 import { Text } from 'ink';
 import { render } from 'ink-testing-library';
 import React from 'react';
@@ -6,6 +5,7 @@ import type { ClaudeFileInfo, FileScanner } from '../_types.js';
 import { scanClaudeFiles } from '../claude-md-scanner.js';
 import { scanSettingsJson } from '../settings-json-scanner.js';
 import { scanSlashCommands } from '../slash-command-scanner.js';
+import { waitFor } from '../test-utils.js';
 import { useFileNavigation } from './useFileNavigation.js';
 
 // Test component (for testing useFileNavigation)
@@ -95,7 +95,12 @@ if (import.meta.vitest) {
       expect(lastFrame()).toContain('Loading...');
 
       // Wait for async processing to complete
-      await delay(300); // Optimized delay for file operations
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
 
       // Verify results
       const frame = lastFrame();
@@ -133,7 +138,11 @@ if (import.meta.vitest) {
       expect(lastFrame()).toContain('Loading...');
 
       // Wait for the error to be caught and state to update
-      await delay(300);
+      await waitFor(() => {
+        if (!capturedError) {
+          throw new Error('Error not captured yet');
+        }
+      });
 
       // Verify error handling
       expect(capturedError).toBeDefined();
@@ -178,7 +187,12 @@ if (import.meta.vitest) {
         <TestComponent scanner={accessibleScanner} />,
       );
 
-      await delay(300);
+      await waitFor(() => {
+        const frame = lastFrame2();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
 
       // Verify the app recovers and works with accessible directory
       const recoveredFrame = lastFrame2();
@@ -222,7 +236,12 @@ if (import.meta.vitest) {
           expect(lastFrame()).toContain('Loading...');
 
           // Wait for async processing to complete
-          await delay(300); // Optimized delay
+          await waitFor(() => {
+            const frame = lastFrame();
+            if (!frame || frame.includes('Loading...')) {
+              throw new Error('Still loading');
+            }
+          });
 
           // Should show only global user files (since local directory is empty)
           const frame = lastFrame();
@@ -266,7 +285,12 @@ if (import.meta.vitest) {
       expect(lastFrame()).toContain('Loading...');
 
       // Wait for async processing to complete
-      await delay(500);
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      }, 500);
 
       // Should find multiple files
       const frame = lastFrame();
@@ -322,7 +346,12 @@ if (import.meta.vitest) {
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
 
-      await delay(300);
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
 
       // Should find both global and project files
       const frame = lastFrame();
@@ -363,7 +392,12 @@ if (import.meta.vitest) {
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
 
-      await delay(300); // Optimized delay
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
 
       // Should find slash commands (3 local + global commands)
       const frame = lastFrame();
@@ -404,7 +438,12 @@ if (import.meta.vitest) {
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
 
-      await delay(300); // Optimized delay
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
 
       // Should find all file types
       const frame = lastFrame();
@@ -443,7 +482,12 @@ if (import.meta.vitest) {
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
 
-      await delay(500);
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      }, 500);
 
       // Verify initial state
       const initialFrame = lastFrame();
@@ -457,7 +501,10 @@ if (import.meta.vitest) {
       );
 
       // Hook doesn't auto-refresh, so files count should remain the same
-      await delay(50); // Minimal delay
+      await waitFor(() => {
+        // This is a minimal delay to ensure no auto-refresh happens
+        // So we just wait a bit and continue
+      }, 50);
       expect(lastFrame()).toBe(initialFrame);
     });
 
@@ -493,7 +540,12 @@ if (import.meta.vitest) {
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
 
-      await delay(2000); // Increased delay for recursive scanning with settings files
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      }, 2000);
 
       // Should find all files recursively
       const frame = lastFrame();
