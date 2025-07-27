@@ -3,7 +3,7 @@ import { basename, dirname } from 'node:path';
 import { Badge } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import React from 'react';
-import { match } from 'ts-pattern';
+import { match, P } from 'ts-pattern';
 import type { ClaudeFileInfo } from '../../_types.js';
 import { theme } from '../../styles/theme.js';
 
@@ -67,33 +67,25 @@ export const FileItem = React.memo(function FileItem({
   const dirPath = dirname(file.path);
   const parentDir = basename(dirPath);
 
-  // Display name (including parent directory)
-  // Special handling for home directory and settings files
   const getDisplayName = (): string => {
-    if (file.type === 'global-md') {
-      return `~/.claude/${fileName}`;
-    }
-    if (file.type === 'slash-command') {
-      return fileName.replace('.md', ''); // Remove .md for commands
-    }
-    if (file.type === 'settings-json' || file.type === 'settings-local-json') {
-      // Check if this is a global settings file in home directory
-      const homeDir = homedir();
-      if (file.path.startsWith(homeDir)) {
-        const relativePath = file.path.slice(homeDir.length);
-        return `~${relativePath}`;
-      }
+    return match(file.type)
+      .with('global-md', () => `~/.claude/${fileName}`)
+      .with('slash-command', () => fileName.replace('.md', ''))
+      .with(P.union('settings-json', 'settings-local-json'), () => {
+        const homeDir = homedir();
+        if (file.path.startsWith(homeDir)) {
+          const relativePath = file.path.slice(homeDir.length);
+          return `~${relativePath}`;
+        }
 
-      // For project settings files, show 3 levels: grandparent/parent/filename
-      const parts = file.path.split('/');
-      const claudeIndex = parts.lastIndexOf('.claude');
-      if (claudeIndex > 0 && parts[claudeIndex - 1]) {
-        // Show: project-name/.claude/settings.json
-        return `${parts[claudeIndex - 1]}/.claude/${fileName}`;
-      }
-      return `${parentDir}/${fileName}`;
-    }
-    return `${parentDir}/${fileName}`;
+        const parts = file.path.split('/');
+        const claudeIndex = parts.lastIndexOf('.claude');
+        if (claudeIndex > 0 && parts[claudeIndex - 1]) {
+          return `${parts[claudeIndex - 1]}/.claude/${fileName}`;
+        }
+        return `${parentDir}/${fileName}`;
+      })
+      .otherwise(() => `${parentDir}/${fileName}`);
   };
 
   const displayName = getDisplayName();

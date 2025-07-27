@@ -20,7 +20,6 @@ export const findClaudeFiles = async (
   let crawler = new fdir()
     .withFullPaths()
     .exclude((dirName) => {
-      // Use comprehensive exclusion patterns for security and performance
       if ((DEFAULT_EXCLUSIONS as readonly string[]).includes(dirName)) {
         return true;
       }
@@ -68,7 +67,6 @@ export const findSlashCommands = async (
   let crawler = new fdir()
     .withFullPaths()
     .exclude((dirName) => {
-      // Use comprehensive exclusion patterns for security and performance
       if ((DEFAULT_EXCLUSIONS as readonly string[]).includes(dirName)) {
         return true;
       }
@@ -113,9 +111,6 @@ const isAvailable = async (): Promise<boolean> => {
   return true;
 };
 
-/**
- * Find settings.json files using fdir
- */
 export const findSettingsJson = async (
   options: ScanOptions = {},
 ): Promise<string[]> => {
@@ -128,7 +123,6 @@ export const findSettingsJson = async (
   let crawler = new fdir()
     .withFullPaths()
     .exclude((dirName) => {
-      // Use comprehensive exclusion patterns for security and performance
       if ((DEFAULT_EXCLUSIONS as readonly string[]).includes(dirName)) {
         return true;
       }

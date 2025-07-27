@@ -193,22 +193,13 @@ if (import.meta.vitest != null) {
       );
     });
 
-    test('should detect settings.json files', () => {
-      expect(detectClaudeFileType('/project/.claude/settings.json')).toBe(
-        'settings-json',
-      );
-      expect(detectClaudeFileType('/Users/name/.claude/settings.json')).toBe(
-        'settings-json',
-      );
-    });
-
-    test('should detect settings.local.json files', () => {
-      expect(detectClaudeFileType('/project/.claude/settings.local.json')).toBe(
-        'settings-local-json',
-      );
-      expect(
-        detectClaudeFileType('/Users/name/.claude/settings.local.json'),
-      ).toBe('settings-local-json');
+    test.each([
+      ['/project/.claude/settings.json', 'settings-json'],
+      ['/Users/name/.claude/settings.json', 'settings-json'],
+      ['/project/.claude/settings.local.json', 'settings-local-json'],
+      ['/Users/name/.claude/settings.local.json', 'settings-local-json'],
+    ] as const)('should detect %s as %s', (path, expectedType) => {
+      expect(detectClaudeFileType(path)).toBe(expectedType);
     });
 
     test('should not detect settings files outside .claude', () => {
