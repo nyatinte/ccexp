@@ -1,14 +1,13 @@
 import { basename } from 'node:path';
 import type { ClaudeFileInfo, FileGroup, FlatItem } from '../../_types.js';
 
-/**
- * Filter file groups based on search query
- */
 export const filterFileGroups = (
   fileGroups: FileGroup[],
   searchQuery: string,
 ): FileGroup[] => {
   if (!searchQuery) return [...fileGroups];
+
+  const lowerQuery = searchQuery.toLowerCase();
 
   return fileGroups
     .map((group) => ({
@@ -16,17 +15,14 @@ export const filterFileGroups = (
       files: group.files.filter((file) => {
         const fileName = basename(file.path);
         return (
-          fileName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          file.path.toLowerCase().includes(searchQuery.toLowerCase())
+          fileName.toLowerCase().includes(lowerQuery) ||
+          file.path.toLowerCase().includes(lowerQuery)
         );
       }),
     }))
     .filter((group) => group.files.length > 0);
 };
 
-/**
- * Flatten hierarchical file groups into a linear array
- */
 export const flattenFileGroups = (filteredGroups: FileGroup[]): FlatItem[] => {
   return filteredGroups.flatMap((group, groupIndex) => [
     { type: 'group' as const, groupIndex },
@@ -40,9 +36,6 @@ export const flattenFileGroups = (filteredGroups: FileGroup[]): FlatItem[] => {
   ]);
 };
 
-/**
- * Navigation position information
- */
 type NavigationPosition = {
   type: 'group' | 'file';
   isFirstInGroup: boolean;
@@ -61,9 +54,6 @@ type NavigationPosition = {
   } | null;
 };
 
-/**
- * Calculate current navigation position
- */
 export const calculateNavigationPosition = (
   filteredGroups: FileGroup[],
   currentGroupIndex: number,
@@ -100,18 +90,12 @@ export const calculateNavigationPosition = (
   };
 };
 
-/**
- * Result of navigation action
- */
 type NavigationResult = {
   currentGroupIndex: number;
   currentFileIndex: number;
   isGroupSelected: boolean;
 };
 
-/**
- * Handle up arrow navigation
- */
 export const handleUpArrowNavigation = (
   position: NavigationPosition,
   currentGroupIndex: number,
@@ -165,9 +149,6 @@ export const handleUpArrowNavigation = (
   };
 };
 
-/**
- * Handle down arrow navigation
- */
 export const handleDownArrowNavigation = (
   position: NavigationPosition,
   filteredGroups: FileGroup[],
@@ -224,9 +205,6 @@ export const handleDownArrowNavigation = (
   };
 };
 
-/**
- * Get current file based on navigation state
- */
 export const getFileAtPosition = (
   filteredGroups: FileGroup[],
   currentGroupIndex: number,
