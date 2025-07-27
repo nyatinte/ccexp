@@ -1,3 +1,4 @@
+import { delay } from 'es-toolkit/promise';
 import { Text } from 'ink';
 import { render } from 'ink-testing-library';
 import React from 'react';
@@ -501,10 +502,7 @@ if (import.meta.vitest) {
       );
 
       // Hook doesn't auto-refresh, so files count should remain the same
-      await waitFor(() => {
-        // This is a minimal delay to ensure no auto-refresh happens
-        // So we just wait a bit and continue
-      }, 50);
+      await delay(50); // This is a minimal delay to ensure no auto-refresh happens
       expect(lastFrame()).toBe(initialFrame);
     });
 

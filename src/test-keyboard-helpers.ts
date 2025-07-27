@@ -69,13 +69,6 @@ export const typeText = (stdin: TestStdin, text: string): void => {
   }
 };
 
-/**
- * Type multiple keys in sequence
- */
-const typeKeys = (stdin: TestStdin, ...keys: string[]): void => {
-  keys.forEach((key) => stdin.write(key));
-};
-
 // InSource tests
 if (import.meta.vitest != null) {
   const { describe, test, expect, vi } = import.meta.vitest;
@@ -98,15 +91,6 @@ if (import.meta.vitest != null) {
       expect(stdin.write).toHaveBeenNthCalledWith(3, 'l');
       expect(stdin.write).toHaveBeenNthCalledWith(4, 'l');
       expect(stdin.write).toHaveBeenNthCalledWith(5, 'o');
-    });
-
-    test('typeKeys writes multiple keys', () => {
-      const stdin = { write: vi.fn() };
-      typeKeys(stdin, keyboard.arrowDown, keyboard.enter);
-
-      expect(stdin.write).toHaveBeenCalledTimes(2);
-      expect(stdin.write).toHaveBeenNthCalledWith(1, '\x1B[B');
-      expect(stdin.write).toHaveBeenNthCalledWith(2, '\r');
     });
   });
 }

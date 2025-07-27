@@ -1,7 +1,7 @@
 import { render } from 'ink-testing-library';
 import { vi } from 'vitest';
 import { keyboard } from '../../../test-keyboard-helpers.js';
-import { waitFor } from '../../../test-utils.js';
+import { waitFor, waitForEffects } from '../../../test-utils.js';
 import { ThemedConfirmInput } from './ThemedConfirmInput.js';
 
 if (import.meta.vitest) {
@@ -64,7 +64,9 @@ if (import.meta.vitest) {
 
       stdin.write('Y');
       await waitFor(() => {
-        // Small delay for input processing
+        if (!onConfirm.mock.calls.length) {
+          throw new Error('onConfirm not called yet');
+        }
       }, 50);
 
       expect(onConfirm).toHaveBeenCalledTimes(1);
@@ -86,7 +88,9 @@ if (import.meta.vitest) {
 
       stdin.write('n');
       await waitFor(() => {
-        // Small delay for input processing
+        if (!onCancel.mock.calls.length) {
+          throw new Error('onCancel not called yet');
+        }
       }, 50);
 
       expect(onCancel).toHaveBeenCalledTimes(1);
@@ -108,7 +112,9 @@ if (import.meta.vitest) {
 
       stdin.write('y');
       await waitFor(() => {
-        // Small delay for input processing
+        if (!onConfirm.mock.calls.length) {
+          throw new Error('onConfirm not called yet');
+        }
       }, 50);
 
       expect(onConfirm).toHaveBeenCalledTimes(1);
@@ -130,7 +136,9 @@ if (import.meta.vitest) {
 
       stdin.write('N');
       await waitFor(() => {
-        // Small delay for input processing
+        if (!onCancel.mock.calls.length) {
+          throw new Error('onCancel not called yet');
+        }
       }, 50);
 
       expect(onCancel).toHaveBeenCalledTimes(1);
@@ -152,7 +160,9 @@ if (import.meta.vitest) {
 
       stdin.write(keyboard.enter);
       await waitFor(() => {
-        // Small delay for input processing
+        if (!onCancel.mock.calls.length) {
+          throw new Error('onCancel not called yet');
+        }
       }, 50);
 
       expect(onCancel).toHaveBeenCalledTimes(1);
@@ -226,9 +236,10 @@ if (import.meta.vitest) {
         />,
       );
 
-      await waitFor(() => {
-        // Small delay for input processing
-      }, 100);
+      // Test that callbacks aren't called without input
+      // Need to wait a bit to ensure no unexpected calls
+      await waitForEffects();
+      await waitForEffects();
 
       expect(onConfirm).not.toHaveBeenCalled();
       expect(onCancel).not.toHaveBeenCalled();
@@ -250,9 +261,9 @@ if (import.meta.vitest) {
       stdin.write('x');
       stdin.write('1');
       stdin.write(' ');
-      await waitFor(() => {
-        // Small delay for input processing
-      }, 50);
+      // Wait a bit to ensure no callbacks are triggered
+      await waitForEffects();
+      await waitForEffects();
 
       expect(onConfirm).not.toHaveBeenCalled();
       expect(onCancel).not.toHaveBeenCalled();
@@ -338,7 +349,9 @@ if (import.meta.vitest) {
 
       stdin.write('Y');
       await waitFor(() => {
-        // Small delay for input processing
+        if (!onConfirm.mock.calls.length) {
+          throw new Error('onConfirm not called yet');
+        }
       }, 50);
 
       expect(onConfirm).toHaveBeenCalledTimes(1);
