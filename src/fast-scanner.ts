@@ -164,6 +164,41 @@ export const findSubAgents = async (
   return results;
 };
 
+export const findSettingsJson = async (
+  options: ScanOptions = {},
+): Promise<string[]> => {
+  const {
+    path = process.cwd(),
+    recursive = true,
+    includeHidden = false,
+  } = options;
+
+  const crawler = createBaseCrawler({
+    includeHidden,
+    recursive,
+    maxDepth: recursive ? 20 : 4,
+  }).filter((filePath) => {
+    // Look for settings.json or settings.local.json in .claude directories
+    const fileName = basename(filePath);
+    return (
+      filePath.includes('/.claude/') &&
+      (fileName === 'settings.json' || fileName === 'settings.local.json')
+    );
+  });
+
+  try {
+    const files = await crawler.crawl(path).withPromise();
+    return files;
+  } catch (error) {
+    console.warn(
+      `Failed to scan settings.json files in ${path}: ${
+        error instanceof Error ? error.message : 'Unknown error'
+      }`,
+    );
+    return [];
+  }
+};
+
 // InSource tests
 if (import.meta.vitest != null) {
   /**
@@ -284,6 +319,40 @@ if (import.meta.vitest != null) {
 
       expect(Array.isArray(files)).toBe(true);
       expect(files.length).toBe(0);
+    });
+
+    test('should find settings.json files', async () => {
+      await using _fixture = await withTempFixture(
+        {
+          '.claude': {
+            'settings.json': JSON.stringify({ version: '1.0' }),
+            'settings.local.json': JSON.stringify({ local: true }),
+          },
+          project: {
+            '.claude': {
+              'settings.json': JSON.stringify({ project: true }),
+            },
+          },
+        },
+        async (f) => {
+          const settings = await findSettingsJson({
+            path: f.path,
+            recursive: true,
+          });
+
+          expect(Array.isArray(settings)).toBe(true);
+          expect(settings.length).toBe(3); // 2 settings.json + 1 settings.local.json
+          expect(
+            settings.some((file: string) => file.endsWith('settings.json')),
+          ).toBe(true);
+          expect(
+            settings.some((file: string) =>
+              file.endsWith('settings.local.json'),
+            ),
+          ).toBe(true);
+          return f;
+        },
+      );
     });
 
     test('should respect exclude patterns', async () => {

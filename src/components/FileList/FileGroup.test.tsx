@@ -31,6 +31,8 @@ if (import.meta.vitest) {
         'user-agent': 'USER AGENTS',
         'slash-command': 'COMMAND',
         'global-md': 'USER MEMORY',
+        'settings-json': 'SETTINGS',
+        'settings-local-json': 'LOCAL SETTINGS',
         unknown: 'OTHER',
       };
 

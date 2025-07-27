@@ -75,18 +75,22 @@ export function useFileNavigation(
       scanner.scanClaudeFiles(scanOptions),
       scanner.scanSlashCommands(scanOptions),
       scanner.scanSubAgents(scanOptions),
+      scanner.scanSettingsJson(scanOptions),
     ])
-      .then(([claudeFiles, slashCommands, subAgents]) => {
+      .then(([claudeFiles, slashCommands, subAgents, settingsFiles]) => {
+        // Convert slash commands to ClaudeFileInfo format
         const convertedCommands = slashCommands.map(
           convertSlashCommandToFileInfo,
         );
 
         const convertedAgents = subAgents.map(convertSubAgentToFileInfo);
 
+        // Combine all results
         const allFiles = [
           ...claudeFiles,
           ...convertedCommands,
           ...convertedAgents,
+          ...settingsFiles,
         ];
 
         // Group files by type using es-toolkit
@@ -111,6 +115,8 @@ export function useFileNavigation(
           'claude-local-md',
           'project-agent',
           'user-agent',
+          'settings-json',
+          'settings-local-json',
           'slash-command',
           'unknown',
         ];

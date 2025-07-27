@@ -17,6 +17,8 @@ export type ClaudeFileType =
   | 'slash-command'
   | 'project-agent'
   | 'user-agent'
+  | 'settings-json'
+  | 'settings-local-json'
   | 'unknown';
 
 type _CommandInfo = {
@@ -70,6 +72,9 @@ export type FileScanner = {
     options?: ScanOptions,
   ) => Promise<SlashCommandInfo[]>;
   readonly scanSubAgents: (options?: ScanOptions) => Promise<SubAgentInfo[]>;
+  readonly scanSettingsJson: (
+    options?: ScanOptions,
+  ) => Promise<ClaudeFileInfo[]>;
 };
 
 // Grouped files for UI display

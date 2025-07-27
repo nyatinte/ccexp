@@ -239,6 +239,9 @@ The tool automatically discovers these file types:
 - **.claude/commands/**/*.md** → Slash command definitions
 - **.claude/agents/**/*.md** → Sub-agent definitions (project-level)
 - **~/.claude/agents/**/*.md** → Sub-agent definitions (user-level)
+- **.claude/settings.json** → Project settings (shared)
+- **.claude/settings.local.json** → Local project settings (gitignored)
+- **~/.claude/settings.json** → User settings (global)
 
 ### TypeScript Configuration
 

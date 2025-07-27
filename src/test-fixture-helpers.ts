@@ -433,6 +433,7 @@ export async function createNestedProjectFixture(
             'watch.md': createSlashCommandContent('watch'),
           },
         },
+        'settings.json': JSON.stringify({ testSetting: 'nested' }, null, 2),
       },
     },
   });
