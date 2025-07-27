@@ -1,4 +1,5 @@
 import { basename } from 'node:path';
+import { filter } from 'es-toolkit/compat';
 import type { ClaudeFileInfo, FileGroup, FlatItem } from '../../_types.js';
 
 export const filterFileGroups = (
@@ -9,18 +10,20 @@ export const filterFileGroups = (
 
   const lowerQuery = searchQuery.toLowerCase();
 
-  return fileGroups
-    .map((group) => ({
+  return filter(
+    fileGroups.map((group) => ({
       ...group,
-      files: group.files.filter((file) => {
+      files: filter(group.files, (file) => {
         const fileName = basename(file.path);
+        const filePath = file.path.toLowerCase();
         return (
           fileName.toLowerCase().includes(lowerQuery) ||
-          file.path.toLowerCase().includes(lowerQuery)
+          filePath.includes(lowerQuery)
         );
       }),
-    }))
-    .filter((group) => group.files.length > 0);
+    })),
+    (group) => group.files.length > 0,
+  );
 };
 
 export const flattenFileGroups = (filteredGroups: FileGroup[]): FlatItem[] => {
@@ -101,7 +104,6 @@ export const handleUpArrowNavigation = (
   currentGroupIndex: number,
   currentFileIndex: number,
 ): NavigationResult => {
-  // File with file above - move to previous file
   if (position.type === 'file' && position.hasFileAbove) {
     return {
       currentGroupIndex,
@@ -110,7 +112,6 @@ export const handleUpArrowNavigation = (
     };
   }
 
-  // First file in group - move to group header
   if (position.type === 'file' && position.isFirstInGroup) {
     return {
       currentGroupIndex,
@@ -119,13 +120,11 @@ export const handleUpArrowNavigation = (
     };
   }
 
-  // Group with previous group
   if (
     position.type === 'group' &&
     position.hasPrevGroup &&
     position.prevGroup
   ) {
-    // Previous group is expanded with files - move to last file
     if (position.prevGroup.isExpanded && position.prevGroup.files.length > 0) {
       return {
         currentGroupIndex: position.prevGroup.index,
@@ -133,7 +132,6 @@ export const handleUpArrowNavigation = (
         isGroupSelected: false,
       };
     }
-    // Previous group is collapsed or empty - move to group header
     return {
       currentGroupIndex: position.prevGroup.index,
       currentFileIndex: 0,
@@ -141,7 +139,6 @@ export const handleUpArrowNavigation = (
     };
   }
 
-  // No change
   return {
     currentGroupIndex,
     currentFileIndex,
@@ -157,9 +154,7 @@ export const handleDownArrowNavigation = (
 ): NavigationResult => {
   const group = filteredGroups[currentGroupIndex];
 
-  // Group header
   if (position.type === 'group') {
-    // Group is expanded with files - move to first file
     if (group?.isExpanded && group.files.length > 0) {
       return {
         currentGroupIndex,
@@ -167,7 +162,6 @@ export const handleDownArrowNavigation = (
         isGroupSelected: false,
       };
     }
-    // Group is collapsed or empty - move to next group
     if (position.hasNextGroup) {
       return {
         currentGroupIndex: currentGroupIndex + 1,
@@ -177,9 +171,7 @@ export const handleDownArrowNavigation = (
     }
   }
 
-  // File
   if (position.type === 'file') {
-    // Not last file in group - move to next file
     if (group && currentFileIndex < group.files.length - 1) {
       return {
         currentGroupIndex,
@@ -187,7 +179,6 @@ export const handleDownArrowNavigation = (
         isGroupSelected: false,
       };
     }
-    // Last file in group - move to next group
     if (position.hasNextGroup) {
       return {
         currentGroupIndex: currentGroupIndex + 1,
@@ -197,7 +188,6 @@ export const handleDownArrowNavigation = (
     }
   }
 
-  // No change
   return {
     currentGroupIndex,
     currentFileIndex,
