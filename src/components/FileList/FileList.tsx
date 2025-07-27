@@ -1,6 +1,7 @@
 import { basename } from 'node:path';
 import { Box, Text, useInput } from 'ink';
 import React, { useEffect, useMemo, useState } from 'react';
+import { match } from 'ts-pattern';
 import type {
   ClaudeFileInfo,
   ClaudeFileType,
@@ -21,6 +22,24 @@ import { MenuActions } from './MenuActions/index.js';
 
 // UI chrome: search(3) + scrollbars(2) + status(2) + padding(2) = 9 lines
 const RESERVED_LINES = 9;
+
+type NavigationPosition = {
+  type: 'group' | 'file';
+  isFirstInGroup: boolean;
+  hasFileAbove: boolean;
+  hasPrevGroup: boolean;
+  hasNextGroup: boolean;
+  prevGroup: {
+    index: number;
+    isExpanded: boolean;
+    files: ReadonlyArray<ClaudeFileInfo>;
+  } | null;
+  nextGroup: {
+    index: number;
+    isExpanded: boolean;
+    files: ReadonlyArray<ClaudeFileInfo>;
+  } | null;
+};
 
 type FileListProps = {
   readonly files: ClaudeFileInfo[];
@@ -101,6 +120,89 @@ const FileList = React.memo(function FileList({
     return group.files[currentFileIndex];
   };
 
+  const getCurrentPosition = (): NavigationPosition => {
+    const isFirstInGroup = currentFileIndex === 0;
+    const hasFileAbove = !isGroupSelected && currentFileIndex > 0;
+    const hasPrevGroup = currentGroupIndex > 0;
+    const hasNextGroup = currentGroupIndex < filteredGroups.length - 1;
+    const prevGroup = hasPrevGroup
+      ? filteredGroups[currentGroupIndex - 1]
+      : null;
+    const nextGroup = hasNextGroup
+      ? filteredGroups[currentGroupIndex + 1]
+      : null;
+
+    return {
+      type: isGroupSelected ? 'group' : 'file',
+      isFirstInGroup,
+      hasFileAbove,
+      hasPrevGroup,
+      hasNextGroup,
+      prevGroup: prevGroup
+        ? {
+            index: currentGroupIndex - 1,
+            isExpanded: prevGroup.isExpanded,
+            files: prevGroup.files,
+          }
+        : null,
+      nextGroup: nextGroup
+        ? {
+            index: currentGroupIndex + 1,
+            isExpanded: nextGroup.isExpanded,
+            files: nextGroup.files,
+          }
+        : null,
+    };
+  };
+
+  const handleUpArrow = () => {
+    const currentPosition = getCurrentPosition();
+
+    match(currentPosition)
+      .with({ type: 'file', hasFileAbove: true }, () => {
+        setCurrentFileIndex((prev) => prev - 1);
+      })
+      .with({ type: 'file', isFirstInGroup: true }, () => {
+        setIsGroupSelected(true);
+      })
+      .with({ type: 'group', hasPrevGroup: true }, ({ prevGroup }) => {
+        if (prevGroup && prevGroup.isExpanded && prevGroup.files.length > 0) {
+          setCurrentGroupIndex(prevGroup.index);
+          setCurrentFileIndex(prevGroup.files.length - 1);
+          setIsGroupSelected(false);
+        } else if (prevGroup) {
+          setCurrentGroupIndex(prevGroup.index);
+          setIsGroupSelected(true);
+        }
+      })
+      .otherwise(() => {});
+  };
+
+  const handleDownArrow = () => {
+    const currentPosition = getCurrentPosition();
+    const group = filteredGroups[currentGroupIndex];
+
+    match(currentPosition)
+      .with({ type: 'group' }, () => {
+        if (group?.isExpanded && group.files.length > 0) {
+          setIsGroupSelected(false);
+          setCurrentFileIndex(0);
+        } else if (currentPosition.hasNextGroup) {
+          setCurrentGroupIndex((prev) => prev + 1);
+        }
+      })
+      .with({ type: 'file' }, () => {
+        if (group && currentFileIndex < group.files.length - 1) {
+          setCurrentFileIndex((prev) => prev + 1);
+        } else if (currentPosition.hasNextGroup) {
+          setCurrentGroupIndex((prev) => prev + 1);
+          setIsGroupSelected(true);
+          setCurrentFileIndex(0);
+        }
+      })
+      .otherwise(() => {});
+  };
+
   useEffect(() => {
     if (filteredGroups.length > 0) {
       if (currentGroupIndex >= filteredGroups.length) {
@@ -169,45 +271,9 @@ const FileList = React.memo(function FileList({
       }
 
       if (key.upArrow) {
-        if (isGroupSelected) {
-          setCurrentGroupIndex((prev) => Math.max(0, prev - 1));
-        } else {
-          const group = filteredGroups[currentGroupIndex];
-          if (group?.isExpanded && currentFileIndex > 0) {
-            setCurrentFileIndex((prev) => prev - 1);
-          } else if (currentGroupIndex > 0) {
-            const prevGroupIndex = currentGroupIndex - 1;
-            const prevGroup = filteredGroups[prevGroupIndex];
-            if (prevGroup?.isExpanded && prevGroup.files.length > 0) {
-              setCurrentGroupIndex(prevGroupIndex);
-              setCurrentFileIndex(prevGroup.files.length - 1);
-            } else {
-              setCurrentGroupIndex(prevGroupIndex);
-              setIsGroupSelected(true);
-            }
-          } else {
-            setIsGroupSelected(true);
-          }
-        }
+        handleUpArrow();
       } else if (key.downArrow) {
-        if (isGroupSelected) {
-          const group = filteredGroups[currentGroupIndex];
-          if (group?.isExpanded && group.files.length > 0) {
-            setIsGroupSelected(false);
-            setCurrentFileIndex(0);
-          } else if (currentGroupIndex < filteredGroups.length - 1) {
-            setCurrentGroupIndex((prev) => prev + 1);
-          }
-        } else {
-          const group = filteredGroups[currentGroupIndex];
-          if (group?.isExpanded && currentFileIndex < group.files.length - 1) {
-            setCurrentFileIndex((prev) => prev + 1);
-          } else if (currentGroupIndex < filteredGroups.length - 1) {
-            setCurrentGroupIndex((prev) => prev + 1);
-            setIsGroupSelected(true);
-            setCurrentFileIndex(0);
-          }
-        }
+        handleDownArrow();
       } else if (key.return || input === ' ') {
         if (isGroupSelected) {
           const group = filteredGroups[currentGroupIndex];
