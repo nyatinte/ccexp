@@ -37,6 +37,7 @@ type FileListProps = {
   readonly selectedFile?: ClaudeFileInfo | undefined;
   readonly initialSearchQuery?: string | undefined;
   readonly onSearchQueryChange?: (query: string) => void;
+  readonly testViewportHeight?: number | undefined;
 };
 
 const FileList = React.memo(function FileList({
@@ -47,6 +48,7 @@ const FileList = React.memo(function FileList({
   selectedFile: _selectedFile,
   initialSearchQuery = '',
   onSearchQueryChange,
+  testViewportHeight,
 }: FileListProps): React.JSX.Element {
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
@@ -77,6 +79,7 @@ const FileList = React.memo(function FileList({
     currentFileIndex,
     isGroupSelected,
     reservedLines: RESERVED_LINES,
+    ...(testViewportHeight !== undefined && { testViewportHeight }),
   });
 
   const getCurrentFile = () =>

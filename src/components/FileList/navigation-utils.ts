@@ -67,8 +67,12 @@ export const calculateNavigationPosition = (
   const hasFileAbove = !isGroupSelected && currentFileIndex > 0;
   const hasPrevGroup = currentGroupIndex > 0;
   const hasNextGroup = currentGroupIndex < filteredGroups.length - 1;
-  const prevGroup = hasPrevGroup ? filteredGroups[currentGroupIndex - 1] : null;
-  const nextGroup = hasNextGroup ? filteredGroups[currentGroupIndex + 1] : null;
+  const prevGroup = hasPrevGroup
+    ? (filteredGroups[currentGroupIndex - 1] ?? null)
+    : null;
+  const nextGroup = hasNextGroup
+    ? (filteredGroups[currentGroupIndex + 1] ?? null)
+    : null;
 
   return {
     type: isGroupSelected ? 'group' : 'file',
@@ -152,7 +156,7 @@ export const handleDownArrowNavigation = (
   currentGroupIndex: number,
   currentFileIndex: number,
 ): NavigationResult => {
-  const group = filteredGroups[currentGroupIndex];
+  const group = filteredGroups[currentGroupIndex] ?? null;
 
   if (position.type === 'group') {
     if (group?.isExpanded && group.files.length > 0) {
@@ -202,8 +206,9 @@ export const getFileAtPosition = (
   isGroupSelected: boolean,
 ): ClaudeFileInfo | null => {
   if (isGroupSelected || filteredGroups.length === 0) return null;
-  const group = filteredGroups[currentGroupIndex];
-  if (!group || !group.isExpanded || group.files.length === 0) return null;
+  const group = filteredGroups[currentGroupIndex] ?? null;
+  if (group == null || !group.isExpanded || group.files.length === 0)
+    return null;
   return group.files[currentFileIndex] ?? null;
 };
 

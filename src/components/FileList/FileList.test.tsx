@@ -961,13 +961,6 @@ if (import.meta.vitest) {
       test('maintains selection visibility when navigating', async () => {
         await using fixture = await createComplexProjectFixture();
 
-        // Set a consistent terminal height for testing
-        const originalRows = process.stdout.rows;
-        Object.defineProperty(process.stdout, 'rows', {
-          value: 24,
-          configurable: true,
-        });
-
         // Create files to test that selection stays visible
         const files = Array.from({ length: 30 }, (_, i) =>
           createFileInfo(fixture.path, `my-app/src/file${i}.md`, 'claude-md'),
@@ -980,6 +973,7 @@ if (import.meta.vitest) {
             fileGroups={fileGroups}
             onFileSelect={onFileSelect}
             onToggleGroup={onToggleGroup}
+            testViewportHeight={10}
           />,
         );
 
@@ -1007,12 +1001,6 @@ if (import.meta.vitest) {
         });
 
         expect(hasRelevantFile).toBe(true);
-
-        // Restore original terminal height
-        Object.defineProperty(process.stdout, 'rows', {
-          value: originalRows,
-          configurable: true,
-        });
       });
 
       test('flattened item list performance', async () => {
