@@ -1,6 +1,7 @@
 import { open, readFile, stat } from 'node:fs/promises';
 import { basename } from 'node:path';
 import { isError } from 'es-toolkit/predicate';
+import matter from 'gray-matter';
 import { Box, Text } from 'ink';
 import type React from 'react';
 import { useEffect, useState } from 'react';
@@ -22,6 +23,31 @@ const formatJsonContent = (content: string): string => {
 
 type PreviewProps = {
   readonly file?: ClaudeFileInfo | undefined;
+};
+
+type FrontmatterParseResult = {
+  readonly metadata:
+    | {
+        readonly name?: string;
+        readonly description?: string;
+      }
+    | undefined;
+  readonly content: string;
+};
+
+const tryParseFrontmatter = (content: string): FrontmatterParseResult => {
+  try {
+    const parsed = matter(content);
+    return {
+      metadata: {
+        name: parsed.data.name,
+        description: parsed.data.description,
+      },
+      content: parsed.content,
+    };
+  } catch {
+    return { metadata: undefined, content };
+  }
 };
 
 export function Preview({ file }: PreviewProps): React.JSX.Element {
@@ -111,8 +137,15 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
 
   const fileName = basename(file.path);
 
-  // Split content by lines
-  const lines = content.split('\n');
+  const parseResult =
+    file.type === 'project-agent' || file.type === 'user-agent'
+      ? tryParseFrontmatter(content)
+      : { metadata: undefined, content };
+
+  const subAgentMeta = parseResult.metadata;
+  const actualContent = parseResult.content;
+
+  const lines = actualContent.split('\n');
   const totalLines = lines.length;
   const maxPreviewLines = 12; // Limit to 12 lines considering header space
   const isContentTruncated = totalLines > maxPreviewLines;
@@ -143,6 +176,16 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
               <Text color={theme.fileTypes.globalMd} italic>
                 📌 This is your private global configuration file that provides
                 instructions to Claude across all projects
+              </Text>
+            </Box>
+          )}
+          {(file.type === 'project-agent' || file.type === 'user-agent') && (
+            <Box marginTop={1} flexDirection="column">
+              <Text color="cyan">
+                🤖 Agent Name: {subAgentMeta?.name ?? 'undefined'}
+              </Text>
+              <Text color="yellow" italic>
+                📝 Description: {subAgentMeta?.description ?? 'undefined'}
               </Text>
             </Box>
           )}
