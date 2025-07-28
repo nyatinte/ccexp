@@ -82,6 +82,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('test-project'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -117,6 +118,7 @@ if (import.meta.vitest) {
           throw new Error('EACCES: permission denied');
         },
         scanSlashCommands: async () => [],
+        scanSubAgents: async () => [], // No sub-agents in test
         scanSettingsJson: async () => [],
       };
 
@@ -175,6 +177,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('accessible'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -223,6 +226,7 @@ if (import.meta.vitest) {
                 path: f.getPath('empty-project'),
                 recursive: false,
               }),
+            scanSubAgents: async () => [], // No sub-agents in test
             scanSettingsJson: (options) =>
               scanSettingsJson({
                 ...options,
@@ -272,6 +276,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('my-app'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -337,6 +342,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('project'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -383,6 +389,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('slash-project'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -429,6 +436,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('mixed-project'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -473,6 +481,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('update-test'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -528,6 +537,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('nested-project'),
             recursive: true, // This test specifically tests recursive scanning
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,

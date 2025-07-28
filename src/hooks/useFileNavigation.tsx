@@ -9,6 +9,7 @@ import type {
   FileScanner,
   ScanOptions,
   SlashCommandInfo,
+  SubAgentInfo,
 } from '../_types.js';
 import { defaultScanner } from '../default-scanner.js';
 
@@ -31,6 +32,15 @@ const convertSlashCommandToFileInfo = (
     },
   ],
   tags: command.namespace ? [command.namespace] : [],
+});
+
+const convertSubAgentToFileInfo = (agent: SubAgentInfo): ClaudeFileInfo => ({
+  path: agent.filePath,
+  type: agent.scope === 'project' ? 'project-agent' : 'user-agent',
+  size: 0, // No size information for sub-agents
+  lastModified: agent.lastModified,
+  commands: [], // No commands in sub-agents
+  tags: [], // No tags for sub-agents
 });
 
 type UseFileNavigationReturn = {
@@ -64,18 +74,22 @@ export function useFileNavigation(
     Promise.all([
       scanner.scanClaudeFiles(scanOptions),
       scanner.scanSlashCommands(scanOptions),
+      scanner.scanSubAgents(scanOptions),
       scanner.scanSettingsJson(scanOptions),
     ])
-      .then(([claudeFiles, slashCommands, settingsFiles]) => {
+      .then(([claudeFiles, slashCommands, subAgents, settingsFiles]) => {
         // Convert slash commands to ClaudeFileInfo format
         const convertedCommands = slashCommands.map(
           convertSlashCommandToFileInfo,
         );
 
+        const convertedAgents = subAgents.map(convertSubAgentToFileInfo);
+
         // Combine all results
         const allFiles = [
           ...claudeFiles,
           ...convertedCommands,
+          ...convertedAgents,
           ...settingsFiles,
         ];
 
@@ -99,6 +113,8 @@ export function useFileNavigation(
           'global-md',
           'claude-md',
           'claude-local-md',
+          'project-agent',
+          'user-agent',
           'settings-json',
           'settings-local-json',
           'slash-command',

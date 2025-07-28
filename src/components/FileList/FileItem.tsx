@@ -28,6 +28,14 @@ export const FileItem = React.memo(function FileItem({
         color: theme.fileTypes.claudeLocalMd,
         label: 'LOCAL',
       }))
+      .with('project-agent', () => ({
+        color: theme.fileTypes.slashCommand,
+        label: 'PROJECT AGENT',
+      }))
+      .with('user-agent', () => ({
+        color: theme.fileTypes.globalMd,
+        label: 'USER AGENT',
+      }))
       .with('slash-command', () => ({
         color: theme.fileTypes.slashCommand,
         label: 'COMMAND',
@@ -55,6 +63,8 @@ export const FileItem = React.memo(function FileItem({
     return match(file.type)
       .with('claude-md', () => '📝')
       .with('claude-local-md', () => '🔒')
+      .with('project-agent', () => '🤖')
+      .with('user-agent', () => '👤')
       .with('slash-command', () => '⚡')
       .with('global-md', () => '🧠')
       .with('settings-json', () => '⚙️')
@@ -70,6 +80,11 @@ export const FileItem = React.memo(function FileItem({
   const getDisplayName = (): string => {
     return match(file.type)
       .with('global-md', () => `~/.claude/${fileName}`)
+      .with(
+        'user-agent',
+        () => `~/.claude/agents/${fileName.replace('.md', '')}`,
+      )
+      .with('project-agent', () => fileName.replace('.md', ''))
       .with('slash-command', () => fileName.replace('.md', ''))
       .with(P.union('settings-json', 'settings-local-json'), () => {
         const homeDir = homedir();
