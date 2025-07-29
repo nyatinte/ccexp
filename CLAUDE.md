@@ -243,6 +243,7 @@ The tool automatically discovers these file types:
 - **.claude/settings.local.json** → Local project settings (gitignored)
 - **~/.claude/settings.json** → User settings (global)
 
+
 ### TypeScript Configuration
 
 **Ultra-strict type checking** enabled via tsconfig.json:
@@ -352,12 +353,11 @@ This configuration enables:
 - **Error handling**: StatusMessage component with graceful degradation
 - **Loading states**: Spinner component during file scanning
 - **File grouping**: Organized display by file type with collapsible groups
-  - CLAUDE.md files (Project configurations)
-  - CLAUDE.local.md files (Local overrides)
-  - Global CLAUDE.md (User-wide settings)
-  - Slash commands (Custom command definitions)
-  - Sub-agents (Project and user-level agent definitions)
+  - User configurations displayed first (memory, settings, commands, agents)
+  - Project configurations follow (memory, settings, commands, agents)
+  - Groups show file count even when empty (e.g., "User memory (0)")
   - Groups can be collapsed/expanded with arrow keys
+  - High-contrast colors optimized for black terminal backgrounds
 
 ## Quality Management Rules
 
