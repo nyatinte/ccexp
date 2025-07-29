@@ -1,4 +1,3 @@
-import { basename } from 'node:path';
 import { Box, Text, useInput } from 'ink';
 import React, { useEffect, useMemo, useState } from 'react';
 import type {
@@ -11,6 +10,14 @@ import { theme } from '../../styles/theme.js';
 import { FileGroup as FileGroupComponent } from './FileGroup.js';
 import { FileItem } from './FileItem.js';
 import { MenuActions } from './MenuActions/index.js';
+import {
+  calculateNavigationPosition,
+  filterFileGroups,
+  flattenFileGroups,
+  getFileAtPosition,
+  handleDownArrowNavigation,
+  handleUpArrowNavigation,
+} from './navigation-utils.js';
 
 /**
  * Why not use @inkjs/ui TextInput:
@@ -30,6 +37,7 @@ type FileListProps = {
   readonly selectedFile?: ClaudeFileInfo | undefined;
   readonly initialSearchQuery?: string | undefined;
   readonly onSearchQueryChange?: (query: string) => void;
+  readonly testViewportHeight?: number | undefined;
 };
 
 const FileList = React.memo(function FileList({
@@ -40,6 +48,7 @@ const FileList = React.memo(function FileList({
   selectedFile: _selectedFile,
   initialSearchQuery = '',
   onSearchQueryChange,
+  testViewportHeight,
 }: FileListProps): React.JSX.Element {
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
@@ -47,35 +56,13 @@ const FileList = React.memo(function FileList({
   const [isMenuMode, setIsMenuMode] = useState(false);
   const [isGroupSelected, setIsGroupSelected] = useState(false);
 
-  const filteredGroups = useMemo(() => {
-    if (!searchQuery) return fileGroups;
-
-    return fileGroups
-      .map((group) => ({
-        ...group,
-        files: group.files.filter((file) => {
-          const fileName = basename(file.path);
-          return (
-            fileName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            file.path.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-        }),
-      }))
-      .filter((group) => group.files.length > 0);
-  }, [fileGroups, searchQuery]);
+  const filteredGroups = useMemo(
+    () => filterFileGroups(fileGroups, searchQuery),
+    [fileGroups, searchQuery],
+  );
 
   const flatItems = useMemo(
-    () =>
-      filteredGroups.flatMap((group, groupIndex) => [
-        { type: 'group' as const, groupIndex },
-        ...(group.isExpanded
-          ? group.files.map((_, fileIndex) => ({
-              type: 'file' as const,
-              groupIndex,
-              fileIndex,
-            }))
-          : []),
-      ]),
+    () => flattenFileGroups(filteredGroups),
     [filteredGroups],
   );
 
@@ -92,13 +79,50 @@ const FileList = React.memo(function FileList({
     currentFileIndex,
     isGroupSelected,
     reservedLines: RESERVED_LINES,
+    ...(testViewportHeight !== undefined && { testViewportHeight }),
   });
 
-  const getCurrentFile = () => {
-    if (isGroupSelected || filteredGroups.length === 0) return null;
-    const group = filteredGroups[currentGroupIndex];
-    if (!group || !group.isExpanded || group.files.length === 0) return null;
-    return group.files[currentFileIndex];
+  const getCurrentFile = () =>
+    getFileAtPosition(
+      filteredGroups,
+      currentGroupIndex,
+      currentFileIndex,
+      isGroupSelected,
+    );
+
+  const handleUpArrow = () => {
+    const currentPosition = calculateNavigationPosition(
+      filteredGroups,
+      currentGroupIndex,
+      currentFileIndex,
+      isGroupSelected,
+    );
+    const result = handleUpArrowNavigation(
+      currentPosition,
+      currentGroupIndex,
+      currentFileIndex,
+    );
+    setCurrentGroupIndex(result.currentGroupIndex);
+    setCurrentFileIndex(result.currentFileIndex);
+    setIsGroupSelected(result.isGroupSelected);
+  };
+
+  const handleDownArrow = () => {
+    const currentPosition = calculateNavigationPosition(
+      filteredGroups,
+      currentGroupIndex,
+      currentFileIndex,
+      isGroupSelected,
+    );
+    const result = handleDownArrowNavigation(
+      currentPosition,
+      filteredGroups,
+      currentGroupIndex,
+      currentFileIndex,
+    );
+    setCurrentGroupIndex(result.currentGroupIndex);
+    setCurrentFileIndex(result.currentFileIndex);
+    setIsGroupSelected(result.isGroupSelected);
   };
 
   useEffect(() => {
@@ -169,45 +193,9 @@ const FileList = React.memo(function FileList({
       }
 
       if (key.upArrow) {
-        if (isGroupSelected) {
-          setCurrentGroupIndex((prev) => Math.max(0, prev - 1));
-        } else {
-          const group = filteredGroups[currentGroupIndex];
-          if (group?.isExpanded && currentFileIndex > 0) {
-            setCurrentFileIndex((prev) => prev - 1);
-          } else if (currentGroupIndex > 0) {
-            const prevGroupIndex = currentGroupIndex - 1;
-            const prevGroup = filteredGroups[prevGroupIndex];
-            if (prevGroup?.isExpanded && prevGroup.files.length > 0) {
-              setCurrentGroupIndex(prevGroupIndex);
-              setCurrentFileIndex(prevGroup.files.length - 1);
-            } else {
-              setCurrentGroupIndex(prevGroupIndex);
-              setIsGroupSelected(true);
-            }
-          } else {
-            setIsGroupSelected(true);
-          }
-        }
+        handleUpArrow();
       } else if (key.downArrow) {
-        if (isGroupSelected) {
-          const group = filteredGroups[currentGroupIndex];
-          if (group?.isExpanded && group.files.length > 0) {
-            setIsGroupSelected(false);
-            setCurrentFileIndex(0);
-          } else if (currentGroupIndex < filteredGroups.length - 1) {
-            setCurrentGroupIndex((prev) => prev + 1);
-          }
-        } else {
-          const group = filteredGroups[currentGroupIndex];
-          if (group?.isExpanded && currentFileIndex < group.files.length - 1) {
-            setCurrentFileIndex((prev) => prev + 1);
-          } else if (currentGroupIndex < filteredGroups.length - 1) {
-            setCurrentGroupIndex((prev) => prev + 1);
-            setIsGroupSelected(true);
-            setCurrentFileIndex(0);
-          }
-        }
+        handleDownArrow();
       } else if (key.return || input === ' ') {
         if (isGroupSelected) {
           const group = filteredGroups[currentGroupIndex];

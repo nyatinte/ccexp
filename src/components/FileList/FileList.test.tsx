@@ -973,6 +973,7 @@ if (import.meta.vitest) {
             fileGroups={fileGroups}
             onFileSelect={onFileSelect}
             onToggleGroup={onToggleGroup}
+            testViewportHeight={10}
           />,
         );
 
