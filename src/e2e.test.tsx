@@ -1,5 +1,6 @@
 import { render } from 'ink-testing-library';
 import { App } from './App.js';
+import { theme } from './styles/theme.js';
 import {
   createE2ETestFixture,
   withE2ETestEnvironment,
@@ -241,6 +242,68 @@ if (import.meta.vitest) {
           await interaction.selectItem(); // Collapse project-memory group
           await waitForEffects();
         }
+
+        unmount();
+      });
+    });
+
+    test('flow: navigate empty categories', async () => {
+      await using fixture = await createE2ETestFixture();
+
+      await withE2ETestEnvironment(fixture, 'test-project', async () => {
+        const { stdin, lastFrame, unmount } = render(<App cliOptions={{}} />);
+        const interaction = createTestInteraction(stdin, lastFrame);
+
+        // Wait for files to load
+        await interaction.waitForContent('Claude Files');
+        await waitForEffects();
+
+        // Verify empty categories are displayed with (0)
+        let output = interaction.assertOutput();
+
+        // Look for any category with (0) - the exact categories depend on fixture
+        const hasEmptyCategory = output.includes('(0)');
+        expect(hasEmptyCategory).toBe(true);
+
+        // Navigate through items to find an empty category
+        let foundEmptyCategory = false;
+        let attempts = 0;
+        const maxAttempts = 20; // Prevent infinite loop
+
+        while (!foundEmptyCategory && attempts < maxAttempts) {
+          output = interaction.assertOutput();
+
+          // Check if current selection is on an empty category
+          // Empty categories should show (0) with collapsed icon
+          const lines = output.split('\n');
+          const selectedLine = lines.find(
+            (line) =>
+              line.includes(theme.selection.backgroundColor) ||
+              line.includes('▼') ||
+              line.includes('▶'),
+          );
+
+          if (selectedLine?.includes('(0)')) {
+            foundEmptyCategory = true;
+
+            // Try to expand/collapse empty category - should do nothing
+            const beforeSelect = interaction.assertOutput();
+            await interaction.selectItem();
+            await waitForEffects();
+            const afterSelect = interaction.assertOutput();
+
+            // Output should remain the same for empty categories
+            expect(afterSelect).toBe(beforeSelect);
+          } else {
+            // Continue navigating
+            await interaction.navigateDown();
+            await waitForEffects();
+            attempts++;
+          }
+        }
+
+        // Ensure we found at least one empty category
+        expect(foundEmptyCategory).toBe(true);
 
         unmount();
       });

@@ -126,20 +126,34 @@ export function useFileNavigation(
           // Other
           'unknown',
         ];
+
+        // Create groups for all types except 'unknown', including empty groups
         const groups: FileGroup[] = orderedTypes
-          .filter((type) => groupedFiles[type] && groupedFiles[type].length > 0)
+          .filter((type) => type !== 'unknown') // exclude unknown
           .map((type) => ({
             type,
-            files: groupedFiles[type] || [],
-            isExpanded: true, // All expanded by default
+            files: groupedFiles[type] || [], // empty array if no files
+            isExpanded: !!groupedFiles[type] && groupedFiles[type].length > 0, // empty groups are not expandable
           }));
+
+        // Add unknown type at the end if it exists
+        if (groupedFiles.unknown && groupedFiles.unknown.length > 0) {
+          groups.push({
+            type: 'unknown',
+            files: groupedFiles.unknown,
+            isExpanded: true,
+          });
+        }
 
         setFileGroups(groups);
         setFiles(allFiles);
 
-        // Auto-select first file (first file of first group)
-        if (groups.length > 0 && groups[0] && groups[0].files.length > 0) {
-          const firstFile = groups[0].files[0];
+        // Auto-select first file from the first non-empty group
+        const firstNonEmptyGroup = groups.find(
+          (group) => group.files.length > 0,
+        );
+        if (firstNonEmptyGroup && firstNonEmptyGroup.files.length > 0) {
+          const firstFile = firstNonEmptyGroup.files[0];
           if (firstFile) {
             setSelectedFile(firstFile);
           }

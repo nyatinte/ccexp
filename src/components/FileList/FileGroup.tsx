@@ -124,5 +124,38 @@ if (import.meta.vitest != null) {
         '▼ Project commands (.claude/commands/) (10)',
       );
     });
+
+    test('should show collapsed icon for empty groups', () => {
+      const { lastFrame } = render(
+        <FileGroup
+          type="user-memory"
+          fileCount={0}
+          isExpanded={false}
+          isSelected={false}
+        />,
+      );
+
+      // Empty groups should show collapsed icon
+      const frame = lastFrame();
+      expect(frame).toContain('User memory (~/.claude/CLAUDE.md) (0)');
+      expect(frame).not.toContain('▼');
+      expect(frame).toContain('▶');
+    });
+
+    test('should show count (0) for empty groups', () => {
+      const { lastFrame } = render(
+        <FileGroup
+          type="project-settings"
+          fileCount={0}
+          isExpanded={false}
+          isSelected={false}
+        />,
+      );
+
+      // Should display (0) for empty groups
+      expect(lastFrame()).toContain(
+        'Project settings (.claude/settings.json) (0)',
+      );
+    });
   });
 }

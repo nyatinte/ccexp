@@ -166,6 +166,7 @@ if (import.meta.vitest) {
       );
 
       const output = lastFrame();
+      // Empty groups should show collapsed icon
       expect(output).toContain('▶');
       expect(output).toContain('Project memory (CLAUDE.md)');
       expect(output).toContain('(0)');

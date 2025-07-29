@@ -2,7 +2,12 @@ import { delay } from 'es-toolkit/promise';
 import { Text } from 'ink';
 import { render } from 'ink-testing-library';
 import React from 'react';
-import type { ClaudeFileInfo, FileGroup, FileScanner } from '../_types.js';
+import type {
+  ClaudeFileInfo,
+  ClaudeFileType,
+  FileGroup,
+  FileScanner,
+} from '../_types.js';
 import { createClaudeFilePath } from '../_types.js';
 import { scanClaudeFiles } from '../claude-md-scanner.js';
 import { scanSettingsJson } from '../settings-json-scanner.js';
@@ -574,6 +579,143 @@ if (import.meta.vitest) {
       const fileCount = Number(fileCountMatch?.[1] ?? '0');
       expect(fileCount).toBeGreaterThan(1);
       expect(frame).toContain('Selected:');
+    });
+
+    test('empty file groups are displayed for all file types', async () => {
+      // Create a fixture with only a few file types
+      await using fixture = await createFixture({
+        'test-empty-groups': {
+          'CLAUDE.md': '# Project Config',
+          '.claude': {
+            commands: {
+              'project-cmd.md': '# /project-cmd\n\nProject command',
+            },
+          },
+        },
+      });
+
+      // Mock scanner that returns only project-memory and project-command files
+      const testScanner: FileScanner = {
+        scanClaudeFiles: async () => [
+          {
+            path: createClaudeFilePath(
+              fixture.getPath('test-empty-groups/CLAUDE.md'),
+            ),
+            type: 'project-memory' as const,
+            size: 100,
+            lastModified: new Date(),
+            commands: [],
+            tags: [],
+          },
+        ],
+        scanSlashCommands: async () => [
+          {
+            name: 'project-cmd',
+            description: 'Project command',
+            filePath: fixture.getPath(
+              'test-empty-groups/.claude/commands/project-cmd.md',
+            ),
+            scope: 'project' as const,
+            hasArguments: false,
+            lastModified: new Date(),
+          },
+        ],
+        scanSubAgents: async () => [],
+        scanSettingsJson: async () => [],
+      };
+
+      let capturedFileGroups: FileGroup[] = [];
+
+      // Create a test component that captures fileGroups
+      function TestEmptyGroupsComponent({ scanner }: { scanner: FileScanner }) {
+        const { fileGroups, isLoading, error } = useFileNavigation(
+          { recursive: false },
+          scanner,
+        );
+
+        React.useEffect(() => {
+          if (!isLoading && fileGroups.length > 0) {
+            capturedFileGroups = fileGroups;
+          }
+        }, [fileGroups, isLoading]);
+
+        if (isLoading) return <Text>Loading...</Text>;
+        if (error) return <Text>Error: {error}</Text>;
+
+        return (
+          <>
+            <Text>Groups: {fileGroups.length}</Text>
+            {fileGroups.map((group) => (
+              <Text key={group.type}>
+                {group.type}: {group.files.length} files, expanded:{' '}
+                {String(group.isExpanded)}
+              </Text>
+            ))}
+          </>
+        );
+      }
+
+      const { lastFrame } = render(
+        <TestEmptyGroupsComponent scanner={testScanner} />,
+      );
+
+      // Wait for loading to complete
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
+
+      // Verify all groups are displayed (except 'unknown')
+      const expectedTypes: ClaudeFileType[] = [
+        'user-memory',
+        'user-settings',
+        'personal-command',
+        'user-subagent',
+        'project-memory',
+        'project-memory-local',
+        'project-settings',
+        'project-settings-local',
+        'project-command',
+        'project-subagent',
+      ];
+
+      expect(capturedFileGroups.length).toBe(expectedTypes.length);
+
+      // Verify each expected type is present
+      const groupTypes = capturedFileGroups.map((g) => g.type);
+      for (const expectedType of expectedTypes) {
+        expect(groupTypes).toContain(expectedType);
+      }
+
+      // Verify 'unknown' is not included
+      expect(groupTypes).not.toContain('unknown');
+
+      // Verify empty groups have isExpanded = false and files = []
+      for (const group of capturedFileGroups) {
+        if (
+          group.type === 'project-memory' ||
+          group.type === 'project-command'
+        ) {
+          // These have files
+          expect(group.files.length).toBeGreaterThan(0);
+          expect(group.isExpanded).toBe(true);
+        } else {
+          // These are empty
+          expect(group.files.length).toBe(0);
+          expect(group.isExpanded).toBe(false);
+        }
+      }
+
+      // Verify the UI output
+      const frame = lastFrame();
+      expect(frame).toContain(`Groups: ${expectedTypes.length}`);
+
+      // Check that empty groups show "0 files, expanded: false"
+      expect(frame).toContain('user-memory: 0 files, expanded: false');
+      expect(frame).toContain('project-memory: 1 files, expanded: true');
+      expect(frame).toContain('project-command: 1 files, expanded: true');
     });
 
     test('file groups are ordered with user configurations first', async () => {
