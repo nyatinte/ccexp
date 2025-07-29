@@ -111,7 +111,7 @@ Test project for validating fs-fixture integration.
 /**
  * Default CLAUDE.local.md content for testing
  */
-const DEFAULT_CLAUDE_LOCAL_MD = `# CLAUDE.local.md
+export const DEFAULT_CLAUDE_LOCAL_MD = `# CLAUDE.local.md
 
 Local configuration overrides for this project.
 
@@ -124,7 +124,7 @@ Local configuration overrides for this project.
 /**
  * Default slash command content
  */
-const createSlashCommandContent = (
+export const createSlashCommandContent = (
   name: string,
   description = '',
 ) => `# /${name}

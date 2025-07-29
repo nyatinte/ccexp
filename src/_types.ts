@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 // Simple type alias
 export type ClaudeFilePath = string;
 
@@ -9,6 +11,15 @@ export const createClaudeFilePath = (path: string): ClaudeFilePath => {
   return path;
 };
 
+// Settings schema validation
+export const settingsSchema = z
+  .object({
+    theme: z.enum(['light', 'dark']).optional(),
+    enableAutoSave: z.boolean().optional(),
+    tabSize: z.number().optional(),
+  })
+  .passthrough();
+
 // Core types as defined in requirement
 export type ClaudeFileType =
   | 'claude-md'
@@ -19,6 +30,7 @@ export type ClaudeFileType =
   | 'user-agent'
   | 'settings-json'
   | 'settings-local-json'
+  | 'user-settings'
   | 'unknown';
 
 type _CommandInfo = {
@@ -29,9 +41,13 @@ type _CommandInfo = {
 
 export type ClaudeFileInfo = {
   readonly path: ClaudeFilePath;
+  readonly fileName?: string;
+  readonly dirPath?: string;
+  readonly fileType?: ClaudeFileType;
   readonly type: ClaudeFileType;
   readonly size: number;
   readonly lastModified: Date;
+  readonly content?: string;
   readonly commands: _CommandInfo[];
   readonly tags: string[];
 };

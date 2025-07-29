@@ -52,6 +52,10 @@ export const FileItem = React.memo(function FileItem({
         color: theme.fileTypes.settingsLocalJson,
         label: 'LOCAL SETTINGS',
       }))
+      .with('user-settings', () => ({
+        color: theme.fileTypes.settingsJson,
+        label: 'USER SETTINGS',
+      }))
       .with('unknown', () => ({
         color: theme.fileTypes.unknown,
         label: 'FILE',
@@ -69,6 +73,7 @@ export const FileItem = React.memo(function FileItem({
       .with('global-md', () => '🧠')
       .with('settings-json', () => '⚙️')
       .with('settings-local-json', () => '🔧')
+      .with('user-settings', () => '👤')
       .with('unknown', () => '📄')
       .exhaustive();
   };

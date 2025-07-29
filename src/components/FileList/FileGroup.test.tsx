@@ -33,6 +33,7 @@ if (import.meta.vitest) {
         'global-md': 'USER MEMORY',
         'settings-json': 'SETTINGS',
         'settings-local-json': 'LOCAL SETTINGS',
+        'user-settings': 'USER SETTINGS',
         unknown: 'OTHER',
       };
 

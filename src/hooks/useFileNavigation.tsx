@@ -111,13 +111,14 @@ export function useFileNavigation(
         // Create FileGroup array (in predefined order)
         const orderedTypes: ClaudeFileType[] = [
           'global-md',
+          'user-settings',
           'claude-md',
           'claude-local-md',
-          'project-agent',
-          'user-agent',
           'settings-json',
           'settings-local-json',
           'slash-command',
+          'project-agent',
+          'user-agent',
           'unknown',
         ];
         const groups: FileGroup[] = orderedTypes

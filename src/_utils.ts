@@ -47,6 +47,10 @@ export const detectClaudeFileType = (filePath: string): ClaudeFileType => {
       () => 'slash-command' as const,
     )
     .with(
+      ['settings.json', P.when((dir) => dir === join(HOME_DIR, '.claude'))],
+      () => 'user-settings' as const,
+    )
+    .with(
       [
         'settings.json',
         P.when((dir) => dir.endsWith('/.claude') || dir.includes('/.claude/')),
@@ -193,12 +197,21 @@ if (import.meta.vitest != null) {
       );
     });
 
+    test('should detect user settings.json in home directory', () => {
+      const userSettingsPath = join(HOME_DIR, '.claude', 'settings.json');
+      expect(detectClaudeFileType(userSettingsPath)).toBe('user-settings');
+    });
+
     test.each([
       ['/project/.claude/settings.json', 'settings-json'],
       ['/Users/name/.claude/settings.json', 'settings-json'],
       ['/project/.claude/settings.local.json', 'settings-local-json'],
       ['/Users/name/.claude/settings.local.json', 'settings-local-json'],
     ] as const)('should detect %s as %s', (path, expectedType) => {
+      // Skip if path is the actual home directory (would be detected as user-settings)
+      if (path === join(HOME_DIR, '.claude', 'settings.json')) {
+        return;
+      }
       expect(detectClaudeFileType(path)).toBe(expectedType);
     });
 
