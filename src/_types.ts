@@ -9,7 +9,6 @@ export const createClaudeFilePath = (path: string): ClaudeFilePath => {
   return path;
 };
 
-// Core types as defined in requirement
 export type ClaudeFileType =
   | 'user-memory'
   | 'project-memory'

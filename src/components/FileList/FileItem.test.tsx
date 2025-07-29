@@ -39,8 +39,8 @@ if (import.meta.vitest) {
         <FileItem file={file} isSelected={false} isFocused={false} />,
       );
 
-      expect(lastFrame()).toContain('test/CLAUDE.local.md'); // with parent directory
-      expect(lastFrame()).toContain('🔒'); // project-memory-local icon
+      expect(lastFrame()).toContain('test/CLAUDE.local.md');
+      expect(lastFrame()).toContain('🔒');
     });
 
     test('displays slash command file', () => {

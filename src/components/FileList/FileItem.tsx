@@ -18,7 +18,9 @@ export const FileItem = React.memo(function FileItem({
   isSelected,
   isFocused,
 }: FileItemProps): React.JSX.Element {
-  const getFileBadge = (file: ClaudeFileInfo) => {
+  const getFileBadge = (
+    file: ClaudeFileInfo,
+  ): { color: string; label: string } => {
     return match(file.type)
       .with('project-memory', () => ({
         color: theme.fileTypes.projectMemory,
@@ -97,7 +99,6 @@ export const FileItem = React.memo(function FileItem({
       .with('project-subagent', () => fileName.replace('.md', ''))
       .with('project-command', () => {
         const commandName = fileName.replace('.md', '');
-        // Show command with parent directory if it exists
         if (parentDir !== 'commands' && parentDir !== '.') {
           return `/${parentDir}:${commandName}`;
         }

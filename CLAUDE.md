@@ -243,7 +243,6 @@ The tool automatically discovers these file types:
 - **.claude/settings.local.json** → Local project settings (gitignored)
 - **~/.claude/settings.json** → User settings (global)
 
-
 ### TypeScript Configuration
 
 **Ultra-strict type checking** enabled via tsconfig.json:
