@@ -39,7 +39,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/CLAUDE.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 
@@ -70,7 +70,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/CLAUDE.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 
@@ -95,7 +95,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/CLAUDE.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 
@@ -125,7 +125,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'project/.claude/commands/test-command.md',
-            'slash-command',
+            'project-command',
           );
           const onClose = vi.fn();
 
@@ -150,7 +150,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/CLAUDE.local.md',
-            'claude-local-md',
+            'project-memory-local',
           );
           const onClose = vi.fn();
 
@@ -180,7 +180,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/CLAUDE.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 
@@ -206,7 +206,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/test.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 
@@ -260,7 +260,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'very/long/path/to/project/.claude/commands/very-long-filename.md',
-            'slash-command',
+            'project-command',
           );
           const onClose = vi.fn();
 
@@ -284,7 +284,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'path with spaces & symbols/file with spaces & symbols.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 
@@ -308,7 +308,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             '.claude/CLAUDE.md',
-            'global-md',
+            'user-memory',
           );
           const onClose = vi.fn();
 
@@ -333,7 +333,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/test.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 
@@ -362,7 +362,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/test.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 
@@ -394,7 +394,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/test.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 
@@ -426,7 +426,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/test.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 
@@ -460,16 +460,20 @@ if (import.meta.vitest) {
         },
         async (fixture) => {
           const files = [
-            createFileInfo(fixture.path, 'test-project/config.md', 'claude-md'),
+            createFileInfo(
+              fixture.path,
+              'test-project/config.md',
+              'project-memory',
+            ),
             createFileInfo(
               fixture.path,
               'test-project/settings.md',
-              'claude-local-md',
+              'project-memory-local',
             ),
             createFileInfo(
               fixture.path,
               'test-project/.claude/commands/deploy.md',
-              'slash-command',
+              'project-command',
             ),
           ];
 
@@ -500,12 +504,12 @@ if (import.meta.vitest) {
           const file1 = createFileInfo(
             fixture.path,
             'test-project/file1.md',
-            'claude-md',
+            'project-memory',
           );
           const file2 = createFileInfo(
             fixture.path,
             'test-project/file2.md',
-            'claude-local-md',
+            'project-memory-local',
           );
           const onClose = vi.fn();
 
@@ -537,7 +541,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/CLAUDE.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 
@@ -583,7 +587,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             'test-project/test.md',
-            'claude-md',
+            'project-memory',
           );
           const onClose = vi.fn();
 

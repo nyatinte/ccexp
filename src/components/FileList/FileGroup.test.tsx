@@ -18,22 +18,24 @@ if (import.meta.vitest) {
 
     test('displays correct group label and icon for each type', () => {
       const types: ClaudeFileType[] = [
-        'claude-md',
-        'claude-local-md',
-        'slash-command',
-        'global-md',
+        'project-memory',
+        'project-memory-local',
+        'project-command',
+        'user-memory',
       ];
 
       const expectedLabels: Record<ClaudeFileType, string> = {
-        'claude-md': 'PROJECT',
-        'claude-local-md': 'LOCAL',
-        'project-agent': 'PROJECT AGENTS',
-        'user-agent': 'USER AGENTS',
-        'slash-command': 'COMMAND',
-        'global-md': 'USER MEMORY',
-        'settings-json': 'SETTINGS',
-        'settings-local-json': 'LOCAL SETTINGS',
-        unknown: 'OTHER',
+        'project-memory': 'Project configuration',
+        'project-memory-local': 'Local overrides',
+        'project-subagent': 'Project agents (.claude/agents)',
+        'user-subagent': 'User agents (~/.claude/agents)',
+        'project-command': 'Slash commands (.claude/commands)',
+        'personal-command': 'Personal commands',
+        'user-memory': 'Global configuration (~/.claude)',
+        'project-settings': 'Project settings',
+        'project-settings-local': 'Local settings',
+        'user-settings': 'User settings (~/.claude)',
+        unknown: 'Other files',
       };
 
       types.forEach((type) => {
@@ -55,7 +57,7 @@ if (import.meta.vitest) {
     });
 
     test('shows expanded icon when expanded', () => {
-      const group = createTestGroup('claude-md', 5, true);
+      const group = createTestGroup('project-memory', 5, true);
       const { lastFrame } = render(
         <FileGroup
           type={group.type}
@@ -67,12 +69,12 @@ if (import.meta.vitest) {
 
       const output = lastFrame();
       expect(output).toContain('▼'); // Expanded icon
-      expect(output).toContain('PROJECT');
+      expect(output).toContain('Project configuration');
       expect(output).toContain('(5)');
     });
 
     test('highlights when selected', () => {
-      const group = createTestGroup('slash-command', 10, true);
+      const group = createTestGroup('project-command', 10, true);
 
       const { lastFrame: unselectedFrame } = render(
         <FileGroup
@@ -96,8 +98,8 @@ if (import.meta.vitest) {
       const selectedOutput = selectedFrame();
 
       // Both should show the same content
-      expect(unselectedOutput).toContain('COMMAND');
-      expect(selectedOutput).toContain('COMMAND');
+      expect(unselectedOutput).toContain('Slash commands (.claude/commands)');
+      expect(selectedOutput).toContain('Slash commands (.claude/commands)');
 
       // Selected should have different styling (implementation specific)
       // Here we just verify both render correctly
@@ -108,7 +110,7 @@ if (import.meta.vitest) {
       const counts = [0, 1, 10, 100, 1000];
 
       counts.forEach((count) => {
-        const group = createTestGroup('global-md', count, false);
+        const group = createTestGroup('user-memory', count, false);
         const { lastFrame } = render(
           <FileGroup
             type={group.type}
@@ -132,7 +134,7 @@ if (import.meta.vitest) {
       ];
 
       states.forEach(({ isExpanded, isSelected }) => {
-        const group = createTestGroup('claude-local-md', 7, isExpanded);
+        const group = createTestGroup('project-memory-local', 7, isExpanded);
         const { lastFrame } = render(
           <FileGroup
             type={group.type}
@@ -144,13 +146,13 @@ if (import.meta.vitest) {
 
         const output = lastFrame();
         expect(output).toContain(isExpanded ? '▼' : '▶');
-        expect(output).toContain('LOCAL');
+        expect(output).toContain('Local overrides');
         expect(output).toContain('(7)');
       });
     });
 
     test('handles empty groups', () => {
-      const group = createTestGroup('claude-md', 0, false);
+      const group = createTestGroup('project-memory', 0, false);
       const { lastFrame } = render(
         <FileGroup
           type={group.type}
@@ -162,7 +164,7 @@ if (import.meta.vitest) {
 
       const output = lastFrame();
       expect(output).toContain('▶');
-      expect(output).toContain('PROJECT');
+      expect(output).toContain('Project configuration');
       expect(output).toContain('(0)');
     });
 
@@ -178,12 +180,12 @@ if (import.meta.vitest) {
       );
 
       const output = lastFrame();
-      expect(output).toContain('OTHER'); // Fallback label
+      expect(output).toContain('Other files'); // Fallback label
       expect(output).toContain('(2)');
     });
 
     test('re-renders correctly when props change', () => {
-      const group1 = createTestGroup('claude-md', 5, false);
+      const group1 = createTestGroup('project-memory', 5, false);
       const { lastFrame, rerender } = render(
         <FileGroup
           type={group1.type}
@@ -197,7 +199,7 @@ if (import.meta.vitest) {
       expect(lastFrame()).toContain('(5)');
 
       // Change to expanded
-      const group2 = createTestGroup('claude-md', 5, true);
+      const group2 = createTestGroup('project-memory', 5, true);
       rerender(
         <FileGroup
           type={group2.type}
@@ -222,7 +224,7 @@ if (import.meta.vitest) {
 
       const finalOutput = lastFrame();
       expect(finalOutput).toContain('▼');
-      expect(finalOutput).toContain('PROJECT');
+      expect(finalOutput).toContain('Project configuration');
       expect(finalOutput).toContain('(5)');
     });
   });

@@ -152,7 +152,7 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
 
           // Determine destination path based on file type
           let destPath: string;
-          if (file.type === 'slash-command') {
+          if (file.type === 'project-command') {
             // For slash commands, preserve the directory structure under .claude/commands/
             const commandsIndex = file.path.indexOf('.claude/commands/');
             if (commandsIndex !== -1) {

@@ -67,8 +67,12 @@ if (import.meta.vitest) {
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
             const files: ClaudeFileInfo[] = [
-              createFileInfo(basePath, 'CLAUDE.md', 'claude-md'),
-              createFileInfo(basePath, 'CLAUDE.local.md', 'claude-local-md'),
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+              createFileInfo(
+                basePath,
+                'CLAUDE.local.md',
+                'project-memory-local',
+              ),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -110,7 +114,9 @@ if (import.meta.vitest) {
           },
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
-            const files = [createFileInfo(basePath, 'CLAUDE.md', 'claude-md')];
+            const files = [
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+            ];
             const fileGroups = createFileGroups(files);
 
             const { lastFrame } = render(
@@ -136,7 +142,9 @@ if (import.meta.vitest) {
           },
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
-            const files = [createFileInfo(basePath, 'CLAUDE.md', 'claude-md')];
+            const files = [
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+            ];
             const fileGroups = createFileGroups(files);
 
             const { lastFrame } = render(
@@ -179,19 +187,19 @@ if (import.meta.vitest) {
               createFileInfo(
                 fixture.path,
                 'test-project/CLAUDE.md',
-                'claude-md',
+                'project-memory',
               ),
               createFileInfo(
                 fixture.path,
                 'test-project/CLAUDE.local.md',
-                'claude-local-md',
+                'project-memory-local',
               ),
               createFileInfo(
                 fixture.path,
                 'test-project/.claude/commands/test.md',
-                'slash-command',
+                'project-command',
               ),
-              createFileInfo(fixture.path, '.claude/CLAUDE.md', 'global-md'),
+              createFileInfo(fixture.path, '.claude/CLAUDE.md', 'user-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -206,16 +214,16 @@ if (import.meta.vitest) {
 
             const frame = lastFrame();
             // Icons
-            expect(frame).toContain('📝'); // claude-md
-            expect(frame).toContain('🔒'); // claude-local-md
-            expect(frame).toContain('⚡'); // slash-command
-            expect(frame).toContain('🧠'); // global-md
+            expect(frame).toContain('📝'); // project-memory
+            expect(frame).toContain('🔒'); // project-memory-local
+            expect(frame).toContain('⚡'); // project-command
+            expect(frame).toContain('🧠'); // user-memory
 
             // Badges
             expect(frame).toContain('PROJECT');
             expect(frame).toContain('LOCAL');
             expect(frame).toContain('COMMAND');
-            expect(frame).toContain('USER MEMORY');
+            expect(frame).toContain('GLOBAL');
           },
         );
       });
@@ -233,8 +241,8 @@ if (import.meta.vitest) {
           async (fixture) => {
             const basePath = join(fixture.path, 'project');
             const files = [
-              createFileInfo(basePath, 'CLAUDE.md', 'claude-md'),
-              createFileInfo(basePath, 'README.md', 'claude-md'),
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+              createFileInfo(basePath, 'README.md', 'project-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -272,9 +280,13 @@ if (import.meta.vitest) {
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
             const files = [
-              createFileInfo(basePath, 'CLAUDE.md', 'claude-md'),
-              createFileInfo(basePath, 'CLAUDE.local.md', 'claude-local-md'),
-              createFileInfo(basePath, 'README.md', 'claude-md'),
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+              createFileInfo(
+                basePath,
+                'CLAUDE.local.md',
+                'project-memory-local',
+              ),
+              createFileInfo(basePath, 'README.md', 'project-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -309,7 +321,9 @@ if (import.meta.vitest) {
           },
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
-            const files = [createFileInfo(basePath, 'CLAUDE.md', 'claude-md')];
+            const files = [
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+            ];
             const fileGroups = createFileGroups(files);
 
             // Search with non-existent string
@@ -344,9 +358,13 @@ if (import.meta.vitest) {
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
             const files = [
-              createFileInfo(basePath, 'CLAUDE.md', 'claude-md'),
-              createFileInfo(basePath, 'CLAUDE.local.md', 'claude-local-md'),
-              createFileInfo(basePath, 'README.md', 'claude-md'),
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+              createFileInfo(
+                basePath,
+                'CLAUDE.local.md',
+                'project-memory-local',
+              ),
+              createFileInfo(basePath, 'README.md', 'project-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -383,8 +401,8 @@ if (import.meta.vitest) {
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
             const files = [
-              createFileInfo(basePath, 'CLAUDE.md', 'claude-md'),
-              createFileInfo(basePath, 'README.md', 'claude-md'),
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+              createFileInfo(basePath, 'README.md', 'project-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -436,7 +454,9 @@ if (import.meta.vitest) {
           },
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
-            const files = [createFileInfo(basePath, 'CLAUDE.md', 'claude-md')];
+            const files = [
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+            ];
             const fileGroups = createFileGroups(files);
             const onSearchQueryChange = vi.fn();
 
@@ -495,9 +515,13 @@ if (import.meta.vitest) {
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
             const files = [
-              createFileInfo(basePath, 'CLAUDE.md', 'claude-md'),
-              createFileInfo(basePath, 'CLAUDE.local.md', 'claude-local-md'),
-              createFileInfo(basePath, 'README.md', 'claude-md'),
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+              createFileInfo(
+                basePath,
+                'CLAUDE.local.md',
+                'project-memory-local',
+              ),
+              createFileInfo(basePath, 'README.md', 'project-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -534,7 +558,9 @@ if (import.meta.vitest) {
           },
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
-            const files = [createFileInfo(basePath, 'CLAUDE.md', 'claude-md')];
+            const files = [
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+            ];
             const fileGroups = createFileGroups(files);
 
             const { lastFrame } = render(
@@ -569,8 +595,8 @@ if (import.meta.vitest) {
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
             const files = [
-              createFileInfo(basePath, 'CLAUDE.md', 'claude-md'),
-              createFileInfo(basePath, 'README.md', 'claude-md'),
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+              createFileInfo(basePath, 'README.md', 'project-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -603,8 +629,8 @@ if (import.meta.vitest) {
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
             const files = [
-              createFileInfo(basePath, 'CLAUDE.md', 'claude-md'),
-              createFileInfo(basePath, 'README.md', 'claude-md'),
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+              createFileInfo(basePath, 'README.md', 'project-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -645,9 +671,13 @@ if (import.meta.vitest) {
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
             const files = [
-              createFileInfo(basePath, 'CLAUDE.md', 'claude-md'),
-              createFileInfo(basePath, 'CLAUDE.local.md', 'claude-local-md'),
-              createFileInfo(basePath, 'README.md', 'claude-md'),
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+              createFileInfo(
+                basePath,
+                'CLAUDE.local.md',
+                'project-memory-local',
+              ),
+              createFileInfo(basePath, 'README.md', 'project-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -694,9 +724,9 @@ if (import.meta.vitest) {
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
             const files = [
-              createFileInfo(basePath, 'CLAUDE.md', 'claude-md'),
-              createFileInfo(basePath, 'README.md', 'claude-md'),
-              createFileInfo(basePath, 'NOTES.md', 'claude-md'),
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+              createFileInfo(basePath, 'README.md', 'project-memory'),
+              createFileInfo(basePath, 'NOTES.md', 'project-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -727,7 +757,7 @@ if (import.meta.vitest) {
         // Skipped: ink-testing-library doesn't support useFocus hook properly
         // See: https://github.com/vadimdemedes/ink/issues/515
         // Menu mode requires focus management which doesn't work in test environment
-        const files = [createFileInfo('', 'file1.md', 'claude-md')];
+        const files = [createFileInfo('', 'file1.md', 'project-memory')];
         const fileGroups = createFileGroups(files);
 
         const { stdin, lastFrame } = render(
@@ -777,9 +807,17 @@ if (import.meta.vitest) {
           },
           async (fixture) => {
             const files = [
-              createFileInfo(fixture.path, 'project1/CLAUDE.md', 'claude-md'),
-              createFileInfo(fixture.path, 'project2/CLAUDE.md', 'claude-md'),
-              createFileInfo(fixture.path, 'test/README.md', 'claude-md'),
+              createFileInfo(
+                fixture.path,
+                'project1/CLAUDE.md',
+                'project-memory',
+              ),
+              createFileInfo(
+                fixture.path,
+                'project2/CLAUDE.md',
+                'project-memory',
+              ),
+              createFileInfo(fixture.path, 'test/README.md', 'project-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -829,7 +867,11 @@ if (import.meta.vitest) {
 
         // Create many files to test performance
         const files = Array.from({ length: 100 }, (_, i) =>
-          createFileInfo(fixture.path, `my-app/src/file${i}.md`, 'claude-md'),
+          createFileInfo(
+            fixture.path,
+            `my-app/src/file${i}.md`,
+            'project-memory',
+          ),
         );
         const fileGroups = createFileGroups(files);
 
@@ -874,7 +916,9 @@ if (import.meta.vitest) {
           },
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
-            const files = [createFileInfo(basePath, 'CLAUDE.md', 'claude-md')];
+            const files = [
+              createFileInfo(basePath, 'CLAUDE.md', 'project-memory'),
+            ];
             const fileGroups = createFileGroups(files);
 
             // Mock different terminal sizes
@@ -932,7 +976,11 @@ if (import.meta.vitest) {
 
         // Create many files to test virtual scrolling behavior
         const files = Array.from({ length: 150 }, (_, i) =>
-          createFileInfo(fixture.path, `my-app/src/file${i}.md`, 'claude-md'),
+          createFileInfo(
+            fixture.path,
+            `my-app/src/file${i}.md`,
+            'project-memory',
+          ),
         );
         const fileGroups = createFileGroups(files);
 
@@ -963,7 +1011,11 @@ if (import.meta.vitest) {
 
         // Create files to test that selection stays visible
         const files = Array.from({ length: 30 }, (_, i) =>
-          createFileInfo(fixture.path, `my-app/src/file${i}.md`, 'claude-md'),
+          createFileInfo(
+            fixture.path,
+            `my-app/src/file${i}.md`,
+            'project-memory',
+          ),
         );
         const fileGroups = createFileGroups(files);
 
@@ -1012,21 +1064,21 @@ if (import.meta.vitest) {
             createFileInfo(
               fixture.path,
               `my-app/project/file${i}.md`,
-              'claude-md',
+              'project-memory',
             ),
           ),
           ...Array.from({ length: 50 }, (_, i) =>
             createFileInfo(
               fixture.path,
               `my-app/local/file${i}.md`,
-              'claude-local-md',
+              'project-memory-local',
             ),
           ),
           ...Array.from({ length: 50 }, (_, i) =>
             createFileInfo(
               fixture.path,
               `my-app/commands/cmd${i}.md`,
-              'slash-command',
+              'project-command',
             ),
           ),
         ];
@@ -1057,7 +1109,11 @@ if (import.meta.vitest) {
 
         // Create files for search test
         const files = Array.from({ length: 30 }, (_, i) =>
-          createFileInfo(fixture.path, `my-app/src/file${i}.md`, 'claude-md'),
+          createFileInfo(
+            fixture.path,
+            `my-app/src/file${i}.md`,
+            'project-memory',
+          ),
         );
         const fileGroups = createFileGroups(files);
 
@@ -1101,9 +1157,9 @@ if (import.meta.vitest) {
           async (fixture) => {
             const basePath = join(fixture.path, 'test-project');
             const files = [
-              createFileInfo(basePath, '[special].md', 'claude-md'),
-              createFileInfo(basePath, 'file with spaces.md', 'claude-md'),
-              createFileInfo(basePath, '日本語.md', 'claude-md'),
+              createFileInfo(basePath, '[special].md', 'project-memory'),
+              createFileInfo(basePath, 'file with spaces.md', 'project-memory'),
+              createFileInfo(basePath, '日本語.md', 'project-memory'),
             ];
             const fileGroups = createFileGroups(files);
 
@@ -1150,7 +1206,9 @@ if (import.meta.vitest) {
           async (fixture) => {
             const longPath =
               'very/long/path/to/nested/deeply/inside/directory/structure/CLAUDE.md';
-            const files = [createFileInfo(fixture.path, longPath, 'claude-md')];
+            const files = [
+              createFileInfo(fixture.path, longPath, 'project-memory'),
+            ];
             const fileGroups = createFileGroups(files);
 
             const { lastFrame } = render(

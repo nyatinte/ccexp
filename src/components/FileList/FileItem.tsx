@@ -20,37 +20,45 @@ export const FileItem = React.memo(function FileItem({
 }: FileItemProps): React.JSX.Element {
   const getFileBadge = (file: ClaudeFileInfo) => {
     return match(file.type)
-      .with('claude-md', () => ({
-        color: theme.fileTypes.claudeMd,
+      .with('project-memory', () => ({
+        color: theme.fileTypes.projectMemory,
         label: 'PROJECT',
       }))
-      .with('claude-local-md', () => ({
-        color: theme.fileTypes.claudeLocalMd,
-        label: 'LOCAL',
+      .with('project-memory-local', () => ({
+        color: theme.fileTypes.projectMemoryLocal,
+        label: 'LOCAL [deprecated]',
       }))
-      .with('project-agent', () => ({
-        color: theme.fileTypes.slashCommand,
+      .with('project-subagent', () => ({
+        color: theme.fileTypes.projectSubagent,
         label: 'PROJECT AGENT',
       }))
-      .with('user-agent', () => ({
-        color: theme.fileTypes.globalMd,
+      .with('user-subagent', () => ({
+        color: theme.fileTypes.userSubagent,
         label: 'USER AGENT',
       }))
-      .with('slash-command', () => ({
-        color: theme.fileTypes.slashCommand,
+      .with('project-command', () => ({
+        color: theme.fileTypes.projectCommand,
         label: 'COMMAND',
       }))
-      .with('global-md', () => ({
-        color: theme.fileTypes.globalMd,
+      .with('personal-command', () => ({
+        color: theme.fileTypes.personalCommand,
+        label: 'PERSONAL',
+      }))
+      .with('user-memory', () => ({
+        color: theme.fileTypes.userMemory,
         label: 'GLOBAL',
       }))
-      .with('settings-json', () => ({
-        color: theme.fileTypes.settingsJson,
+      .with('project-settings', () => ({
+        color: theme.fileTypes.projectSettings,
         label: 'SETTINGS',
       }))
-      .with('settings-local-json', () => ({
-        color: theme.fileTypes.settingsLocalJson,
+      .with('project-settings-local', () => ({
+        color: theme.fileTypes.projectSettingsLocal,
         label: 'LOCAL SETTINGS',
+      }))
+      .with('user-settings', () => ({
+        color: theme.fileTypes.userSettings,
+        label: 'USER SETTINGS',
       }))
       .with('unknown', () => ({
         color: theme.fileTypes.unknown,
@@ -61,14 +69,16 @@ export const FileItem = React.memo(function FileItem({
 
   const getFileIcon = (file: ClaudeFileInfo): string => {
     return match(file.type)
-      .with('claude-md', () => '📝')
-      .with('claude-local-md', () => '🔒')
-      .with('project-agent', () => '🤖')
-      .with('user-agent', () => '👤')
-      .with('slash-command', () => '⚡')
-      .with('global-md', () => '🧠')
-      .with('settings-json', () => '⚙️')
-      .with('settings-local-json', () => '🔧')
+      .with('project-memory', () => '📝')
+      .with('project-memory-local', () => '🔒')
+      .with('project-subagent', () => '🤖')
+      .with('user-subagent', () => '👤')
+      .with('project-command', () => '⚡')
+      .with('personal-command', () => '👤')
+      .with('user-memory', () => '🧠')
+      .with('project-settings', () => '⚙️')
+      .with('project-settings-local', () => '🔧')
+      .with('user-settings', () => '🌐')
       .with('unknown', () => '📄')
       .exhaustive();
   };
@@ -79,27 +89,42 @@ export const FileItem = React.memo(function FileItem({
 
   const getDisplayName = (): string => {
     return match(file.type)
-      .with('global-md', () => `~/.claude/${fileName}`)
+      .with('user-memory', () => `~/.claude/${fileName}`)
       .with(
-        'user-agent',
+        'user-subagent',
         () => `~/.claude/agents/${fileName.replace('.md', '')}`,
       )
-      .with('project-agent', () => fileName.replace('.md', ''))
-      .with('slash-command', () => fileName.replace('.md', ''))
-      .with(P.union('settings-json', 'settings-local-json'), () => {
-        const homeDir = homedir();
-        if (file.path.startsWith(homeDir)) {
-          const relativePath = file.path.slice(homeDir.length);
-          return `~${relativePath}`;
+      .with('project-subagent', () => fileName.replace('.md', ''))
+      .with('project-command', () => {
+        const commandName = fileName.replace('.md', '');
+        // Show command with parent directory if it exists
+        if (parentDir !== 'commands' && parentDir !== '.') {
+          return `/${parentDir}:${commandName}`;
         }
-
-        const parts = file.path.split('/');
-        const claudeIndex = parts.lastIndexOf('.claude');
-        if (claudeIndex > 0 && parts[claudeIndex - 1]) {
-          return `${parts[claudeIndex - 1]}/.claude/${fileName}`;
-        }
-        return `${parentDir}/${fileName}`;
+        return `/${commandName}`;
       })
+      .with('personal-command', () => {
+        const commandName = fileName.replace('.md', '');
+        const relativePath = file.path.replace(homedir(), '~');
+        return `/${commandName} (${dirname(relativePath)})`;
+      })
+      .with(
+        P.union('project-settings', 'project-settings-local', 'user-settings'),
+        () => {
+          const homeDir = homedir();
+          if (file.path.startsWith(homeDir)) {
+            const relativePath = file.path.slice(homeDir.length);
+            return `~${relativePath}`;
+          }
+
+          const parts = file.path.split('/');
+          const claudeIndex = parts.lastIndexOf('.claude');
+          if (claudeIndex > 0 && parts[claudeIndex - 1]) {
+            return `${parts[claudeIndex - 1]}/.claude/${fileName}`;
+          }
+          return `${parentDir}/${fileName}`;
+        },
+      )
       .otherwise(() => `${parentDir}/${fileName}`);
   };
 

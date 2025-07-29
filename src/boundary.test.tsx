@@ -50,7 +50,7 @@ if (import.meta.vitest) {
     test('handles moderate number of files', async () => {
       // Generate 100 files - a realistic project size
       const manyFiles: ClaudeFileInfo[] = Array.from({ length: 100 }, (_, i) =>
-        createFileInfo('', `project/file${i}.md`, 'claude-md'),
+        createFileInfo('', `project/file${i}.md`, 'project-memory'),
       );
       const fileGroups = createFileGroups(manyFiles);
 
@@ -68,7 +68,7 @@ if (import.meta.vitest) {
       // Should display count correctly
       const output = lastFrame();
       expect(output).toContain('Claude Files (100)');
-      expect(output).toContain('PROJECT (100)');
+      expect(output).toContain('Project configuration (100)');
 
       unmount();
     });
@@ -89,7 +89,11 @@ if (import.meta.vitest) {
           },
         },
         async (fixture) => {
-          const file = createFileInfo(fixture.path, relativePath, 'claude-md');
+          const file = createFileInfo(
+            fixture.path,
+            relativePath,
+            'project-memory',
+          );
           const fileGroups = createFileGroups([file]);
 
           const { lastFrame } = render(
@@ -124,16 +128,24 @@ if (import.meta.vitest) {
         },
         async (fixture) => {
           const specialFiles = [
-            createFileInfo(fixture.path, 'emoji-🎉-file.md', 'claude-md'),
-            createFileInfo(fixture.path, 'chinese-中文文件.md', 'claude-md'),
-            createFileInfo(fixture.path, 'arabic-ملف.md', 'claude-md'),
-            createFileInfo(fixture.path, 'symbols-@#$%^&*.md', 'claude-md'),
+            createFileInfo(fixture.path, 'emoji-🎉-file.md', 'project-memory'),
+            createFileInfo(
+              fixture.path,
+              'chinese-中文文件.md',
+              'project-memory',
+            ),
+            createFileInfo(fixture.path, 'arabic-ملف.md', 'project-memory'),
+            createFileInfo(
+              fixture.path,
+              'symbols-@#$%^&*.md',
+              'project-memory',
+            ),
             createFileInfo(
               fixture.path,
               'spaces   multiple   spaces.md',
-              'claude-md',
+              'project-memory',
             ),
-            createFileInfo(fixture.path, 'tabs\t\ttabbed.md', 'claude-md'),
+            createFileInfo(fixture.path, 'tabs\t\ttabbed.md', 'project-memory'),
           ];
 
           const fileGroups = createFileGroups(specialFiles);
@@ -171,10 +183,10 @@ if (import.meta.vitest) {
         },
         async (fixture) => {
           const files = [
-            createFileInfo(fixture.path, 'README', 'claude-md'),
-            createFileInfo(fixture.path, 'Makefile', 'claude-md'),
-            createFileInfo(fixture.path, '.gitignore', 'claude-md'),
-            createFileInfo(fixture.path, '.env.local', 'claude-md'),
+            createFileInfo(fixture.path, 'README', 'project-memory'),
+            createFileInfo(fixture.path, 'Makefile', 'project-memory'),
+            createFileInfo(fixture.path, '.gitignore', 'project-memory'),
+            createFileInfo(fixture.path, '.env.local', 'project-memory'),
           ];
 
           const fileGroups = createFileGroups(files);
@@ -277,11 +289,11 @@ if (import.meta.vitest) {
           // Create files with simulated root paths
           const rootFiles = [
             {
-              ...createFileInfo(fixture.path, 'root.md', 'claude-md'),
+              ...createFileInfo(fixture.path, 'root.md', 'project-memory'),
               path: createClaudeFilePath('/root.md'),
             },
             {
-              ...createFileInfo(fixture.path, 'CLAUDE.md', 'claude-md'),
+              ...createFileInfo(fixture.path, 'CLAUDE.md', 'project-memory'),
               path: createClaudeFilePath('/CLAUDE.md'),
             },
           ];

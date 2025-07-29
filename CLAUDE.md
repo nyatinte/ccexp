@@ -165,8 +165,8 @@ src/
    ```typescript
    const detectClaudeFileType = (fileName: string, dirPath: string): ClaudeFileType => {
      return match([fileName, dirPath])
-       .with(['CLAUDE.md', P._], () => 'claude-md' as const)
-       .with(['CLAUDE.local.md', P._], () => 'claude-local-md' as const)
+       .with(['CLAUDE.md', P._], () => 'project-memory' as const)
+       .with(['CLAUDE.local.md', P._], () => 'project-memory-local' as const)
        .otherwise(() => 'unknown' as const);
    };
    ```

@@ -218,7 +218,7 @@ if (import.meta.vitest != null) {
 
   const mockFile = (path: string): ClaudeFileInfo => ({
     path,
-    type: 'claude-md',
+    type: 'project-memory',
     size: 100,
     lastModified: new Date(),
     commands: [],
@@ -226,7 +226,7 @@ if (import.meta.vitest != null) {
   });
 
   const mockGroup = (
-    type: 'claude-md' | 'slash-command',
+    type: 'project-memory' | 'project-command',
     files: ClaudeFileInfo[],
     isExpanded = true,
   ): FileGroup => ({
@@ -238,8 +238,8 @@ if (import.meta.vitest != null) {
   describe('filterFileGroups', () => {
     test('returns all groups when searchQuery is empty', () => {
       const groups = [
-        mockGroup('claude-md', [mockFile('/project/CLAUDE.md')]),
-        mockGroup('slash-command', [mockFile('/commands/test.md')]),
+        mockGroup('project-memory', [mockFile('/project/CLAUDE.md')]),
+        mockGroup('project-command', [mockFile('/commands/test.md')]),
       ];
       const result = filterFileGroups(groups, '');
       expect(result).toEqual(groups);
@@ -247,7 +247,7 @@ if (import.meta.vitest != null) {
 
     test('filters files by filename', () => {
       const groups = [
-        mockGroup('claude-md', [
+        mockGroup('project-memory', [
           mockFile('/project/CLAUDE.md'),
           mockFile('/other/README.md'),
         ]),
@@ -259,7 +259,7 @@ if (import.meta.vitest != null) {
 
     test('filters files by path', () => {
       const groups = [
-        mockGroup('claude-md', [
+        mockGroup('project-memory', [
           mockFile('/project/CLAUDE.md'),
           mockFile('/other/CLAUDE.md'),
         ]),
@@ -271,15 +271,17 @@ if (import.meta.vitest != null) {
 
     test('removes empty groups', () => {
       const groups = [
-        mockGroup('claude-md', [mockFile('/project/CLAUDE.md')]),
-        mockGroup('slash-command', [mockFile('/commands/test.md')]),
+        mockGroup('project-memory', [mockFile('/project/CLAUDE.md')]),
+        mockGroup('project-command', [mockFile('/commands/test.md')]),
       ];
       const result = filterFileGroups(groups, 'nonexistent');
       expect(result).toHaveLength(0);
     });
 
     test('is case insensitive', () => {
-      const groups = [mockGroup('claude-md', [mockFile('/project/CLAUDE.md')])];
+      const groups = [
+        mockGroup('project-memory', [mockFile('/project/CLAUDE.md')]),
+      ];
       const result = filterFileGroups(groups, 'claude');
       expect(result[0]?.files).toHaveLength(1);
     });
@@ -289,7 +291,7 @@ if (import.meta.vitest != null) {
     test('creates group and file items for expanded groups', () => {
       const groups = [
         mockGroup(
-          'claude-md',
+          'project-memory',
           [mockFile('/file1.md'), mockFile('/file2.md')],
           true,
         ),
@@ -305,7 +307,7 @@ if (import.meta.vitest != null) {
     test('creates only group items for collapsed groups', () => {
       const groups = [
         mockGroup(
-          'claude-md',
+          'project-memory',
           [mockFile('/file1.md'), mockFile('/file2.md')],
           false,
         ),
@@ -316,8 +318,8 @@ if (import.meta.vitest != null) {
 
     test('handles multiple groups', () => {
       const groups = [
-        mockGroup('claude-md', [mockFile('/file1.md')], true),
-        mockGroup('slash-command', [mockFile('/cmd.md')], false),
+        mockGroup('project-memory', [mockFile('/file1.md')], true),
+        mockGroup('project-command', [mockFile('/cmd.md')], false),
       ];
       const result = flattenFileGroups(groups);
       expect(result).toEqual([
@@ -330,21 +332,24 @@ if (import.meta.vitest != null) {
 
   describe('calculateNavigationPosition', () => {
     test('identifies group position', () => {
-      const groups = [mockGroup('claude-md', [mockFile('/file1.md')])];
+      const groups = [mockGroup('project-memory', [mockFile('/file1.md')])];
       const position = calculateNavigationPosition(groups, 0, 0, true);
       expect(position.type).toBe('group');
     });
 
     test('identifies file position', () => {
-      const groups = [mockGroup('claude-md', [mockFile('/file1.md')])];
+      const groups = [mockGroup('project-memory', [mockFile('/file1.md')])];
       const position = calculateNavigationPosition(groups, 0, 0, false);
       expect(position.type).toBe('file');
     });
 
     test('correctly identifies navigation boundaries', () => {
       const groups = [
-        mockGroup('claude-md', [mockFile('/file1.md'), mockFile('/file2.md')]),
-        mockGroup('slash-command', [mockFile('/cmd.md')]),
+        mockGroup('project-memory', [
+          mockFile('/file1.md'),
+          mockFile('/file2.md'),
+        ]),
+        mockGroup('project-command', [mockFile('/cmd.md')]),
       ];
 
       // First group, second file
@@ -418,8 +423,8 @@ if (import.meta.vitest != null) {
 
   describe('handleDownArrowNavigation', () => {
     const groups = [
-      mockGroup('claude-md', [mockFile('/f1'), mockFile('/f2')], true),
-      mockGroup('slash-command', [mockFile('/cmd')], true),
+      mockGroup('project-memory', [mockFile('/f1'), mockFile('/f2')], true),
+      mockGroup('project-command', [mockFile('/cmd')], true),
     ];
 
     test('moves from group to first file when expanded', () => {
@@ -479,8 +484,8 @@ if (import.meta.vitest != null) {
 
   describe('getFileAtPosition', () => {
     const groups = [
-      mockGroup('claude-md', [mockFile('/f1'), mockFile('/f2')], true),
-      mockGroup('slash-command', [], true),
+      mockGroup('project-memory', [mockFile('/f1'), mockFile('/f2')], true),
+      mockGroup('project-command', [], true),
     ];
 
     test('returns null when group is selected', () => {
@@ -495,7 +500,7 @@ if (import.meta.vitest != null) {
 
     test('returns null when group is collapsed', () => {
       const collapsedGroups = [
-        mockGroup('claude-md', [mockFile('/f1')], false),
+        mockGroup('project-memory', [mockFile('/f1')], false),
       ];
       const result = getFileAtPosition(collapsedGroups, 0, 0, false);
       expect(result).toBeNull();

@@ -21,7 +21,7 @@ const convertSlashCommandToFileInfo = (
   command: SlashCommandInfo,
 ): ClaudeFileInfo => ({
   path: command.filePath,
-  type: 'slash-command' as const,
+  type: command.scope === 'user' ? 'personal-command' : 'project-command',
   size: 0, // No size information for slash commands
   lastModified: command.lastModified,
   commands: [
@@ -36,7 +36,7 @@ const convertSlashCommandToFileInfo = (
 
 const convertSubAgentToFileInfo = (agent: SubAgentInfo): ClaudeFileInfo => ({
   path: agent.filePath,
-  type: agent.scope === 'project' ? 'project-agent' : 'user-agent',
+  type: agent.scope === 'project' ? 'project-subagent' : 'user-subagent',
   size: 0, // No size information for sub-agents
   lastModified: agent.lastModified,
   commands: [], // No commands in sub-agents
@@ -110,14 +110,16 @@ export function useFileNavigation(
 
         // Create FileGroup array (in predefined order)
         const orderedTypes: ClaudeFileType[] = [
-          'global-md',
-          'claude-md',
-          'claude-local-md',
-          'project-agent',
-          'user-agent',
-          'settings-json',
-          'settings-local-json',
-          'slash-command',
+          'user-memory',
+          'project-memory',
+          'project-memory-local',
+          'project-subagent',
+          'user-subagent',
+          'project-settings',
+          'project-settings-local',
+          'user-settings',
+          'project-command',
+          'personal-command',
           'unknown',
         ];
         const groups: FileGroup[] = orderedTypes
