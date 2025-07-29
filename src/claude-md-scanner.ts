@@ -194,6 +194,10 @@ const getSearchPatterns = (
     patterns.push(`${prefix}.claude/commands/**/*.md`);
   }
 
+  if (!type || type === 'personal-command') {
+    patterns.push(CLAUDE_FILE_PATTERNS.USER_SLASH_COMMANDS);
+  }
+
   return patterns;
 };
 
@@ -263,6 +267,21 @@ if (import.meta.vitest != null) {
       const patterns = getSearchPatterns('project-memory', false);
       expect(patterns).toContain('CLAUDE.md');
       expect(patterns).not.toContain('**/CLAUDE.md');
+    });
+
+    test('should return user slash commands pattern for personal-command type', () => {
+      const patterns = getSearchPatterns('personal-command', true);
+      expect(patterns).toHaveLength(1);
+      expect(patterns[0]).toContain('.claude/commands/');
+    });
+
+    test('should include personal-command pattern when no type specified', () => {
+      const patterns = getSearchPatterns(undefined, true);
+      expect(
+        patterns.some(
+          (p) => p.includes('.claude/commands/') && p.includes('/'),
+        ),
+      ).toBe(true);
     });
   });
 
