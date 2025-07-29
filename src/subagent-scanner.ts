@@ -7,8 +7,8 @@ import { BaseFileScanner } from './base-file-scanner.ts';
 import { findSubAgents } from './fast-scanner.ts';
 
 class SubAgentScanner extends BaseFileScanner<SubAgentInfo> {
-  protected readonly maxFileSize = FILE_SIZE_LIMITS.MAX_SLASH_COMMAND_SIZE;
-  protected readonly fileType = 'Sub-agent';
+  protected readonly maxFileSize = FILE_SIZE_LIMITS.MAX_SUBAGENT_SIZE;
+  protected readonly fileType = 'Subagent';
 
   protected async parseContent(
     filePath: string,

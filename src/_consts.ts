@@ -16,6 +16,7 @@ export const CLAUDE_FILE_PATTERNS = {
 export const FILE_SIZE_LIMITS = {
   MAX_CLAUDE_MD_SIZE: 1024 * 1024, // 1MB
   MAX_SLASH_COMMAND_SIZE: 512 * 1024, // 512KB
+  MAX_SUBAGENT_SIZE: 1024 * 100, // 100KB
 } as const;
 
 // CLI output configuration

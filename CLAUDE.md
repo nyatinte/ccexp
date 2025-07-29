@@ -220,7 +220,7 @@ src/
   - `base-file-scanner.ts` → Abstract base class for all scanners
   - `claude-md-scanner.ts` → CLAUDE.md file discovery
   - `slash-command-scanner.ts` → Slash command discovery
-  - `subagent-scanner.ts` → Sub-agent definition discovery
+  - `subagent-scanner.ts` → Subagent definition discovery
   - `default-scanner.ts` → Combined scanner for all file types
   - `fast-scanner.ts` → High-performance directory traversal
 - **Type System**: `_types.ts` → branded types + zod schemas for data integrity
@@ -237,8 +237,8 @@ The tool automatically discovers these file types:
 - **CLAUDE.local.md** → Local overrides (gitignored)
 - **~/.claude/CLAUDE.md** → Global user configuration
 - **.claude/commands/**/*.md** → Slash command definitions
-- **.claude/agents/**/*.md** → Sub-agent definitions (project-level)
-- **~/.claude/agents/**/*.md** → Sub-agent definitions (user-level)
+- **.claude/agents/**/*.md** → Subagent definitions (project-level)
+- **~/.claude/agents/**/*.md** → Subagent definitions (user-level)
 - **.claude/settings.json** → Project settings (shared)
 - **.claude/settings.local.json** → Local project settings (gitignored)
 - **~/.claude/settings.json** → User settings (global)
@@ -472,6 +472,23 @@ Before first release:
 3. Ensure npm account has publishing permissions
 
 See `VERSIONING.md` for detailed versioning strategy and commit message conventions.
+
+## Naming Conventions
+
+### Terminology from Anthropic Documentation
+
+This project follows the official terminology from https://docs.anthropic.com:
+
+- **subagent** (not sub-agent) - Specialized AI assistants for specific tasks
+- **slash command** (not slash-command) - Custom commands starting with /
+- **Claude Code** - The official CLI tool name
+- **CLAUDE.md** - Configuration file names (uppercase)
+
+### Compound Word Rules
+
+- Use single words without hyphens for established terms: `subagent`, `codebase`
+- Use hyphens for clarity when needed: `project-specific`, `user-level`
+- Follow TypeScript naming conventions for code identifiers
 
 ## CI/CD Pipeline
 

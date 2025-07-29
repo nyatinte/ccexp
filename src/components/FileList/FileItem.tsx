@@ -32,11 +32,11 @@ export const FileItem = React.memo(function FileItem({
       }))
       .with('project-subagent', () => ({
         color: theme.fileTypes.projectSubagent,
-        label: 'PROJECT SUB-AGENT',
+        label: 'PROJECT SUBAGENT',
       }))
       .with('user-subagent', () => ({
         color: theme.fileTypes.userSubagent,
-        label: 'USER SUB-AGENT',
+        label: 'USER SUBAGENT',
       }))
       .with('project-command', () => ({
         color: theme.fileTypes.projectCommand,
