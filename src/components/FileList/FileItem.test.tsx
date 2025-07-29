@@ -1,5 +1,5 @@
 import { render } from 'ink-testing-library';
-import type { ClaudeFileInfo, ClaudeFileType } from '../../_types.js';
+import type { ClaudeFileInfo } from '../../_types.js';
 import { createClaudeFilePath } from '../../_types.js';
 import { FileItem } from './FileItem.js';
 
@@ -7,15 +7,33 @@ import { FileItem } from './FileItem.js';
 const createMockFile = (
   name: string,
   type: ClaudeFileInfo['type'],
-  path = `/test/${name}`,
-): ClaudeFileInfo => ({
-  path: createClaudeFilePath(path),
-  type,
-  size: 1024,
-  lastModified: new Date('2024-01-01'),
-  commands: [],
-  tags: [],
-});
+  options?: {
+    path?: string;
+    basePath?: string;
+    relativePath?: string;
+    size?: number;
+  },
+): ClaudeFileInfo => {
+  let filePath: string;
+  if (options?.path) {
+    filePath = options.path;
+  } else if (options?.basePath && options?.relativePath) {
+    filePath = `${options.basePath}/${options.relativePath}`;
+  } else if (options?.basePath) {
+    filePath = `${options.basePath}/${name}`;
+  } else {
+    filePath = `/test/${name}`;
+  }
+
+  return {
+    path: createClaudeFilePath(filePath),
+    type,
+    size: options?.size ?? 1024,
+    lastModified: new Date('2024-01-01'),
+    commands: [],
+    tags: [],
+  };
+};
 
 if (import.meta.vitest) {
   const { describe, test, expect } = import.meta.vitest;
@@ -87,36 +105,18 @@ if (import.meta.vitest) {
       expect(lastFrame()).toContain('► '); // focus prefix
     });
 
-    // Helper to create file info for long filename tests
-    const createFileInfo = (
-      basePath: string,
-      relativePath: string,
-      type: ClaudeFileType,
-    ): ClaudeFileInfo => ({
-      path: createClaudeFilePath(`${basePath}/${relativePath}`),
-      type,
-      size: 100,
-      lastModified: new Date('2024-01-01'),
-      commands: [],
-      tags: [],
-    });
-
     test('should truncate very long file names properly', () => {
-      // 非常に長いファイル名を持つテストケース
       const longFileName =
         'this-is-a-very-very-very-very-very-very-very-very-very-very-long-filename-that-should-be-truncated-properly-without-breaking-the-layout.md';
-      const file = createFileInfo(
-        '/Users/test/projects',
-        longFileName,
-        'claude-md',
-      );
+      const file = createMockFile(longFileName, 'claude-md', {
+        basePath: '/Users/test/projects',
+        size: 100,
+      });
       const { lastFrame } = render(
         <FileItem file={file} isSelected={false} isFocused={false} />,
       );
 
-      // ファイル名が含まれていることを確認（切り詰められていても）
       expect(lastFrame()).toContain('projects/');
-      // バッジが正しく表示されることを確認
       expect(lastFrame()).toContain('PROJECT');
 
       // Check that the output doesn't overflow (it should be on a single line)
@@ -126,17 +126,15 @@ if (import.meta.vitest) {
     });
 
     test('should handle very long directory paths', () => {
-      // 非常に長いディレクトリパスを持つテストケース
-      const file = createFileInfo(
-        '/Users/test/very/deep/nested/directory/structure/with/many/levels/that/go/on/and/on/and/on',
-        'CLAUDE.md',
-        'claude-md',
-      );
+      const file = createMockFile('CLAUDE.md', 'claude-md', {
+        basePath:
+          '/Users/test/very/deep/nested/directory/structure/with/many/levels/that/go/on/and/on/and/on',
+        size: 100,
+      });
       const { lastFrame } = render(
         <FileItem file={file} isSelected={false} isFocused={false} />,
       );
 
-      // ファイル名とバッジが表示されることを確認
       expect(lastFrame()).toContain('CLAUDE.md');
       expect(lastFrame()).toContain('PROJECT');
 
@@ -145,23 +143,18 @@ if (import.meta.vitest) {
     });
 
     test('should maintain layout with extremely long paths', () => {
-      // Create a path that's extremely long
       const segments = Array(20).fill('very-long-directory-name');
       const longPath = segments.join('/');
-      const file = createFileInfo(
-        `/Users/test/${longPath}`,
-        'CLAUDE.md',
-        'claude-md',
-      );
+      const file = createMockFile('CLAUDE.md', 'claude-md', {
+        basePath: `/Users/test/${longPath}`,
+        size: 100,
+      });
 
       const { lastFrame } = render(
         <FileItem file={file} isSelected={false} isFocused={false} />,
       );
 
-      // Should still show the badge
       expect(lastFrame()).toContain('PROJECT');
-
-      // Should contain the filename
       expect(lastFrame()).toContain('CLAUDE.md');
     });
   });
