@@ -1,6 +1,7 @@
 import { open, readFile, stat } from 'node:fs/promises';
 import { basename } from 'node:path';
 import { isError } from 'es-toolkit/predicate';
+import matter from 'gray-matter';
 import { Box, Text } from 'ink';
 import type React from 'react';
 import { useEffect, useState } from 'react';
@@ -9,8 +10,44 @@ import { isBinaryFile } from '../../_utils.js';
 import { theme } from '../../styles/theme.js';
 import { MarkdownPreview } from './MarkdownPreview.js';
 
+// Format JSON content for better readability
+const formatJsonContent = (content: string): string => {
+  try {
+    const parsed = JSON.parse(content);
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    // If parsing fails, return original content
+    return content;
+  }
+};
+
 type PreviewProps = {
   readonly file?: ClaudeFileInfo | undefined;
+};
+
+type FrontmatterParseResult = {
+  readonly metadata:
+    | {
+        readonly name?: string;
+        readonly description?: string;
+      }
+    | undefined;
+  readonly content: string;
+};
+
+const tryParseFrontmatter = (content: string): FrontmatterParseResult => {
+  try {
+    const parsed = matter(content);
+    return {
+      metadata: {
+        name: parsed.data.name,
+        description: parsed.data.description,
+      },
+      content: parsed.content,
+    };
+  } catch {
+    return { metadata: undefined, content };
+  }
 };
 
 export function Preview({ file }: PreviewProps): React.JSX.Element {
@@ -100,8 +137,15 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
 
   const fileName = basename(file.path);
 
-  // Split content by lines
-  const lines = content.split('\n');
+  const parseResult =
+    file.type === 'project-agent' || file.type === 'user-agent'
+      ? tryParseFrontmatter(content)
+      : { metadata: undefined, content };
+
+  const subAgentMeta = parseResult.metadata;
+  const actualContent = parseResult.content;
+
+  const lines = actualContent.split('\n');
   const totalLines = lines.length;
   const maxPreviewLines = 12; // Limit to 12 lines considering header space
   const isContentTruncated = totalLines > maxPreviewLines;
@@ -129,9 +173,19 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
           {/* User memory description */}
           {file.type === 'global-md' && (
             <Box marginTop={1}>
-              <Text color="magenta" italic>
+              <Text color={theme.fileTypes.globalMd} italic>
                 📌 This is your private global configuration file that provides
                 instructions to Claude across all projects
+              </Text>
+            </Box>
+          )}
+          {(file.type === 'project-agent' || file.type === 'user-agent') && (
+            <Box marginTop={1} flexDirection="column">
+              <Text color="cyan">
+                🤖 Agent Name: {subAgentMeta?.name ?? 'undefined'}
+              </Text>
+              <Text color="yellow" italic>
+                📝 Description: {subAgentMeta?.description ?? 'undefined'}
               </Text>
             </Box>
           )}
@@ -147,6 +201,8 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
         <Box flexDirection="column" paddingRight={1}>
           {fileName.endsWith('.md') ? (
             <MarkdownPreview content={previewContent} />
+          ) : fileName.endsWith('.json') ? (
+            <Text>{formatJsonContent(previewContent)}</Text>
           ) : (
             <Text>{previewContent}</Text>
           )}

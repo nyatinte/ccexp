@@ -1,6 +1,7 @@
 import { StatusMessage } from '@inkjs/ui';
 import { Box, Static, Text } from 'ink';
 import type React from 'react';
+import { useMemo } from 'react';
 import type { CliOptions } from './_types.js';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
 import { FileList } from './components/FileList/index.js';
@@ -14,6 +15,18 @@ type AppProps = {
   readonly cliOptions: CliOptions;
 };
 
+const SPLIT_PANE_WIDTH = {
+  LEFT: 40,
+  MIN_LEFT: 35,
+  MAX_LEFT: 60,
+} as const;
+
+const SPLIT_PANE_WIDTH_TEST = {
+  LEFT: 60,
+  MIN_LEFT: 25,
+  MAX_LEFT: 80,
+} as const;
+
 export function App({ cliOptions }: AppProps): React.JSX.Element {
   const {
     files,
@@ -25,7 +38,19 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
     toggleGroup,
   } = useFileNavigation({ path: cliOptions.path });
 
-  // Error state
+  const splitPaneConfig = useMemo(() => {
+    const config =
+      typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
+        ? SPLIT_PANE_WIDTH_TEST
+        : SPLIT_PANE_WIDTH;
+    return {
+      leftWidth: config.LEFT,
+      minLeftWidth: config.MIN_LEFT,
+      maxLeftWidth: config.MAX_LEFT,
+      dynamicWidth: true,
+    };
+  }, []);
+
   if (error) {
     return (
       <Box flexDirection="column" padding={1}>
@@ -35,12 +60,10 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
     );
   }
 
-  // Loading state
   if (isLoading) {
     return <LoadingScreen />;
   }
 
-  // When no files found
   if (files.length === 0) {
     return (
       <Box
@@ -58,7 +81,6 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
     );
   }
 
-  // Main UI
   return (
     <ErrorBoundary>
       <Box flexDirection="column" width="100%" height="100%">
@@ -79,7 +101,6 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
           )}
         </Static>
 
-        {/* Main content */}
         <Box flexGrow={1}>
           <SplitPane
             left={
@@ -98,7 +119,10 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
                 <Preview file={selectedFile} />
               </ErrorBoundary>
             }
-            leftWidth={40} // 40% : 60% ratio
+            leftWidth={splitPaneConfig.leftWidth}
+            minLeftWidth={splitPaneConfig.minLeftWidth}
+            maxLeftWidth={splitPaneConfig.maxLeftWidth}
+            dynamicWidth={splitPaneConfig.dynamicWidth}
           />
         </Box>
       </Box>

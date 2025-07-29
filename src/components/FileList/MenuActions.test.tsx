@@ -1,11 +1,11 @@
 import { join } from 'node:path';
-import { delay } from 'es-toolkit/promise';
 import { render } from 'ink-testing-library';
 import type { ClaudeFileInfo } from '../../_types.js';
 import { createClaudeFilePath } from '../../_types.js';
 import { withCachedReadOnlyFixture } from '../../test-fixture-helpers.js';
 import { createTestInteraction } from '../../test-interaction-helpers.js';
 import { keyboard } from '../../test-keyboard-helpers.js';
+import { waitFor } from '../../test-utils.js';
 import { MenuActions } from './MenuActions/index.js';
 
 if (import.meta.vitest) {
@@ -558,7 +558,12 @@ if (import.meta.vitest) {
           await interaction.navigateUp();
 
           // Wait a bit more for the state to update
-          await delay(50);
+          await waitFor(() => {
+            const output = lastFrame();
+            if (!output || !output.includes('► [P] Copy Path (Absolute)')) {
+              throw new Error('Menu not updated yet');
+            }
+          }, 50);
 
           // Verify second item is selected
           const output2 = lastFrame();

@@ -15,6 +15,10 @@ export type ClaudeFileType =
   | 'claude-local-md'
   | 'global-md'
   | 'slash-command'
+  | 'project-agent'
+  | 'user-agent'
+  | 'settings-json'
+  | 'settings-local-json'
   | 'unknown';
 
 type _CommandInfo = {
@@ -42,6 +46,15 @@ export type SlashCommandInfo = {
   readonly lastModified: Date;
 };
 
+export type SubAgentInfo = {
+  readonly name: string;
+  readonly scope: 'project' | 'user';
+  readonly description?: string | undefined;
+  readonly tools?: string[] | undefined;
+  readonly filePath: ClaudeFilePath;
+  readonly lastModified: Date;
+};
+
 // Scan options
 export type ScanOptions = {
   readonly path?: string | undefined;
@@ -58,6 +71,10 @@ export type FileScanner = {
   readonly scanSlashCommands: (
     options?: ScanOptions,
   ) => Promise<SlashCommandInfo[]>;
+  readonly scanSubAgents: (options?: ScanOptions) => Promise<SubAgentInfo[]>;
+  readonly scanSettingsJson: (
+    options?: ScanOptions,
+  ) => Promise<ClaudeFileInfo[]>;
 };
 
 // Grouped files for UI display
@@ -66,6 +83,14 @@ export type FileGroup = {
   readonly files: ClaudeFileInfo[];
   readonly isExpanded: boolean;
 };
+
+export type FlatItem =
+  | { readonly type: 'group'; readonly groupIndex: number }
+  | {
+      readonly type: 'file';
+      readonly groupIndex: number;
+      readonly fileIndex: number;
+    };
 
 // Output formats
 

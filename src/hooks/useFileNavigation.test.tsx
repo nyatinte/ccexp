@@ -4,7 +4,9 @@ import { render } from 'ink-testing-library';
 import React from 'react';
 import type { ClaudeFileInfo, FileScanner } from '../_types.js';
 import { scanClaudeFiles } from '../claude-md-scanner.js';
+import { scanSettingsJson } from '../settings-json-scanner.js';
 import { scanSlashCommands } from '../slash-command-scanner.js';
+import { waitFor } from '../test-utils.js';
 import { useFileNavigation } from './useFileNavigation.js';
 
 // Test component (for testing useFileNavigation)
@@ -80,6 +82,13 @@ if (import.meta.vitest) {
             path: fixture.getPath('test-project'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('test-project'),
+            recursive: false,
+          }),
       };
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
@@ -88,7 +97,12 @@ if (import.meta.vitest) {
       expect(lastFrame()).toContain('Loading...');
 
       // Wait for async processing to complete
-      await delay(300); // Optimized delay for file operations
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
 
       // Verify results
       const frame = lastFrame();
@@ -104,6 +118,8 @@ if (import.meta.vitest) {
           throw new Error('EACCES: permission denied');
         },
         scanSlashCommands: async () => [],
+        scanSubAgents: async () => [], // No sub-agents in test
+        scanSettingsJson: async () => [],
       };
 
       let capturedError: string | undefined;
@@ -125,7 +141,11 @@ if (import.meta.vitest) {
       expect(lastFrame()).toContain('Loading...');
 
       // Wait for the error to be caught and state to update
-      await delay(300);
+      await waitFor(() => {
+        if (!capturedError) {
+          throw new Error('Error not captured yet');
+        }
+      });
 
       // Verify error handling
       expect(capturedError).toBeDefined();
@@ -157,6 +177,13 @@ if (import.meta.vitest) {
             path: fixture.getPath('accessible'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('accessible'),
+            recursive: false,
+          }),
       };
 
       // Re-render with working scanner to test recovery
@@ -164,7 +191,12 @@ if (import.meta.vitest) {
         <TestComponent scanner={accessibleScanner} />,
       );
 
-      await delay(300);
+      await waitFor(() => {
+        const frame = lastFrame2();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
 
       // Verify the app recovers and works with accessible directory
       const recoveredFrame = lastFrame2();
@@ -194,6 +226,13 @@ if (import.meta.vitest) {
                 path: f.getPath('empty-project'),
                 recursive: false,
               }),
+            scanSubAgents: async () => [], // No sub-agents in test
+            scanSettingsJson: (options) =>
+              scanSettingsJson({
+                ...options,
+                path: f.getPath('empty-project'),
+                recursive: false,
+              }),
           };
 
           const { lastFrame } = render(<TestComponent scanner={testScanner} />);
@@ -202,7 +241,12 @@ if (import.meta.vitest) {
           expect(lastFrame()).toContain('Loading...');
 
           // Wait for async processing to complete
-          await delay(300); // Optimized delay
+          await waitFor(() => {
+            const frame = lastFrame();
+            if (!frame || frame.includes('Loading...')) {
+              throw new Error('Still loading');
+            }
+          });
 
           // Should show only global user files (since local directory is empty)
           const frame = lastFrame();
@@ -232,6 +276,13 @@ if (import.meta.vitest) {
             path: fixture.getPath('my-app'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('my-app'),
+            recursive: false,
+          }),
       };
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
@@ -240,7 +291,12 @@ if (import.meta.vitest) {
       expect(lastFrame()).toContain('Loading...');
 
       // Wait for async processing to complete
-      await delay(500);
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      }, 500);
 
       // Should find multiple files
       const frame = lastFrame();
@@ -286,11 +342,23 @@ if (import.meta.vitest) {
             path: fixture.getPath('project'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('project'),
+            recursive: false,
+          }),
       };
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
 
-      await delay(300);
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
 
       // Should find both global and project files
       const frame = lastFrame();
@@ -321,11 +389,23 @@ if (import.meta.vitest) {
             path: fixture.getPath('slash-project'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('slash-project'),
+            recursive: false,
+          }),
       };
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
 
-      await delay(300); // Optimized delay
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
 
       // Should find slash commands (3 local + global commands)
       const frame = lastFrame();
@@ -356,11 +436,23 @@ if (import.meta.vitest) {
             path: fixture.getPath('mixed-project'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('mixed-project'),
+            recursive: false,
+          }),
       };
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
 
-      await delay(300); // Optimized delay
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
 
       // Should find all file types
       const frame = lastFrame();
@@ -389,11 +481,23 @@ if (import.meta.vitest) {
             path: fixture.getPath('update-test'),
             recursive: false,
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('update-test'),
+            recursive: false,
+          }),
       };
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
 
-      await delay(500);
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      }, 500);
 
       // Verify initial state
       const initialFrame = lastFrame();
@@ -407,7 +511,7 @@ if (import.meta.vitest) {
       );
 
       // Hook doesn't auto-refresh, so files count should remain the same
-      await delay(50); // Minimal delay
+      await delay(50); // This is a minimal delay to ensure no auto-refresh happens
       expect(lastFrame()).toBe(initialFrame);
     });
 
@@ -433,14 +537,32 @@ if (import.meta.vitest) {
             path: fixture.getPath('nested-project'),
             recursive: true, // This test specifically tests recursive scanning
           }),
+        scanSubAgents: async () => [], // No sub-agents in test
+        scanSettingsJson: (options) =>
+          scanSettingsJson({
+            ...options,
+            path: fixture.getPath('nested-project'),
+            recursive: true, // This test specifically tests recursive scanning
+          }),
       };
 
       const { lastFrame } = render(<TestComponent scanner={testScanner} />);
 
-      await delay(800); // Increased delay for recursive scanning
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      }, 2000);
 
       // Should find all files recursively
       const frame = lastFrame();
+
+      // Debug: log the frame if it's still loading
+      if (frame?.includes('Loading')) {
+        console.log('Still loading after 2s:', frame);
+      }
+
       expect(frame).toContain('Files:');
       // Should find multiple files from nested directories
       expect(frame).not.toContain('Files: 0');

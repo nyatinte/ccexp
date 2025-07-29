@@ -15,8 +15,12 @@ const getGroupLabel = (type: ClaudeFileType): string => {
   return match(type)
     .with('claude-md', () => 'PROJECT')
     .with('claude-local-md', () => 'LOCAL')
+    .with('project-agent', () => 'PROJECT AGENTS')
+    .with('user-agent', () => 'USER AGENTS')
     .with('slash-command', () => 'COMMAND')
     .with('global-md', () => 'USER MEMORY')
+    .with('settings-json', () => 'SETTINGS')
+    .with('settings-local-json', () => 'LOCAL SETTINGS')
     .with('unknown', () => 'OTHER')
     .exhaustive();
 };
@@ -25,8 +29,12 @@ const getGroupColor = (type: ClaudeFileType): string => {
   return match(type)
     .with('claude-md', () => theme.fileTypes.claudeMd)
     .with('claude-local-md', () => theme.fileTypes.claudeLocalMd)
+    .with('project-agent', () => theme.fileTypes.slashCommand)
+    .with('user-agent', () => theme.fileTypes.globalMd)
     .with('slash-command', () => theme.fileTypes.slashCommand)
     .with('global-md', () => theme.fileTypes.globalMd)
+    .with('settings-json', () => theme.fileTypes.settingsJson)
+    .with('settings-local-json', () => theme.fileTypes.settingsLocalJson)
     .with('unknown', () => theme.fileTypes.unknown)
     .exhaustive();
 };
