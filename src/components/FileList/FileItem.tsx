@@ -95,31 +95,33 @@ export const FileItem = React.memo(function FileItem({
   const fileBadge = getFileBadge(file);
 
   return (
-    <Box justifyContent="space-between" width="100%">
-      <Box flexGrow={1} marginRight={1}>
-        {isSelected ? (
-          <Text
-            backgroundColor={theme.selection.backgroundColor}
-            color={theme.selection.color}
-            wrap="truncate-end"
-          >
-            {prefix}
-            {getFileIcon(file)} {displayName}
-          </Text>
-        ) : isFocused ? (
-          <Text color={theme.ui.focus} wrap="truncate-end">
-            {prefix}
-            {getFileIcon(file)} {displayName}
-          </Text>
-        ) : (
-          <Text wrap="truncate-end">
-            {prefix}
-            {getFileIcon(file)} {displayName}
-          </Text>
-        )}
-      </Box>
-      <Box flexShrink={0}>
-        <Badge color={fileBadge.color}>{fileBadge.label}</Badge>
+    <Box width="100%">
+      <Box flexDirection="row" gap={1}>
+        <Box flexGrow={1} flexShrink={1} minWidth={0}>
+          {isSelected ? (
+            <Text
+              backgroundColor={theme.selection.backgroundColor}
+              color={theme.selection.color}
+              wrap="truncate-end"
+            >
+              {prefix}
+              {getFileIcon(file)} {displayName}
+            </Text>
+          ) : isFocused ? (
+            <Text color={theme.ui.focus} wrap="truncate-end">
+              {prefix}
+              {getFileIcon(file)} {displayName}
+            </Text>
+          ) : (
+            <Text wrap="truncate-end">
+              {prefix}
+              {getFileIcon(file)} {displayName}
+            </Text>
+          )}
+        </Box>
+        <Box flexShrink={0}>
+          <Badge color={fileBadge.color}>{fileBadge.label}</Badge>
+        </Box>
       </Box>
     </Box>
   );
