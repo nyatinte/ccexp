@@ -1,5 +1,4 @@
 import { join } from 'node:path';
-import { delay } from 'es-toolkit/promise';
 import { render } from 'ink-testing-library';
 import type { ClaudeFileInfo, FileGroup } from './_types.js';
 import { createClaudeFilePath } from './_types.js';
@@ -8,7 +7,7 @@ import { FileList } from './components/FileList/FileList.js';
 import { withTempFixture } from './test-fixture-helpers.js';
 import { createTestInteraction } from './test-interaction-helpers.js';
 import { typeText } from './test-keyboard-helpers.js';
-import { waitForEffects } from './test-utils.js';
+import { waitFor, waitForEffects } from './test-utils.js';
 
 if (import.meta.vitest) {
   const { describe, test, expect } = import.meta.vitest;
@@ -200,11 +199,17 @@ if (import.meta.vitest) {
       );
     });
 
-    test('handles rapid search input changes', async () => {
+    test('handles rapid search input changes', { timeout: 10000 }, async () => {
       await withTempFixture(
-        Object.fromEntries(
-          Array.from({ length: 100 }, (_, i) => [`test${i}.md`, `# Test ${i}`]),
-        ),
+        Object.fromEntries([
+          // Create some Claude files that will be discovered
+          ['CLAUDE.md', '# Claude Config'],
+          // And many test files for search testing
+          ...Array.from({ length: 98 }, (_, i) => [
+            `test${i}.md`,
+            `# Test ${i}`,
+          ]),
+        ]),
         async (fixture) => {
           // Change to fixture directory
           const originalCwd = process.cwd();
@@ -217,7 +222,21 @@ if (import.meta.vitest) {
               <App cliOptions={{}} />,
             );
 
-            await delay(200); // Wait for file scanning
+            // Since we're creating 100 files in a test environment,
+            // we may need to wait longer for the initial scan
+            await waitFor(() => {
+              const output = lastFrame();
+              if (!output || output.includes('Loading...')) {
+                throw new Error('Still loading');
+              }
+              // Wait for either "Claude Files" or "No Claude files found"
+              if (
+                !output.includes('Claude Files') &&
+                !output.includes('No Claude files found')
+              ) {
+                throw new Error('Files not loaded yet');
+              }
+            }, 8000); // 100 files need more time to scan
             await waitForEffects();
 
             // Rapidly type and delete
@@ -236,7 +255,11 @@ if (import.meta.vitest) {
 
             unmount();
           } finally {
-            process.chdir(originalCwd);
+            try {
+              process.chdir(originalCwd);
+            } catch {
+              // Ignore error if directory no longer exists
+            }
             process.env.HOME = originalHome;
           }
         },
@@ -308,7 +331,7 @@ if (import.meta.vitest) {
             );
             const interaction = createTestInteraction(stdin, lastFrame);
 
-            await delay(200); // Wait for file scanning
+            await interaction.waitForContent('Claude Files');
             await waitForEffects();
 
             // Try to navigate up from first item multiple times
@@ -331,7 +354,11 @@ if (import.meta.vitest) {
 
             unmount();
           } finally {
-            process.chdir(originalCwd);
+            try {
+              process.chdir(originalCwd);
+            } catch {
+              // Ignore error if directory no longer exists
+            }
             process.env.HOME = originalHome;
           }
         },
@@ -353,7 +380,12 @@ if (import.meta.vitest) {
           try {
             const { lastFrame, unmount } = render(<App cliOptions={{}} />);
 
-            await delay(200); // Wait for file scanning
+            await waitFor(() => {
+              const output = lastFrame();
+              if (!output || !output.includes('No Claude files found')) {
+                throw new Error('Empty state not loaded yet');
+              }
+            });
             await waitForEffects();
 
             const output = lastFrame();
@@ -362,7 +394,11 @@ if (import.meta.vitest) {
 
             unmount();
           } finally {
-            process.chdir(originalCwd);
+            try {
+              process.chdir(originalCwd);
+            } catch {
+              // Ignore error if directory no longer exists
+            }
             process.env.HOME = originalHome;
           }
         },
