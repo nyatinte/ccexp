@@ -4,23 +4,23 @@ export const theme = {
     color: 'black',
   },
   fileTypes: {
-    // Memory category - Blue theme
-    projectMemory: 'blue',
-    projectMemoryLocal: 'blueBright',
-    userMemory: 'blue',
+    // Memory category - Orange
+    projectMemory: '#FF8A65',
+    projectMemoryLocal: '#FFAB91',
+    userMemory: '#FF8A65',
 
-    // Settings category - Cyan theme
-    projectSettings: 'cyan',
-    projectSettingsLocal: 'cyanBright',
-    userSettings: 'cyan',
+    // Settings category - Cyan
+    projectSettings: '#4DD0E1',
+    projectSettingsLocal: '#80DEEA',
+    userSettings: '#4DD0E1',
 
-    // Command category - Green theme
-    projectCommand: 'green',
-    personalCommand: 'green',
+    // Command category - Green
+    projectCommand: '#66BB6A',
+    personalCommand: '#66BB6A',
 
-    // Agent category - Magenta theme
-    projectSubagent: 'magenta',
-    userSubagent: 'magenta',
+    // Agent category - Magenta
+    projectSubagent: '#C47FD5',
+    userSubagent: '#C47FD5',
 
     // Other
     unknown: 'gray',

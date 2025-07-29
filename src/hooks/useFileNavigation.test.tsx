@@ -634,7 +634,7 @@ if (import.meta.vitest) {
         );
 
         React.useEffect(() => {
-          if (!isLoading && fileGroups.length > 0) {
+          if (!isLoading) {
             capturedFileGroups = fileGroups;
           }
         }, [fileGroups, isLoading]);
@@ -863,7 +863,7 @@ if (import.meta.vitest) {
         );
 
         React.useEffect(() => {
-          if (!isLoading && fileGroups.length > 0) {
+          if (!isLoading) {
             capturedFileGroups = fileGroups;
           }
         }, [fileGroups, isLoading]);
