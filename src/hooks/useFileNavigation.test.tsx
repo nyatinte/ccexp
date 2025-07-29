@@ -88,7 +88,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('test-project'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -124,7 +124,7 @@ if (import.meta.vitest) {
           throw new Error('EACCES: permission denied');
         },
         scanSlashCommands: async () => [],
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: async () => [],
       };
 
@@ -183,7 +183,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('accessible'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -232,7 +232,7 @@ if (import.meta.vitest) {
                 path: f.getPath('empty-project'),
                 recursive: false,
               }),
-            scanSubAgents: async () => [], // No sub-agents in test
+            scanSubAgents: async () => [], // No subagents in test
             scanSettingsJson: (options) =>
               scanSettingsJson({
                 ...options,
@@ -282,7 +282,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('my-app'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -348,7 +348,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('project'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -396,7 +396,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('slash-project'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -443,7 +443,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('mixed-project'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -488,7 +488,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('update-test'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -544,7 +544,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('nested-project'),
             recursive: true, // This test specifically tests recursive scanning
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -728,7 +728,7 @@ if (import.meta.vitest) {
             'user-cmd.md': '# /user-cmd\n\nUser command',
           },
           agents: {
-            'user-agent.md': '# User Agent\n\nUser sub-agent',
+            'user-agent.md': '# User Agent\n\nUser subagent',
           },
           'settings.json': '{"theme": "dark"}',
         },
@@ -741,7 +741,7 @@ if (import.meta.vitest) {
               'project-cmd.md': '# /project-cmd\n\nProject command',
             },
             agents: {
-              'project-agent.md': '# Project Agent\n\nProject sub-agent',
+              'project-agent.md': '# Project Agent\n\nProject subagent',
             },
             'settings.json': '{"theme": "light"}',
             'settings.local.json': '{"theme": "custom"}',
@@ -804,14 +804,14 @@ if (import.meta.vitest) {
         scanSubAgents: async () => [
           {
             name: 'user-agent',
-            description: 'User sub-agent',
+            description: 'User subagent',
             filePath: fixture.getPath('.claude/agents/user-agent.md'),
             scope: 'user' as const,
             lastModified: new Date(),
           },
           {
             name: 'project-agent',
-            description: 'Project sub-agent',
+            description: 'Project subagent',
             filePath: fixture.getPath(
               'test-project/.claude/agents/project-agent.md',
             ),

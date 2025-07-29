@@ -27,8 +27,8 @@ if (import.meta.vitest) {
       const expectedLabels: Record<ClaudeFileType, string> = {
         'project-memory': 'Project memory (CLAUDE.md)',
         'project-memory-local': 'Project memory - local (CLAUDE.local.md)',
-        'project-subagent': 'Project agents (.claude/agents/)',
-        'user-subagent': 'User agents (~/.claude/agents/)',
+        'project-subagent': 'Project subagents (.claude/agents/)',
+        'user-subagent': 'User subagents (~/.claude/agents/)',
         'project-command': 'Project commands (.claude/commands/)',
         'personal-command': 'User commands (~/.claude/commands/)',
         'user-memory': 'User memory (~/.claude/CLAUDE.md)',

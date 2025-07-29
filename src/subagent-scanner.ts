@@ -72,11 +72,11 @@ if (import.meta.vitest != null) {
   const { describe, test, expect } = import.meta.vitest;
   const { withTempFixture } = await import('./test-fixture-helpers.js');
 
-  describe('sub-agent-scanner', () => {
-    test('should parse valid sub-agent file with frontmatter', async () => {
+  describe('subagent-scanner', () => {
+    test('should parse valid subagent file with frontmatter', async () => {
       const validContent = `---
 name: test-agent
-description: A test sub-agent
+description: A test subagent
 tools: ['read', 'write']
 ---
 
@@ -102,7 +102,7 @@ This is the system prompt for the test agent.`;
           );
 
           expect(testAgent).toBeDefined();
-          expect(testAgent?.description).toBe('A test sub-agent');
+          expect(testAgent?.description).toBe('A test subagent');
           expect(testAgent?.tools).toEqual(['read', 'write']);
           expect(testAgent?.scope).toBe('project');
 

@@ -37,10 +37,10 @@ const convertSlashCommandToFileInfo = (
 const convertSubAgentToFileInfo = (agent: SubAgentInfo): ClaudeFileInfo => ({
   path: agent.filePath,
   type: agent.scope === 'project' ? 'project-subagent' : 'user-subagent',
-  size: 0, // No size information for sub-agents
+  size: 0, // No size information for subagents
   lastModified: agent.lastModified,
-  commands: [], // No commands in sub-agents
-  tags: [], // No tags for sub-agents
+  commands: [], // No commands in subagents
+  tags: [], // No tags for subagents
 });
 
 type UseFileNavigationReturn = {

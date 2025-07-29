@@ -195,18 +195,18 @@ src/
    export abstract class BaseFileScanner<T> {
      protected abstract readonly maxFileSize: number;
      protected abstract readonly fileType: string;
-     
+
      async processFile(filePath: string): Promise<T | null> {
        // Common file processing logic
      }
-     
+
      protected abstract parseContent(
        filePath: string,
        content: string,
        stats: Stats,
      ): Promise<T | null>;
    }
-   
+
    // Specialized scanners extend base
    class ClaudeMdScanner extends BaseFileScanner<ClaudeFileInfo> {
      protected readonly maxFileSize = FILE_SIZE_LIMITS.MAX_CLAUDE_MD_SIZE;
@@ -220,7 +220,7 @@ src/
   - `base-file-scanner.ts` → Abstract base class for all scanners
   - `claude-md-scanner.ts` → CLAUDE.md file discovery
   - `slash-command-scanner.ts` → Slash command discovery
-  - `sub-agent-scanner.ts` → Sub-agent definition discovery
+  - `subagent-scanner.ts` → Sub-agent definition discovery
   - `default-scanner.ts` → Combined scanner for all file types
   - `fast-scanner.ts` → High-performance directory traversal
 - **Type System**: `_types.ts` → branded types + zod schemas for data integrity

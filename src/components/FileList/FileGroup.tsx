@@ -18,8 +18,8 @@ const getGroupLabel = (type: ClaudeFileType): string => {
       'project-memory-local',
       () => 'Project memory - local (CLAUDE.local.md)',
     )
-    .with('project-subagent', () => 'Project sub-agents (.claude/agents/)')
-    .with('user-subagent', () => 'User sub-agents (~/.claude/agents/)')
+    .with('project-subagent', () => 'Project subagents (.claude/agents/)')
+    .with('user-subagent', () => 'User subagents (~/.claude/agents/)')
     .with('project-command', () => 'Project commands (.claude/commands/)')
     .with('personal-command', () => 'User commands (~/.claude/commands/)')
     .with('user-memory', () => 'User memory (~/.claude/CLAUDE.md)')

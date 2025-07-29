@@ -63,8 +63,8 @@ ccexp (claude-code-explorer) automatically discovers these configuration files:
 - **~/.claude/commands/**/*.md** → User commands (personal slash commands)
 
 ### Sub-agent Files
-- **.claude/agents/**/*.md** → Project sub-agents (project-specific agents)
-- **~/.claude/agents/**/*.md** → User sub-agents (personal agents)
+- **.claude/agents/**/*.md** → Project subagents (project-specific agents)
+- **~/.claude/agents/**/*.md** → User subagents (personal agents)
 
 ### Settings Files
 - **.claude/settings.json** → Project settings (shared configuration)
