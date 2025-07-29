@@ -93,14 +93,18 @@ This is the system prompt for the test agent.`;
         async (f) => {
           const results = await scanSubAgents({
             path: f.path,
-            recursive: false,
+            recursive: true,
           });
 
-          expect(results.length).toBe(1);
-          expect(results[0]?.name).toBe('test-agent');
-          expect(results[0]?.description).toBe('A test sub-agent');
-          expect(results[0]?.tools).toEqual(['read', 'write']);
-          expect(results[0]?.scope).toBe('project');
+          // Find test agent by name and scope (project scope means it's from our test directory)
+          const testAgent = results.find(
+            (r) => r.name === 'test-agent' && r.scope === 'project',
+          );
+
+          expect(testAgent).toBeDefined();
+          expect(testAgent?.description).toBe('A test sub-agent');
+          expect(testAgent?.tools).toEqual(['read', 'write']);
+          expect(testAgent?.scope).toBe('project');
 
           return f;
         },
@@ -126,14 +130,18 @@ System prompt content.`;
         async (f) => {
           const results = await scanSubAgents({
             path: f.path,
-            recursive: false,
+            recursive: true,
           });
 
-          expect(results.length).toBe(1);
-          expect(results[0]?.name).toBe('broken-agent');
-          expect(results[0]?.description).toBeUndefined();
-          expect(results[0]?.tools).toBeUndefined();
-          expect(results[0]?.scope).toBe('project');
+          // Find broken agent by name and scope
+          const brokenAgent = results.find(
+            (r) => r.name === 'broken-agent' && r.scope === 'project',
+          );
+
+          expect(brokenAgent).toBeDefined();
+          expect(brokenAgent?.description).toBeUndefined();
+          expect(brokenAgent?.tools).toBeUndefined();
+          expect(brokenAgent?.scope).toBe('project');
 
           return f;
         },
