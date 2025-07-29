@@ -4,16 +4,25 @@ export const theme = {
     color: 'black',
   },
   fileTypes: {
+    // Memory category - Blue theme
     projectMemory: 'blue',
-    projectMemoryLocal: 'yellow',
-    projectCommand: 'green',
-    personalCommand: 'greenBright',
-    userMemory: 'magenta',
-    projectSubagent: 'cyan',
-    userSubagent: 'cyanBright',
+    projectMemoryLocal: 'blueBright',
+    userMemory: 'blue',
+
+    // Settings category - Cyan theme
     projectSettings: 'cyan',
-    projectSettingsLocal: 'yellowBright',
-    userSettings: 'magentaBright',
+    projectSettingsLocal: 'cyanBright',
+    userSettings: 'cyan',
+
+    // Command category - Green theme
+    projectCommand: 'green',
+    personalCommand: 'green',
+
+    // Agent category - Magenta theme
+    projectSubagent: 'magenta',
+    userSubagent: 'magenta',
+
+    // Other
     unknown: 'gray',
   },
   status: {

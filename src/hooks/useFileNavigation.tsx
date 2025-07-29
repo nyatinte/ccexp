@@ -109,17 +109,21 @@ export function useFileNavigation(
         });
 
         // Create FileGroup array (in predefined order)
+        // User-first ordering: User configs → Project configs
         const orderedTypes: ClaudeFileType[] = [
+          // User configurations
           'user-memory',
+          'user-settings',
+          'personal-command',
+          'user-subagent',
+          // Project configurations
           'project-memory',
           'project-memory-local',
-          'project-subagent',
-          'user-subagent',
           'project-settings',
           'project-settings-local',
-          'user-settings',
           'project-command',
-          'personal-command',
+          'project-subagent',
+          // Other
           'unknown',
         ];
         const groups: FileGroup[] = orderedTypes
