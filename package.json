@@ -23,9 +23,9 @@
     "file-explorer",
     "file-browser",
     "tui",
-    "project-memory",
+    "claude-md",
     "claude-config",
-    "project-commands",
+    "slash-commands",
     "developer-tools",
     "ccexp"
   ],
