@@ -25,16 +25,17 @@ if (import.meta.vitest) {
       ];
 
       const expectedLabels: Record<ClaudeFileType, string> = {
-        'project-memory': 'Project configuration',
-        'project-memory-local': 'Local overrides',
-        'project-subagent': 'Project agents (.claude/agents)',
-        'user-subagent': 'User agents (~/.claude/agents)',
-        'project-command': 'Slash commands (.claude/commands)',
-        'personal-command': 'Personal commands',
-        'user-memory': 'Global configuration (~/.claude)',
-        'project-settings': 'Project settings',
-        'project-settings-local': 'Local settings',
-        'user-settings': 'User settings (~/.claude)',
+        'project-memory': 'Project memory (CLAUDE.md)',
+        'project-memory-local': 'Project memory - local (CLAUDE.local.md)',
+        'project-subagent': 'Project agents (.claude/agents/)',
+        'user-subagent': 'User agents (~/.claude/agents/)',
+        'project-command': 'Project commands (.claude/commands/)',
+        'personal-command': 'User commands (~/.claude/commands/)',
+        'user-memory': 'User memory (~/.claude/CLAUDE.md)',
+        'project-settings': 'Project settings (.claude/settings.json)',
+        'project-settings-local':
+          'Project settings - local (.claude/settings.local.json)',
+        'user-settings': 'User settings (~/.claude/settings.json)',
         unknown: 'Other files',
       };
 
@@ -69,7 +70,7 @@ if (import.meta.vitest) {
 
       const output = lastFrame();
       expect(output).toContain('▼'); // Expanded icon
-      expect(output).toContain('Project configuration');
+      expect(output).toContain('Project memory (CLAUDE.md)');
       expect(output).toContain('(5)');
     });
 
@@ -98,8 +99,10 @@ if (import.meta.vitest) {
       const selectedOutput = selectedFrame();
 
       // Both should show the same content
-      expect(unselectedOutput).toContain('Slash commands (.claude/commands)');
-      expect(selectedOutput).toContain('Slash commands (.claude/commands)');
+      expect(unselectedOutput).toContain(
+        'Project commands (.claude/commands/)',
+      );
+      expect(selectedOutput).toContain('Project commands (.claude/commands/)');
 
       // Selected should have different styling (implementation specific)
       // Here we just verify both render correctly
@@ -146,7 +149,7 @@ if (import.meta.vitest) {
 
         const output = lastFrame();
         expect(output).toContain(isExpanded ? '▼' : '▶');
-        expect(output).toContain('Local overrides');
+        expect(output).toContain('Project memory - local (CLAUDE.local.md)');
         expect(output).toContain('(7)');
       });
     });
@@ -164,7 +167,7 @@ if (import.meta.vitest) {
 
       const output = lastFrame();
       expect(output).toContain('▶');
-      expect(output).toContain('Project configuration');
+      expect(output).toContain('Project memory (CLAUDE.md)');
       expect(output).toContain('(0)');
     });
 
@@ -224,7 +227,7 @@ if (import.meta.vitest) {
 
       const finalOutput = lastFrame();
       expect(finalOutput).toContain('▼');
-      expect(finalOutput).toContain('Project configuration');
+      expect(finalOutput).toContain('Project memory (CLAUDE.md)');
       expect(finalOutput).toContain('(5)');
     });
   });

@@ -68,7 +68,7 @@ if (import.meta.vitest) {
       // Should display count correctly
       const output = lastFrame();
       expect(output).toContain('Claude Files (100)');
-      expect(output).toContain('Project configuration (100)');
+      expect(output).toContain('Project memory (CLAUDE.md) (100)');
 
       unmount();
     });
@@ -349,9 +349,9 @@ if (import.meta.vitest) {
             // Try to navigate up from first item multiple times
             await interaction.navigateUp(10);
 
-            // Should still be at first item (PROJECT group)
+            // Should still be at first item (project-memory group)
             const output = interaction.assertOutput();
-            expect(output).toContain('PROJECT');
+            expect(output).toContain('Project memory');
             expect(output).toContain('(1)');
 
             // Expand and navigate

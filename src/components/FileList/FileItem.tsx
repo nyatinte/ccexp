@@ -22,39 +22,39 @@ export const FileItem = React.memo(function FileItem({
     return match(file.type)
       .with('project-memory', () => ({
         color: theme.fileTypes.projectMemory,
-        label: 'PROJECT',
+        label: 'PROJECT MEMORY',
       }))
       .with('project-memory-local', () => ({
         color: theme.fileTypes.projectMemoryLocal,
-        label: 'LOCAL [deprecated]',
+        label: 'PROJECT LOCAL',
       }))
       .with('project-subagent', () => ({
         color: theme.fileTypes.projectSubagent,
-        label: 'PROJECT AGENT',
+        label: 'PROJECT SUB-AGENT',
       }))
       .with('user-subagent', () => ({
         color: theme.fileTypes.userSubagent,
-        label: 'USER AGENT',
+        label: 'USER SUB-AGENT',
       }))
       .with('project-command', () => ({
         color: theme.fileTypes.projectCommand,
-        label: 'COMMAND',
+        label: 'PROJECT COMMAND',
       }))
       .with('personal-command', () => ({
         color: theme.fileTypes.personalCommand,
-        label: 'PERSONAL',
+        label: 'USER COMMAND',
       }))
       .with('user-memory', () => ({
         color: theme.fileTypes.userMemory,
-        label: 'GLOBAL',
+        label: 'USER MEMORY',
       }))
       .with('project-settings', () => ({
         color: theme.fileTypes.projectSettings,
-        label: 'SETTINGS',
+        label: 'PROJECT SETTINGS',
       }))
       .with('project-settings-local', () => ({
         color: theme.fileTypes.projectSettingsLocal,
-        label: 'LOCAL SETTINGS',
+        label: 'PROJECT LOCAL',
       }))
       .with('user-settings', () => ({
         color: theme.fileTypes.userSettings,

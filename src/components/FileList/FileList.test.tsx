@@ -220,10 +220,10 @@ if (import.meta.vitest) {
             expect(frame).toContain('🧠'); // user-memory
 
             // Badges
-            expect(frame).toContain('PROJECT');
-            expect(frame).toContain('LOCAL');
-            expect(frame).toContain('COMMAND');
-            expect(frame).toContain('GLOBAL');
+            expect(frame).toContain('PROJECT MEMORY');
+            expect(frame).toContain('PROJECT LOCAL');
+            expect(frame).toContain('PROJECT COMMAND');
+            expect(frame).toContain('USER MEMORY');
           },
         );
       });
@@ -261,7 +261,7 @@ if (import.meta.vitest) {
             const frame = lastFrame();
             // Verify at least the first file is displayed
             expect(frame).toContain('CLAUDE.md');
-            expect(frame).toContain('📝'); // PROJECT icon
+            expect(frame).toContain('📝'); // project-memory icon
           },
         );
       });
@@ -306,7 +306,7 @@ if (import.meta.vitest) {
             expect(frame).toContain('CLAUDE.local.md');
             // README.md should be filtered out
             expect(frame).not.toContain('README');
-            // Only LOCAL group should remain
+            // Only project-memory-local group should remain
             expect(frame).toContain('Claude Files (1)');
           },
         );
@@ -422,7 +422,10 @@ if (import.meta.vitest) {
             // Verify initial search is active
             expect(lastFrame()).toContain('Search: README');
             expect(lastFrame()).toContain('README.md');
-            expect(lastFrame()).not.toContain('CLAUDE.md');
+            // Group header still contains "CLAUDE.md" as part of label
+            expect(lastFrame()).toContain('Project memory (CLAUDE.md)');
+            // But the actual CLAUDE.md file should not be listed
+            expect(lastFrame()).not.toContain('test-project/CLAUDE.md');
 
             // Second render without search query (fresh instance)
             const { lastFrame: lastFrame2 } = render(

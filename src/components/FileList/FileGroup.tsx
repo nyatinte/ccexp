@@ -13,16 +13,22 @@ type FileGroupProps = {
 
 const getGroupLabel = (type: ClaudeFileType): string => {
   return match(type)
-    .with('project-memory', () => 'Project configuration')
-    .with('project-memory-local', () => 'Local overrides')
-    .with('project-subagent', () => 'Project agents (.claude/agents)')
-    .with('user-subagent', () => 'User agents (~/.claude/agents)')
-    .with('project-command', () => 'Slash commands (.claude/commands)')
-    .with('personal-command', () => 'Personal commands')
-    .with('user-memory', () => 'Global configuration (~/.claude)')
-    .with('project-settings', () => 'Project settings')
-    .with('project-settings-local', () => 'Local settings')
-    .with('user-settings', () => 'User settings (~/.claude)')
+    .with('project-memory', () => 'Project memory (CLAUDE.md)')
+    .with(
+      'project-memory-local',
+      () => 'Project memory - local (CLAUDE.local.md)',
+    )
+    .with('project-subagent', () => 'Project sub-agents (.claude/agents/)')
+    .with('user-subagent', () => 'User sub-agents (~/.claude/agents/)')
+    .with('project-command', () => 'Project commands (.claude/commands/)')
+    .with('personal-command', () => 'User commands (~/.claude/commands/)')
+    .with('user-memory', () => 'User memory (~/.claude/CLAUDE.md)')
+    .with('project-settings', () => 'Project settings (.claude/settings.json)')
+    .with(
+      'project-settings-local',
+      () => 'Project settings - local (.claude/settings.local.json)',
+    )
+    .with('user-settings', () => 'User settings (~/.claude/settings.json)')
     .with('unknown', () => 'Other files')
     .exhaustive();
 };
@@ -87,7 +93,7 @@ if (import.meta.vitest != null) {
         />,
       );
 
-      expect(lastFrame()).toContain('▼ Project configuration (5)');
+      expect(lastFrame()).toContain('▼ Project memory (CLAUDE.md) (5)');
     });
 
     test('should show collapsed icon when not expanded', () => {
@@ -100,7 +106,7 @@ if (import.meta.vitest != null) {
         />,
       );
 
-      expect(lastFrame()).toContain('▶ Project configuration (3)');
+      expect(lastFrame()).toContain('▶ Project memory (CLAUDE.md) (3)');
     });
 
     test('should highlight when selected', () => {
@@ -114,7 +120,9 @@ if (import.meta.vitest != null) {
       );
 
       // Selected groups should have different styling
-      expect(lastFrame()).toContain('▼ Slash commands (.claude/commands) (10)');
+      expect(lastFrame()).toContain(
+        '▼ Project commands (.claude/commands/) (10)',
+      );
     });
   });
 }
