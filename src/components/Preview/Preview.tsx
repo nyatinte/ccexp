@@ -138,7 +138,7 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
   const fileName = basename(file.path);
 
   const parseResult =
-    file.type === 'project-agent' || file.type === 'user-agent'
+    file.type === 'project-subagent' || file.type === 'user-subagent'
       ? tryParseFrontmatter(content)
       : { metadata: undefined, content };
 
@@ -171,15 +171,16 @@ export function Preview({ file }: PreviewProps): React.JSX.Element {
             chars
           </Text>
           {/* User memory description */}
-          {file.type === 'global-md' && (
+          {file.type === 'user-memory' && (
             <Box marginTop={1}>
-              <Text color={theme.fileTypes.globalMd} italic>
+              <Text color={theme.fileTypes.userMemory} italic>
                 📌 This is your private global configuration file that provides
                 instructions to Claude across all projects
               </Text>
             </Box>
           )}
-          {(file.type === 'project-agent' || file.type === 'user-agent') && (
+          {(file.type === 'project-subagent' ||
+            file.type === 'user-subagent') && (
             <Box marginTop={1} flexDirection="column">
               <Text color="cyan">
                 🤖 Agent Name: {subAgentMeta?.name ?? 'undefined'}

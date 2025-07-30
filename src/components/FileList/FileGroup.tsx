@@ -13,28 +13,38 @@ type FileGroupProps = {
 
 const getGroupLabel = (type: ClaudeFileType): string => {
   return match(type)
-    .with('claude-md', () => 'PROJECT')
-    .with('claude-local-md', () => 'LOCAL')
-    .with('project-agent', () => 'PROJECT AGENTS')
-    .with('user-agent', () => 'USER AGENTS')
-    .with('slash-command', () => 'COMMAND')
-    .with('global-md', () => 'USER MEMORY')
-    .with('settings-json', () => 'SETTINGS')
-    .with('settings-local-json', () => 'LOCAL SETTINGS')
-    .with('unknown', () => 'OTHER')
+    .with('project-memory', () => 'Project memory (CLAUDE.md)')
+    .with(
+      'project-memory-local',
+      () => 'Project memory - local (CLAUDE.local.md)',
+    )
+    .with('project-subagent', () => 'Project subagents (.claude/agents/)')
+    .with('user-subagent', () => 'User subagents (~/.claude/agents/)')
+    .with('project-command', () => 'Project commands (.claude/commands/)')
+    .with('personal-command', () => 'User commands (~/.claude/commands/)')
+    .with('user-memory', () => 'User memory (~/.claude/CLAUDE.md)')
+    .with('project-settings', () => 'Project settings (.claude/settings.json)')
+    .with(
+      'project-settings-local',
+      () => 'Project settings - local (.claude/settings.local.json)',
+    )
+    .with('user-settings', () => 'User settings (~/.claude/settings.json)')
+    .with('unknown', () => 'Other files')
     .exhaustive();
 };
 
 const getGroupColor = (type: ClaudeFileType): string => {
   return match(type)
-    .with('claude-md', () => theme.fileTypes.claudeMd)
-    .with('claude-local-md', () => theme.fileTypes.claudeLocalMd)
-    .with('project-agent', () => theme.fileTypes.slashCommand)
-    .with('user-agent', () => theme.fileTypes.globalMd)
-    .with('slash-command', () => theme.fileTypes.slashCommand)
-    .with('global-md', () => theme.fileTypes.globalMd)
-    .with('settings-json', () => theme.fileTypes.settingsJson)
-    .with('settings-local-json', () => theme.fileTypes.settingsLocalJson)
+    .with('project-memory', () => theme.fileTypes.projectMemory)
+    .with('project-memory-local', () => theme.fileTypes.projectMemoryLocal)
+    .with('project-subagent', () => theme.fileTypes.projectSubagent)
+    .with('user-subagent', () => theme.fileTypes.userSubagent)
+    .with('project-command', () => theme.fileTypes.projectCommand)
+    .with('personal-command', () => theme.fileTypes.personalCommand)
+    .with('user-memory', () => theme.fileTypes.userMemory)
+    .with('project-settings', () => theme.fileTypes.projectSettings)
+    .with('project-settings-local', () => theme.fileTypes.projectSettingsLocal)
+    .with('user-settings', () => theme.fileTypes.userSettings)
     .with('unknown', () => theme.fileTypes.unknown)
     .exhaustive();
 };
@@ -76,33 +86,33 @@ if (import.meta.vitest != null) {
     test('should render group with correct label', () => {
       const { lastFrame } = render(
         <FileGroup
-          type="claude-md"
+          type="project-memory"
           fileCount={5}
           isExpanded={true}
           isSelected={false}
         />,
       );
 
-      expect(lastFrame()).toContain('▼ PROJECT (5)');
+      expect(lastFrame()).toContain('▼ Project memory (CLAUDE.md) (5)');
     });
 
     test('should show collapsed icon when not expanded', () => {
       const { lastFrame } = render(
         <FileGroup
-          type="claude-md"
+          type="project-memory"
           fileCount={3}
           isExpanded={false}
           isSelected={false}
         />,
       );
 
-      expect(lastFrame()).toContain('▶ PROJECT (3)');
+      expect(lastFrame()).toContain('▶ Project memory (CLAUDE.md) (3)');
     });
 
     test('should highlight when selected', () => {
       const { lastFrame } = render(
         <FileGroup
-          type="slash-command"
+          type="project-command"
           fileCount={10}
           isExpanded={true}
           isSelected={true}
@@ -110,7 +120,42 @@ if (import.meta.vitest != null) {
       );
 
       // Selected groups should have different styling
-      expect(lastFrame()).toContain('▼ COMMAND (10)');
+      expect(lastFrame()).toContain(
+        '▼ Project commands (.claude/commands/) (10)',
+      );
+    });
+
+    test('should show collapsed icon for empty groups', () => {
+      const { lastFrame } = render(
+        <FileGroup
+          type="user-memory"
+          fileCount={0}
+          isExpanded={false}
+          isSelected={false}
+        />,
+      );
+
+      // Empty groups should show collapsed icon
+      const frame = lastFrame();
+      expect(frame).toContain('User memory (~/.claude/CLAUDE.md) (0)');
+      expect(frame).not.toContain('▼');
+      expect(frame).toContain('▶');
+    });
+
+    test('should show count (0) for empty groups', () => {
+      const { lastFrame } = render(
+        <FileGroup
+          type="project-settings"
+          fileCount={0}
+          isExpanded={false}
+          isSelected={false}
+        />,
+      );
+
+      // Should display (0) for empty groups
+      expect(lastFrame()).toContain(
+        'Project settings (.claude/settings.json) (0)',
+      );
     });
   });
 }

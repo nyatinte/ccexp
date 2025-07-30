@@ -178,20 +178,24 @@ const getSearchPatterns = (
   const patterns: string[] = [];
   const prefix = recursive ? '**/' : '';
 
-  if (!type || type === 'claude-md') {
+  if (!type || type === 'project-memory') {
     patterns.push(`${prefix}CLAUDE.md`);
   }
 
-  if (!type || type === 'claude-local-md') {
+  if (!type || type === 'project-memory-local') {
     patterns.push(`${prefix}CLAUDE.local.md`);
   }
 
-  if (!type || type === 'global-md') {
+  if (!type || type === 'user-memory') {
     patterns.push(CLAUDE_FILE_PATTERNS.GLOBAL_CLAUDE_MD);
   }
 
-  if (!type || type === 'slash-command') {
+  if (!type || type === 'project-command') {
     patterns.push(`${prefix}.claude/commands/**/*.md`);
+  }
+
+  if (!type || type === 'personal-command') {
+    patterns.push(CLAUDE_FILE_PATTERNS.USER_SLASH_COMMANDS);
   }
 
   return patterns;
@@ -253,16 +257,31 @@ if (import.meta.vitest != null) {
       expect(patterns).toContain('**/.claude/commands/**/*.md');
     });
 
-    test('should return specific pattern for claude-md type', () => {
-      const patterns = getSearchPatterns('claude-md', true);
+    test('should return specific pattern for project-memory type', () => {
+      const patterns = getSearchPatterns('project-memory', true);
       expect(patterns).toContain('**/CLAUDE.md');
       expect(patterns).not.toContain('**/CLAUDE.local.md');
     });
 
     test('should respect recursive option', () => {
-      const patterns = getSearchPatterns('claude-md', false);
+      const patterns = getSearchPatterns('project-memory', false);
       expect(patterns).toContain('CLAUDE.md');
       expect(patterns).not.toContain('**/CLAUDE.md');
+    });
+
+    test('should return user slash commands pattern for personal-command type', () => {
+      const patterns = getSearchPatterns('personal-command', true);
+      expect(patterns).toHaveLength(1);
+      expect(patterns[0]).toContain('.claude/commands/');
+    });
+
+    test('should include personal-command pattern when no type specified', () => {
+      const patterns = getSearchPatterns(undefined, true);
+      expect(
+        patterns.some(
+          (p) => p.includes('.claude/commands/') && p.includes('/'),
+        ),
+      ).toBe(true);
     });
   });
 
@@ -284,8 +303,8 @@ if (import.meta.vitest != null) {
 
       // Should find both CLAUDE.md and CLAUDE.local.md
       const types = result.map((file) => file.type);
-      expect(types).toContain('claude-md');
-      expect(types).toContain('claude-local-md');
+      expect(types).toContain('project-memory');
+      expect(types).toContain('project-memory-local');
     }, 10000);
 
     test('should handle empty directory', async () => {
@@ -329,8 +348,8 @@ if (import.meta.vitest != null) {
       });
 
       // Local file should come first (newer)
-      expect(result[0]?.type).toBe('claude-local-md');
-      expect(result[1]?.type).toBe('claude-md');
+      expect(result[0]?.type).toBe('project-memory-local');
+      expect(result[1]?.type).toBe('project-memory');
     });
   });
 
@@ -349,7 +368,7 @@ if (import.meta.vitest != null) {
       const result = await processClaudeFile(filePath);
 
       expect(result).not.toBeNull();
-      expect(result?.type).toBe('claude-md');
+      expect(result?.type).toBe('project-memory');
       expect(result?.path).toBe(filePath);
       expect(result?.size).toBeGreaterThan(0);
     });
@@ -362,7 +381,7 @@ if (import.meta.vitest != null) {
 
       // Just verify the file was processed successfully
       expect(result).toBeDefined();
-      expect(result?.type).toBe('claude-md');
+      expect(result?.type).toBe('project-memory');
     });
   });
 
@@ -378,8 +397,8 @@ if (import.meta.vitest != null) {
       expect(result.length).toBe(2); // CLAUDE.md and CLAUDE.local.md
 
       const types = result.map((f) => f.type);
-      expect(types).toContain('claude-md');
-      expect(types).toContain('claude-local-md');
+      expect(types).toContain('project-memory');
+      expect(types).toContain('project-memory-local');
     });
 
     test('should handle includeHidden option', async () => {

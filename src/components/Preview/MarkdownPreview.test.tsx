@@ -143,7 +143,7 @@ And an automatic link: https://github.com`;
     });
 
     test('displays complex structured Markdown', () => {
-      const content = createMockFileContent('claude-md');
+      const content = createMockFileContent('project-memory');
 
       const { lastFrame } = render(<MarkdownPreview content={content} />);
 
@@ -154,7 +154,7 @@ And an automatic link: https://github.com`;
     });
 
     test('displays slash command format Markdown', () => {
-      const content = createMockFileContent('slash-command');
+      const content = createMockFileContent('project-command');
 
       const { lastFrame } = render(<MarkdownPreview content={content} />);
 

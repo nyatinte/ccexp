@@ -43,14 +43,14 @@ if (import.meta.vitest) {
         },
         async (fixture) => {
           const basePath = join(fixture.path, 'test-project');
-          const file = createFileInfo(basePath, 'CLAUDE.md', 'claude-md');
+          const file = createFileInfo(basePath, 'CLAUDE.md', 'project-memory');
 
           const { lastFrame } = render(<Preview file={file} />);
 
           const frame = lastFrame();
           // Check that the frame contains the file name and type
           expect(frame).toContain('CLAUDE.md');
-          expect(frame).toContain('Type: claude-md');
+          expect(frame).toContain('Type: project-memory');
           // Path is displayed but may be wrapped, so just check it contains part of the path
           expect(frame).toMatch(/test-project|\/CLAUDE\.md/);
         },
@@ -69,13 +69,13 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             basePath,
             'CLAUDE.local.md',
-            'claude-local-md',
+            'project-memory-local',
           );
 
           const { lastFrame } = render(<Preview file={file} />);
 
           expect(lastFrame()).toContain('CLAUDE.local.md');
-          expect(lastFrame()).toContain('Type: claude-local-md');
+          expect(lastFrame()).toContain('Type: project-memory-local');
         },
       );
     });
@@ -97,7 +97,7 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             basePath,
             '.claude/commands/deploy.md',
-            'slash-command',
+            'project-command',
             {
               commands: [
                 {
@@ -113,7 +113,7 @@ if (import.meta.vitest) {
           const { lastFrame } = render(<Preview file={file} />);
 
           expect(lastFrame()).toContain('deploy.md');
-          expect(lastFrame()).toContain('Type: slash-command');
+          expect(lastFrame()).toContain('Type: project-command');
           expect(lastFrame()).toContain('.claude/commands/deploy.md');
         },
       );
@@ -130,13 +130,13 @@ if (import.meta.vitest) {
           const file = createFileInfo(
             fixture.path,
             '.claude/CLAUDE.md',
-            'global-md',
+            'user-memory',
           );
 
           const { lastFrame } = render(<Preview file={file} />);
 
           expect(lastFrame()).toContain('CLAUDE.md');
-          expect(lastFrame()).toContain('Type: global-md');
+          expect(lastFrame()).toContain('Type: user-memory');
           // Path contains .claude directory
           expect(lastFrame()).toContain('.claude');
         },
@@ -152,7 +152,7 @@ if (import.meta.vitest) {
         },
         async (fixture) => {
           const basePath = join(fixture.path, 'test-project');
-          const file = createFileInfo(basePath, 'CLAUDE.md', 'claude-md', {
+          const file = createFileInfo(basePath, 'CLAUDE.md', 'project-memory', {
             size: 2048,
             lastModified: new Date('2024-01-15T10:30:00Z'),
           });
@@ -177,7 +177,7 @@ if (import.meta.vitest) {
         },
         async (fixture) => {
           const basePath = join(fixture.path, 'test-project');
-          const file = createFileInfo(basePath, 'CLAUDE.md', 'claude-md');
+          const file = createFileInfo(basePath, 'CLAUDE.md', 'project-memory');
 
           const { lastFrame } = render(<Preview file={file} />);
 
@@ -198,7 +198,7 @@ if (import.meta.vitest) {
         async (fixture) => {
           const basePath = join(fixture.path, 'test-project');
           // Create a file info for a file that doesn't exist
-          const file = createFileInfo(basePath, 'missing.md', 'claude-md');
+          const file = createFileInfo(basePath, 'missing.md', 'project-memory');
 
           const { lastFrame } = render(<Preview file={file} />);
 
@@ -233,7 +233,7 @@ Rollback to previous version`,
           const file = createFileInfo(
             basePath,
             '.claude/commands/complex-deploy.md',
-            'slash-command',
+            'project-command',
             {
               commands: [
                 {
@@ -254,7 +254,7 @@ Rollback to previous version`,
           const { lastFrame } = render(<Preview file={file} />);
 
           expect(lastFrame()).toContain('complex-deploy.md');
-          expect(lastFrame()).toContain('Type: slash-command');
+          expect(lastFrame()).toContain('Type: project-command');
 
           // Verify command and tag information is displayed (implementation dependent)
           const output = lastFrame();
@@ -272,14 +272,19 @@ Rollback to previous version`,
         },
         async (fixture) => {
           const basePath = join(fixture.path, 'test-project');
-          const file = createFileInfo(basePath, 'large-file.md', 'claude-md', {
-            size: 1024 * 1024 * 5, // 5MB
-          });
+          const file = createFileInfo(
+            basePath,
+            'large-file.md',
+            'project-memory',
+            {
+              size: 1024 * 1024 * 5, // 5MB
+            },
+          );
 
           const { lastFrame } = render(<Preview file={file} />);
 
           expect(lastFrame()).toContain('large-file.md');
-          expect(lastFrame()).toContain('Type: claude-md');
+          expect(lastFrame()).toContain('Type: project-memory');
           expect(lastFrame()).toContain('Size:');
         },
       );
@@ -296,7 +301,7 @@ Rollback to previous version`,
           const file = createFileInfo(
             fixture.path,
             'path with spaces & symbols/file with spaces & symbols.md',
-            'claude-md',
+            'project-memory',
           );
 
           const { lastFrame } = render(<Preview file={file} />);
@@ -326,7 +331,7 @@ Rollback to previous version`,
           const file = createFileInfo(
             basePath,
             '.claude/commands/simple.md',
-            'slash-command',
+            'project-command',
             {
               commands: [],
               tags: [],
@@ -336,7 +341,7 @@ Rollback to previous version`,
           const { lastFrame } = render(<Preview file={file} />);
 
           expect(lastFrame()).toContain('simple.md');
-          expect(lastFrame()).toContain('Type: slash-command');
+          expect(lastFrame()).toContain('Type: project-command');
         },
       );
     });
@@ -356,12 +361,12 @@ Rollback to previous version`,
         },
         async (fixture) => {
           const basePath = join(fixture.path, 'test-project');
-          const file = createFileInfo(basePath, 'CLAUDE.md', 'claude-md');
+          const file = createFileInfo(basePath, 'CLAUDE.md', 'project-memory');
 
           const { lastFrame } = render(<Preview file={file} />);
 
           expect(lastFrame()).toContain('CLAUDE.md');
-          expect(lastFrame()).toContain('Type: claude-md');
+          expect(lastFrame()).toContain('Type: project-memory');
           // Verify project information display (implementation dependent)
         },
       );
@@ -377,13 +382,17 @@ Rollback to previous version`,
         },
         async (fixture) => {
           const basePath = join(fixture.path, 'test-project');
-          const file1 = createFileInfo(basePath, 'file1.md', 'claude-md');
-          const file2 = createFileInfo(basePath, 'file2.md', 'claude-local-md');
+          const file1 = createFileInfo(basePath, 'file1.md', 'project-memory');
+          const file2 = createFileInfo(
+            basePath,
+            'file2.md',
+            'project-memory-local',
+          );
 
           const { lastFrame, rerender } = render(<Preview file={file1} />);
 
           expect(lastFrame()).toContain('file1.md');
-          expect(lastFrame()).toContain('Type: claude-md');
+          expect(lastFrame()).toContain('Type: project-memory');
 
           // Re-render with different file
           rerender(<Preview file={file2} />);
@@ -406,7 +415,7 @@ Rollback to previous version`,
         },
         async (fixture) => {
           const basePath = join(fixture.path, 'test-project');
-          const file = createFileInfo(basePath, 'test.md', 'claude-md');
+          const file = createFileInfo(basePath, 'test.md', 'project-memory');
 
           const { lastFrame, rerender } = render(<Preview />);
 
@@ -416,7 +425,7 @@ Rollback to previous version`,
           rerender(<Preview file={file} />);
 
           expect(lastFrame()).toContain('test.md');
-          expect(lastFrame()).toContain('Type: claude-md');
+          expect(lastFrame()).toContain('Type: project-memory');
         },
       );
     });
