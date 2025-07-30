@@ -1,5 +1,5 @@
 import { StatusMessage } from '@inkjs/ui';
-import { Box, Text } from 'ink';
+import { Box, Static, Text } from 'ink';
 import type React from 'react';
 import { useMemo } from 'react';
 import type { CliOptions } from './_types.js';
@@ -84,12 +84,22 @@ export function App({ cliOptions }: AppProps): React.JSX.Element {
   return (
     <ErrorBoundary>
       <Box flexDirection="column" width="100%" height="100%">
-        <Box paddingX={1} paddingY={0} borderStyle="single" borderBottom={true}>
-          <Text bold color={theme.ui.appTitle}>
-            ccexp
-          </Text>
-          <Text dimColor> | Interactive File Browser</Text>
-        </Box>
+        <Static items={[{ id: 'header' }]}>
+          {() => (
+            <Box
+              key="header"
+              paddingX={1}
+              paddingY={0}
+              borderStyle="single"
+              borderBottom={true}
+            >
+              <Text bold color={theme.ui.appTitle}>
+                ccexp
+              </Text>
+              <Text dimColor> | Interactive File Browser</Text>
+            </Box>
+          )}
+        </Static>
 
         <Box flexGrow={1}>
           <SplitPane
