@@ -58,8 +58,7 @@ export type SubAgentInfo = {
 
 // Scan options
 export type ScanOptions = {
-  readonly path?: string | undefined;
-  readonly recursive?: boolean | undefined;
+  readonly path?: string | undefined; // default: HOME directory
   readonly type?: ClaudeFileType | undefined;
   readonly includeHidden?: boolean | undefined;
 };

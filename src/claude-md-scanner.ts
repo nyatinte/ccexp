@@ -19,128 +19,75 @@ import { findClaudeFiles } from './fast-scanner.ts';
 export const scanClaudeFiles = async (
   options: ScanOptions = {},
 ): Promise<ClaudeFileInfo[]> => {
+  const { homedir } = await import('node:os');
+  const homeDir = homedir();
+
   const {
-    path = process.cwd(),
-    recursive = true,
+    path = homeDir, // Default to HOME directory
     includeHidden = false,
   } = options;
 
   try {
-    // Scan specified path
-    const files = await findClaudeFiles({
-      path,
-      recursive,
-      includeHidden,
-    });
+    const files: string[] = [];
 
-    // Also scan global Claude directory if scanning recursively
-    if (recursive) {
-      const { homedir } = await import('node:os');
-      const homeDir = homedir();
+    // If scanning from HOME directory (default), use intelligent filtering
+    if (path === homeDir) {
+      // 1. Scan ~/.claude directory
+      const globalClaudeDir = join(homeDir, '.claude');
+      if (existsSync(globalClaudeDir)) {
+        const globalFiles = await findClaudeFiles({
+          path: globalClaudeDir,
+          includeHidden,
+        });
+        files.push(...globalFiles);
+      }
 
-      // Only scan if current path is not already the home directory or .claude directory
-      if (path !== homeDir && path !== join(homeDir, '.claude')) {
-        // 1. Scan ~/.claude directory recursively
-        const globalClaudeDir = join(homeDir, '.claude');
-        if (existsSync(globalClaudeDir)) {
-          const globalFiles = await findClaudeFiles({
-            path: globalClaudeDir,
-            recursive: true,
-            includeHidden,
-          });
-          files.push(...globalFiles);
-        }
+      // 2. Check for CLAUDE.md directly in home directory
+      const homeClaudeFile = join(homeDir, 'CLAUDE.md');
+      if (existsSync(homeClaudeFile)) {
+        files.push(homeClaudeFile);
+      }
 
-        // 2. Check for CLAUDE.md directly in home directory
-        const homeClaudeFile = join(homeDir, 'CLAUDE.md');
-        if (existsSync(homeClaudeFile)) {
-          files.push(homeClaudeFile);
-        }
+      // 3. Scan all directories under HOME with intelligent filtering
+      try {
+        const homeContents = await readdir(homeDir, { withFileTypes: true });
 
-        // 3. Scan first-level subdirectories in home for CLAUDE.md files
-        // This finds project-level CLAUDE.md files without deep recursion
-        try {
-          const homeContents = await readdir(homeDir, { withFileTypes: true });
-          const directoriesToSkip = new Set([
-            '.cache',
-            '.npm',
-            '.yarn',
-            '.pnpm',
-            'node_modules',
-            '.git',
-            '.svn',
-            '.hg',
-            'Library',
-            'Applications',
-            '.Trash',
-            '.local',
-            '.config',
-            '.vscode',
-            '.idea',
-          ]);
+        for (const entry of homeContents) {
+          if (!entry.isDirectory() || shouldExcludeDirectory(entry.name))
+            continue;
 
-          // Common project directories that should be scanned deeper
-          const projectDirectories = new Set([
-            'my_programs',
-            'projects',
-            'dev',
-            'development',
-            'workspace',
-            'work',
-            'code',
-            'repos',
-            'git',
-            'Documents',
-            'Desktop',
-            'src',
-            'source',
-          ]);
+          const dirPath = join(homeDir, entry.name);
 
-          for (const entry of homeContents) {
-            if (
-              entry.isDirectory() &&
-              !directoriesToSkip.has(entry.name) &&
-              !entry.name.startsWith('.')
-            ) {
-              const dirPath = join(homeDir, entry.name);
+          // Prioritize likely project directories
+          if (await isLikelyProjectDirectory(dirPath, entry.name)) {
+            const projectFiles = await findClaudeFiles({
+              path: dirPath,
+              includeHidden: false,
+            });
+            files.push(...projectFiles);
+          } else {
+            // For other directories, just check the first level
+            const claudeMdPath = join(dirPath, 'CLAUDE.md');
+            if (existsSync(claudeMdPath)) {
+              files.push(claudeMdPath);
+            }
 
-              // Check for CLAUDE.md in this directory
-              const claudeMdPath = join(dirPath, 'CLAUDE.md');
-              if (existsSync(claudeMdPath)) {
-                files.push(claudeMdPath);
-              }
-
-              // Also check for CLAUDE.local.md
-              const claudeLocalPath = join(dirPath, 'CLAUDE.local.md');
-              if (existsSync(claudeLocalPath)) {
-                files.push(claudeLocalPath);
-              }
-
-              // For project directories, scan recursively but with constraints
-              if (projectDirectories.has(entry.name)) {
-                try {
-                  // Use findClaudeFiles to recursively scan project directories
-                  const projectFiles = await findClaudeFiles({
-                    path: dirPath,
-                    recursive: true,
-                    includeHidden: false,
-                  });
-                  files.push(...projectFiles);
-                } catch (error) {
-                  // If we can't scan the directory, just skip it
-                  console.warn(
-                    `Failed to scan ${entry.name} subdirectories:`,
-                    error,
-                  );
-                }
-              }
+            const claudeLocalPath = join(dirPath, 'CLAUDE.local.md');
+            if (existsSync(claudeLocalPath)) {
+              files.push(claudeLocalPath);
             }
           }
-        } catch (error) {
-          // If we can't read home directory, just continue
-          console.warn('Failed to scan home subdirectories:', error);
         }
+      } catch (error) {
+        console.warn('Failed to scan home subdirectories:', error);
       }
+    } else {
+      // Scan from a specific path (not HOME)
+      const scanFiles = await findClaudeFiles({
+        path,
+        includeHidden,
+      });
+      files.push(...scanFiles);
     }
 
     // Remove duplicates based on file path using es-toolkit
@@ -237,6 +184,106 @@ class ClaudeMdScanner extends BaseFileScanner<ClaudeFileInfo> {
 const scanner = new ClaudeMdScanner();
 const processClaudeFile = (filePath: string) => scanner.processFile(filePath);
 
+// Helper function to determine if a directory is likely a project directory
+async function isLikelyProjectDirectory(
+  dirPath: string,
+  dirName: string,
+): Promise<boolean> {
+  // 1. Pattern-based detection
+  const namePatterns = [
+    /^(dev|develop|development)$/i,
+    /^(proj|project|projects)$/i,
+    /^(work|workspace|code|src|source)$/i,
+    /^(repo|repos|repositories)$/i,
+    /^(git|github|gitlab)$/i,
+    /^my_programs$/i, // Keep specific known directories
+  ];
+
+  if (namePatterns.some((pattern) => pattern.test(dirName))) {
+    return true;
+  }
+
+  // 2. Marker file detection
+  const markers = [
+    '.git',
+    'package.json',
+    'Cargo.toml',
+    'go.mod',
+    'requirements.txt',
+    '.claude',
+    'CLAUDE.md',
+    'pyproject.toml',
+    'composer.json',
+    'Gemfile',
+    'pom.xml',
+    'build.gradle',
+    'CMakeLists.txt',
+  ];
+
+  for (const marker of markers) {
+    if (existsSync(join(dirPath, marker))) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+// Comprehensive exclusion patterns
+function shouldExcludeDirectory(name: string): boolean {
+  // Start with dot check
+  if (name.startsWith('.')) {
+    // Allow .claude directory specifically
+    if (name === '.claude') return false;
+    return true;
+  }
+
+  const excludePatterns = [
+    // System/Cache
+    /^\.cache$/,
+    /^\.npm$/,
+    /^\.yarn$/,
+    /^\.pnpm$/,
+    /^node_modules$/,
+    /^\.git$/,
+    /^\.svn$/,
+    /^\.hg$/,
+
+    // OS-specific
+    /^Library$/,
+    /^Applications$/,
+    /^\.Trash$/, // macOS
+    /^AppData$/,
+    /^LocalAppData$/, // Windows
+
+    // Large media directories
+    /^Downloads$/,
+    /^Pictures$/,
+    /^Movies$/,
+    /^Music$/,
+    /^Videos$/,
+
+    // Hidden config (already caught by dot check but explicit for clarity)
+    /^\.local$/,
+    /^\.config$/,
+    /^\.vscode$/,
+    /^\.idea$/,
+
+    // Build/temp directories
+    /^dist$/,
+    /^build$/,
+    /^out$/,
+    /^tmp$/,
+    /^temp$/,
+
+    // Package managers
+    /^vendor$/,
+    /^bower_components$/,
+  ];
+
+  return excludePatterns.some((pattern) => pattern.test(name));
+}
+
 // Removed unused function _findGlobalClaudeFiles
 
 // InSource tests
@@ -251,32 +298,26 @@ if (import.meta.vitest != null) {
 
   describe('getSearchPatterns', () => {
     test('should return all patterns when no type specified', () => {
-      const patterns = getSearchPatterns(undefined, true);
+      const patterns = getSearchPatterns(undefined);
       expect(patterns).toContain('**/CLAUDE.md');
       expect(patterns).toContain('**/CLAUDE.local.md');
       expect(patterns).toContain('**/.claude/commands/**/*.md');
     });
 
     test('should return specific pattern for project-memory type', () => {
-      const patterns = getSearchPatterns('project-memory', true);
+      const patterns = getSearchPatterns('project-memory');
       expect(patterns).toContain('**/CLAUDE.md');
       expect(patterns).not.toContain('**/CLAUDE.local.md');
     });
 
-    test('should respect recursive option', () => {
-      const patterns = getSearchPatterns('project-memory', false);
-      expect(patterns).toContain('CLAUDE.md');
-      expect(patterns).not.toContain('**/CLAUDE.md');
-    });
-
     test('should return user slash commands pattern for personal-command type', () => {
-      const patterns = getSearchPatterns('personal-command', true);
+      const patterns = getSearchPatterns('personal-command');
       expect(patterns).toHaveLength(1);
       expect(patterns[0]).toContain('.claude/commands/');
     });
 
     test('should include personal-command pattern when no type specified', () => {
-      const patterns = getSearchPatterns(undefined, true);
+      const patterns = getSearchPatterns(undefined);
       expect(
         patterns.some(
           (p) => p.includes('.claude/commands/') && p.includes('/'),
@@ -295,7 +336,6 @@ if (import.meta.vitest != null) {
 
       const result = await scanClaudeFiles({
         path: fixture.getPath('test-scan'),
-        recursive: false, // Don't scan recursively to avoid scanning home directory
       });
 
       expect(Array.isArray(result)).toBe(true);
@@ -313,7 +353,6 @@ if (import.meta.vitest != null) {
         async (f) => {
           const result = await scanClaudeFiles({
             path: f.getPath('empty-dir'),
-            recursive: false,
           });
           expect(result).toEqual([]);
           return f;
@@ -344,7 +383,6 @@ if (import.meta.vitest != null) {
 
       const result = await scanClaudeFiles({
         path: fixture.getPath('sort-test'),
-        recursive: false,
       });
 
       // Local file should come first (newer)
@@ -391,7 +429,6 @@ if (import.meta.vitest != null) {
 
       const result = await scanClaudeFiles({
         path: fixture.getPath('my-app'),
-        recursive: false, // Don't scan recursively to avoid home directory scan
       });
 
       expect(result.length).toBe(2); // CLAUDE.md and CLAUDE.local.md
@@ -415,19 +452,121 @@ if (import.meta.vitest != null) {
       // Without includeHidden
       const withoutHidden = await scanClaudeFiles({
         path: fixture.path,
-        recursive: false, // Don't scan recursively to avoid scanning home directory
         includeHidden: false,
       });
 
       // With includeHidden
       const withHidden = await scanClaudeFiles({
         path: fixture.path,
-        recursive: false, // Don't scan recursively to avoid scanning home directory
         includeHidden: true,
       });
 
       expect(withoutHidden.length).toBe(1);
       expect(withHidden.length).toBe(2);
     }, 10000); // Add timeout for slower operations
+  });
+
+  describe('scanClaudeFiles - subdirectory scanning', () => {
+    test('should find project CLAUDE.md files when run from subdirectory', async () => {
+      // Create a project structure with CLAUDE.md files
+      await using fixture = await createComplexProjectFixture();
+
+      // Simulate scanning from a project directory
+      const result = await scanClaudeFiles({
+        path: fixture.getPath('my-app'), // Run from project root
+      });
+
+      // Should find CLAUDE.md files from parent directories
+      const projectFiles = result.filter(
+        (f) => f.type === 'project-memory' || f.type === 'project-memory-local',
+      );
+
+      // Should find at least the my-app/CLAUDE.md and my-app/CLAUDE.local.md
+      expect(projectFiles.length).toBeGreaterThanOrEqual(2);
+    });
+
+    test('should find files when scanning a project directory structure', async () => {
+      const { createFixture } = await import('fs-fixture');
+      await using fixture = await createFixture({
+        'CLAUDE.md': DEFAULT_CLAUDE_MD, // Root level file
+        my_programs: {
+          project1: {
+            'CLAUDE.md': DEFAULT_CLAUDE_MD,
+            '.git': {}, // Marker file
+          },
+        },
+        development: {
+          project2: {
+            'CLAUDE.md': DEFAULT_CLAUDE_MD,
+            'package.json': '{}',
+          },
+        },
+        Downloads: {
+          'CLAUDE.md': DEFAULT_CLAUDE_MD, // Normal directory
+        },
+        '.cache': {
+          'CLAUDE.md': DEFAULT_CLAUDE_MD, // Hidden directory
+        },
+        'random-folder': {
+          'CLAUDE.md': DEFAULT_CLAUDE_MD, // Should be found
+        },
+      });
+
+      // Scan from the fixture path
+      const result = await scanClaudeFiles({
+        path: fixture.path,
+        includeHidden: false, // Don't include hidden directories
+      });
+
+      // Non-recursive scan finds files at root and in first-level directories
+      // (excluding hidden directories like .cache)
+      expect(result.length).toBeGreaterThan(0);
+      const paths = result.map((f) => f.path);
+
+      // Should find the root CLAUDE.md
+      expect(
+        paths.some((p) => {
+          const parts = p.split('/');
+          return (
+            parts[parts.length - 1] === 'CLAUDE.md' &&
+            parts[parts.length - 2] !== undefined
+          );
+        }),
+      ).toBe(true);
+
+      // Should find files in first-level directories (except hidden)
+      expect(paths.some((p) => p.includes('Downloads/CLAUDE.md'))).toBe(true);
+      expect(paths.some((p) => p.includes('random-folder/CLAUDE.md'))).toBe(
+        true,
+      );
+
+      // Should NOT find files in hidden directories
+      expect(paths.some((p) => p.includes('.cache/CLAUDE.md'))).toBe(false);
+
+      // Now it SHOULD find files in nested directories (always scans deeply)
+      expect(paths.some((p) => p.includes('project1/CLAUDE.md'))).toBe(true);
+
+      // Now scan specific directories
+      const myProgramsResult = await scanClaudeFiles({
+        path: join(fixture.path, 'my_programs'),
+      });
+
+      const devResult = await scanClaudeFiles({
+        path: join(fixture.path, 'development'),
+      });
+
+      // Should find files in subdirectories
+      expect(myProgramsResult.length).toBeGreaterThan(0);
+      expect(devResult.length).toBeGreaterThan(0);
+
+      // Verify the paths
+      const myProgramsPaths = myProgramsResult.map((f) => f.path);
+      expect(
+        myProgramsPaths.some((p) => p.includes('project1/CLAUDE.md')),
+      ).toBe(true);
+
+      const devPaths = devResult.map((f) => f.path);
+      expect(devPaths.some((p) => p.includes('project2/CLAUDE.md'))).toBe(true);
+    });
   });
 }
