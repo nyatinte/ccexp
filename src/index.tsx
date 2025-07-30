@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { program } from 'commander';
 import { render } from 'ink';
 import { z } from 'zod/v4';
-import type { CliOptions } from './_types.js';
 import { App } from './App.js';
+import type { CliOptions } from './lib/types.js';
 
 // Load package.json in ESM
 const __dirname = dirname(fileURLToPath(import.meta.url));

@@ -1,12 +1,12 @@
 import { join } from 'node:path';
 import { render } from 'ink-testing-library';
-import type { ClaudeFileInfo, FileGroup } from '../../_types.js';
-import { createClaudeFilePath } from '../../_types.js';
+import type { ClaudeFileInfo, FileGroup } from '../../lib/types.js';
+import { createClaudeFilePath } from '../../lib/types.js';
 import {
   createComplexProjectFixture,
   withTempFixture,
-} from '../../test-fixture-helpers.js';
-import { waitForEffects } from '../../test-utils.js';
+} from '../../test/utils/fixture-helpers.js';
+import { waitForEffects } from '../../test/utils/test-utils.js';
 import { FileList } from './FileList.js';
 
 if (import.meta.vitest) {

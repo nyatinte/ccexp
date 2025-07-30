@@ -1,6 +1,6 @@
 import { isArray } from 'es-toolkit/compat';
-import { keyboard, typeText } from './test-keyboard-helpers.js';
-import { createNavigation } from './test-navigation.js';
+import { keyboard, typeText } from './keyboard-helpers.js';
+import { createNavigation } from './navigation.js';
 import { waitFor, waitForEffects } from './test-utils.js';
 
 // Type for stdin mock object from ink-testing-library
