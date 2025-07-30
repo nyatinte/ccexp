@@ -45,35 +45,14 @@ class SettingsJsonScanner extends BaseFileScanner<ClaudeFileInfo> {
 export const scanSettingsJson = async (
   options: ScanOptions = {},
 ): Promise<ClaudeFileInfo[]> => {
-  const {
-    path = process.cwd(),
-    recursive = true,
-    includeHidden = false,
-  } = options;
+  const { homedir } = await import('node:os');
+  const { path = homedir(), includeHidden = false } = options;
 
-  // Scan specified path
+  // Scan from the specified path
   const paths = await findSettingsJson({
     path,
-    recursive,
     includeHidden,
   });
-
-  // Also scan global Claude directory if scanning recursively
-  if (recursive) {
-    const { homedir } = await import('node:os');
-    const { join } = await import('node:path');
-    const globalClaudePath = join(homedir(), '.claude');
-
-    // Only scan global .claude directory if it's different from the current path
-    if (globalClaudePath !== path && !path.startsWith(globalClaudePath)) {
-      const globalFiles = await findSettingsJson({
-        path: globalClaudePath,
-        recursive: false,
-        includeHidden,
-      });
-      paths.push(...globalFiles);
-    }
-  }
 
   // Remove duplicates based on file path
   const uniquePaths: string[] = Array.from(new Set(paths));
@@ -184,7 +163,6 @@ if (import.meta.vitest != null) {
       try {
         const results = await scanSettingsJson({
           path: fixture.path,
-          recursive: false, // Don't scan home directory in tests
         });
 
         expect(results).toHaveLength(3); // 2 settings.json + 1 settings.local.json

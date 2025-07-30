@@ -93,7 +93,6 @@ This is the system prompt for the test agent.`;
         async (f) => {
           const results = await scanSubAgents({
             path: f.path,
-            recursive: true,
           });
 
           // Find test agent by name and scope (project scope means it's from our test directory)
@@ -130,7 +129,6 @@ System prompt content.`;
         async (f) => {
           const results = await scanSubAgents({
             path: f.path,
-            recursive: true,
           });
 
           // Find broken agent by name and scope

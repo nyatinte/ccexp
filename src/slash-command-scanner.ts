@@ -14,13 +14,9 @@ import { findSlashCommands } from './fast-scanner.ts';
 export const scanSlashCommands = async (
   options: ScanOptions = {},
 ): Promise<SlashCommandInfo[]> => {
-  const {
-    path = process.cwd(),
-    recursive = true,
-    includeHidden = false,
-  } = options;
+  const { path = homedir(), includeHidden = false } = options;
 
-  const _patterns = getSlashCommandPatterns(recursive);
+  const _patterns = getSlashCommandPatterns();
   const searchPaths = [path, join(homedir(), '.claude', 'commands')];
 
   try {
@@ -34,7 +30,6 @@ export const scanSlashCommands = async (
       // Use fast scanner for better performance and security
       const files = await findSlashCommands({
         path: searchPath,
-        recursive,
         includeHidden,
       });
 
@@ -62,8 +57,8 @@ export const scanSlashCommands = async (
   }
 };
 
-const getSlashCommandPatterns = (recursive = true): string[] => {
-  const prefix = recursive ? '**/' : '';
+const getSlashCommandPatterns = (): string[] => {
+  const prefix = '**/';
   return [
     `${prefix}.claude/commands/**/*.md`,
     `${prefix}commands/**/*.md`, // Alternative location
@@ -172,16 +167,10 @@ if (import.meta.vitest != null) {
   const { describe, test, expect } = import.meta.vitest;
 
   describe('getSlashCommandPatterns', () => {
-    test('should return command patterns with recursion', () => {
-      const patterns = getSlashCommandPatterns(true);
+    test('should return command patterns', () => {
+      const patterns = getSlashCommandPatterns();
       expect(patterns).toContain('**/.claude/commands/**/*.md');
       expect(patterns).toContain('**/commands/**/*.md');
-    });
-
-    test('should return patterns without recursion', () => {
-      const patterns = getSlashCommandPatterns(false);
-      expect(patterns).toContain('.claude/commands/**/*.md');
-      expect(patterns).toContain('commands/**/*.md');
     });
   });
 
