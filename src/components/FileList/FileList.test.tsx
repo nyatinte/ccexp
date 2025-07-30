@@ -701,7 +701,7 @@ if (import.meta.vitest) {
             await waitForEffects();
 
             // Navigate through filtered results
-            // First group (claude-md) is selected
+            // First group (project-memory) is selected
             // Expand group
             stdin.write('\r');
             await waitForEffects();
