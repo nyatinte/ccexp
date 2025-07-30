@@ -116,7 +116,7 @@ export const findSlashCommands = async (
 };
 
 /**
- * Find sub-agent files using fdir
+ * Find subagent files using fdir
  */
 export const findSubAgents = async (
   options: ScanOptions = {},
@@ -142,7 +142,7 @@ export const findSubAgents = async (
     results.push(...projectFiles);
   } catch (error) {
     console.warn(
-      `Failed to scan project sub-agents in ${path}: ${
+      `Failed to scan project subagents in ${path}: ${
         error instanceof Error ? error.message : 'Unknown error'
       }`,
     );

@@ -111,7 +111,7 @@ if (import.meta.vitest != null) {
         );
 
         expect(result).toBeTruthy();
-        expect(result?.type).toBe('settings-json');
+        expect(result?.type).toBe('project-settings');
         expect(result?.path).toContain('settings.json');
       } finally {
         await fixture.rm();
@@ -189,10 +189,10 @@ if (import.meta.vitest != null) {
 
         expect(results).toHaveLength(3); // 2 settings.json + 1 settings.local.json
         expect(
-          results.filter((file) => file.type === 'settings-json'),
+          results.filter((file) => file.type === 'project-settings'),
         ).toHaveLength(2);
         expect(
-          results.filter((file) => file.type === 'settings-local-json'),
+          results.filter((file) => file.type === 'project-settings-local'),
         ).toHaveLength(1);
       } finally {
         await fixture.rm();
