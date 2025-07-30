@@ -290,6 +290,7 @@ const FileList = React.memo(function FileList({
                 <Box
                   key={`file-${item.groupIndex}-${item.fileIndex}`}
                   paddingLeft={2}
+                  width="100%"
                 >
                   <FileItem
                     file={file}
