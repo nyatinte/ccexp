@@ -89,7 +89,7 @@
     "ink-gradient": "^3.0.0",
     "marked": "^16.0.0",
     "marked-terminal": "^7.3.0",
-    "open": "^10.1.2",
+    "open": "^10.2.0",
     "open-editor": "^5.1.0",
     "react": "^19.1.0",
     "ts-pattern": "^5.7.1",
