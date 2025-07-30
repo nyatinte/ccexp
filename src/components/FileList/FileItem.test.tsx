@@ -108,7 +108,7 @@ if (import.meta.vitest) {
     test('should truncate very long file names properly', () => {
       const longFileName =
         'this-is-a-very-very-very-very-very-very-very-very-very-very-long-filename-that-should-be-truncated-properly-without-breaking-the-layout.md';
-      const file = createMockFile(longFileName, 'claude-md', {
+      const file = createMockFile(longFileName, 'project-memory', {
         basePath: '/Users/test/projects',
         size: 100,
       });
@@ -126,7 +126,7 @@ if (import.meta.vitest) {
     });
 
     test('should handle very long directory paths', () => {
-      const file = createMockFile('CLAUDE.md', 'claude-md', {
+      const file = createMockFile('CLAUDE.md', 'project-memory', {
         basePath:
           '/Users/test/very/deep/nested/directory/structure/with/many/levels/that/go/on/and/on/and/on',
         size: 100,
@@ -145,7 +145,7 @@ if (import.meta.vitest) {
     test('should maintain layout with extremely long paths', () => {
       const segments = Array(20).fill('very-long-directory-name');
       const longPath = segments.join('/');
-      const file = createMockFile('CLAUDE.md', 'claude-md', {
+      const file = createMockFile('CLAUDE.md', 'project-memory', {
         basePath: `/Users/test/${longPath}`,
         size: 100,
       });
