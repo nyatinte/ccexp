@@ -1,7 +1,7 @@
 {
   "name": "ccexp",
   "type": "module",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "description": "CLI tool for exploring and managing Claude Code settings and slash commands",
   "author": "nyatinte <takumi.062757@gmail.com>",
   "license": "MIT",
