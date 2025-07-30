@@ -35,30 +35,55 @@ export const detectClaudeFileType = (filePath: string): ClaudeFileType => {
   return match([fileName, dirPath])
     .with(
       ['CLAUDE.md', P.when((dir) => dir === join(HOME_DIR, '.claude'))],
-      () => 'global-md' as const,
+      () => 'user-memory' as const,
     )
-    .with(['CLAUDE.md', P._], () => 'claude-md' as const)
-    .with(['CLAUDE.local.md', P._], () => 'claude-local-md' as const)
+    .with(['CLAUDE.md', P._], () => 'project-memory' as const)
+    .with(['CLAUDE.local.md', P._], () => 'project-memory-local' as const)
+    .with(
+      [
+        P.when((name) => name.endsWith('.md')),
+        P.when((dir) => dir.includes(join(HOME_DIR, '.claude', 'commands'))),
+      ],
+      () => 'personal-command' as const,
+    )
     .with(
       [
         P.when((name) => name.endsWith('.md')),
         P.when((dir) => dir.includes('.claude/commands')),
       ],
-      () => 'slash-command' as const,
+      () => 'project-command' as const,
+    )
+    .with(
+      [
+        P.when((name) => name.endsWith('.md')),
+        P.when((dir) => dir.includes(join(HOME_DIR, '.claude', 'agents'))),
+      ],
+      () => 'user-subagent' as const,
+    )
+    .with(
+      [
+        P.when((name) => name.endsWith('.md')),
+        P.when((dir) => dir.includes('.claude/agents')),
+      ],
+      () => 'project-subagent' as const,
+    )
+    .with(
+      ['settings.json', P.when((dir) => dir === join(HOME_DIR, '.claude'))],
+      () => 'user-settings' as const,
     )
     .with(
       [
         'settings.json',
         P.when((dir) => dir.endsWith('/.claude') || dir.includes('/.claude/')),
       ],
-      () => 'settings-json' as const,
+      () => 'project-settings' as const,
     )
     .with(
       [
         'settings.local.json',
         P.when((dir) => dir.endsWith('/.claude') || dir.includes('/.claude/')),
       ],
-      () => 'settings-local-json' as const,
+      () => 'project-settings-local' as const,
     )
     .otherwise(() => 'unknown' as const);
 };
@@ -173,33 +198,81 @@ if (import.meta.vitest != null) {
 
   describe('detectClaudeFileType', () => {
     test('should detect CLAUDE.md files', () => {
-      expect(detectClaudeFileType('/project/CLAUDE.md')).toBe('claude-md');
+      expect(detectClaudeFileType('/project/CLAUDE.md')).toBe('project-memory');
     });
 
     test('should detect CLAUDE.local.md files', () => {
       expect(detectClaudeFileType('/project/CLAUDE.local.md')).toBe(
-        'claude-local-md',
+        'project-memory-local',
       );
     });
 
     test('should detect global CLAUDE.md files', () => {
       const globalPath = join(HOME_DIR, '.claude', 'CLAUDE.md');
-      expect(detectClaudeFileType(globalPath)).toBe('global-md');
+      expect(detectClaudeFileType(globalPath)).toBe('user-memory');
     });
 
-    test('should detect slash command files', () => {
+    test('should detect project slash command files', () => {
       expect(detectClaudeFileType('/project/.claude/commands/deploy.md')).toBe(
-        'slash-command',
+        'project-command',
+      );
+      expect(detectClaudeFileType('/workspace/.claude/commands/test.md')).toBe(
+        'project-command',
       );
     });
 
+    test('should detect personal slash command files', () => {
+      const personalCommandPath = join(
+        HOME_DIR,
+        '.claude',
+        'commands',
+        'personal.md',
+      );
+      expect(detectClaudeFileType(personalCommandPath)).toBe(
+        'personal-command',
+      );
+
+      const nestedPersonalPath = join(
+        HOME_DIR,
+        '.claude',
+        'commands',
+        'git',
+        'commit.md',
+      );
+      expect(detectClaudeFileType(nestedPersonalPath)).toBe('personal-command');
+    });
+
     test.each([
-      ['/project/.claude/settings.json', 'settings-json'],
-      ['/Users/name/.claude/settings.json', 'settings-json'],
-      ['/project/.claude/settings.local.json', 'settings-local-json'],
-      ['/Users/name/.claude/settings.local.json', 'settings-local-json'],
+      ['/project/.claude/settings.json', 'project-settings'],
+      ['/workspace/.claude/settings.json', 'project-settings'],
+      ['/project/.claude/settings.local.json', 'project-settings-local'],
+      ['/workspace/.claude/settings.local.json', 'project-settings-local'],
     ] as const)('should detect %s as %s', (path, expectedType) => {
       expect(detectClaudeFileType(path)).toBe(expectedType);
+    });
+
+    test('should detect user settings.json', () => {
+      const userSettingsPath = join(HOME_DIR, '.claude', 'settings.json');
+      expect(detectClaudeFileType(userSettingsPath)).toBe('user-settings');
+    });
+
+    test('should detect project subagent files', () => {
+      expect(
+        detectClaudeFileType('/project/.claude/agents/test-agent.md'),
+      ).toBe('project-subagent');
+      expect(detectClaudeFileType('/workspace/.claude/agents/helper.md')).toBe(
+        'project-subagent',
+      );
+    });
+
+    test('should detect user subagent files', () => {
+      const userAgentPath = join(
+        HOME_DIR,
+        '.claude',
+        'agents',
+        'personal-agent.md',
+      );
+      expect(detectClaudeFileType(userAgentPath)).toBe('user-subagent');
     });
 
     test('should not detect settings files outside .claude', () => {

@@ -2,7 +2,13 @@ import { delay } from 'es-toolkit/promise';
 import { Text } from 'ink';
 import { render } from 'ink-testing-library';
 import React from 'react';
-import type { ClaudeFileInfo, FileScanner } from '../_types.js';
+import type {
+  ClaudeFileInfo,
+  ClaudeFileType,
+  FileGroup,
+  FileScanner,
+} from '../_types.js';
+import { createClaudeFilePath } from '../_types.js';
 import { scanClaudeFiles } from '../claude-md-scanner.js';
 import { scanSettingsJson } from '../settings-json-scanner.js';
 import { scanSlashCommands } from '../slash-command-scanner.js';
@@ -82,7 +88,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('test-project'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -118,7 +124,7 @@ if (import.meta.vitest) {
           throw new Error('EACCES: permission denied');
         },
         scanSlashCommands: async () => [],
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: async () => [],
       };
 
@@ -177,7 +183,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('accessible'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -226,7 +232,7 @@ if (import.meta.vitest) {
                 path: f.getPath('empty-project'),
                 recursive: false,
               }),
-            scanSubAgents: async () => [], // No sub-agents in test
+            scanSubAgents: async () => [], // No subagents in test
             scanSettingsJson: (options) =>
               scanSettingsJson({
                 ...options,
@@ -276,7 +282,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('my-app'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -342,7 +348,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('project'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -364,7 +370,8 @@ if (import.meta.vitest) {
       const frame = lastFrame();
       expect(frame).toContain('Files:');
       expect(frame).not.toContain('Files: 0');
-      expect(frame).toContain('CLAUDE.md'); // Should find at least one file
+      // The selected file path should contain either .claude or project
+      expect(frame).toMatch(/Selected:.*\/(\.claude|project)\//); // Should have selected a file from our fixture
     });
 
     test('slash commands are properly loaded', async () => {
@@ -389,7 +396,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('slash-project'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -436,7 +443,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('mixed-project'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -481,7 +488,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('update-test'),
             recursive: false,
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -537,7 +544,7 @@ if (import.meta.vitest) {
             path: fixture.getPath('nested-project'),
             recursive: true, // This test specifically tests recursive scanning
           }),
-        scanSubAgents: async () => [], // No sub-agents in test
+        scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
@@ -572,6 +579,374 @@ if (import.meta.vitest) {
       const fileCount = Number(fileCountMatch?.[1] ?? '0');
       expect(fileCount).toBeGreaterThan(1);
       expect(frame).toContain('Selected:');
+    });
+
+    test('empty file groups are displayed for all file types', async () => {
+      // Create a fixture with only a few file types
+      await using fixture = await createFixture({
+        'test-empty-groups': {
+          'CLAUDE.md': '# Project Config',
+          '.claude': {
+            commands: {
+              'project-cmd.md': '# /project-cmd\n\nProject command',
+            },
+          },
+        },
+      });
+
+      // Mock scanner that returns only project-memory and project-command files
+      const testScanner: FileScanner = {
+        scanClaudeFiles: async () => [
+          {
+            path: createClaudeFilePath(
+              fixture.getPath('test-empty-groups/CLAUDE.md'),
+            ),
+            type: 'project-memory' as const,
+            size: 100,
+            lastModified: new Date(),
+            commands: [],
+            tags: [],
+          },
+        ],
+        scanSlashCommands: async () => [
+          {
+            name: 'project-cmd',
+            description: 'Project command',
+            filePath: fixture.getPath(
+              'test-empty-groups/.claude/commands/project-cmd.md',
+            ),
+            scope: 'project' as const,
+            hasArguments: false,
+            lastModified: new Date(),
+          },
+        ],
+        scanSubAgents: async () => [],
+        scanSettingsJson: async () => [],
+      };
+
+      let capturedFileGroups: FileGroup[] = [];
+
+      // Create a test component that captures fileGroups
+      function TestEmptyGroupsComponent({ scanner }: { scanner: FileScanner }) {
+        const { fileGroups, isLoading, error } = useFileNavigation(
+          { recursive: false },
+          scanner,
+        );
+
+        React.useEffect(() => {
+          if (!isLoading) {
+            capturedFileGroups = fileGroups;
+          }
+        }, [fileGroups, isLoading]);
+
+        if (isLoading) return <Text>Loading...</Text>;
+        if (error) return <Text>Error: {error}</Text>;
+
+        return (
+          <>
+            <Text>Groups: {fileGroups.length}</Text>
+            {fileGroups.map((group) => (
+              <Text key={group.type}>
+                {group.type}: {group.files.length} files, expanded:{' '}
+                {String(group.isExpanded)}
+              </Text>
+            ))}
+          </>
+        );
+      }
+
+      const { lastFrame } = render(
+        <TestEmptyGroupsComponent scanner={testScanner} />,
+      );
+
+      // Wait for loading to complete
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
+
+      // Verify all groups are displayed (except 'unknown')
+      const expectedTypes: ClaudeFileType[] = [
+        'user-memory',
+        'user-settings',
+        'personal-command',
+        'user-subagent',
+        'project-memory',
+        'project-memory-local',
+        'project-settings',
+        'project-settings-local',
+        'project-command',
+        'project-subagent',
+      ];
+
+      expect(capturedFileGroups.length).toBe(expectedTypes.length);
+
+      // Verify each expected type is present
+      const groupTypes = capturedFileGroups.map((g) => g.type);
+      for (const expectedType of expectedTypes) {
+        expect(groupTypes).toContain(expectedType);
+      }
+
+      // Verify 'unknown' is not included
+      expect(groupTypes).not.toContain('unknown');
+
+      // Verify empty groups have isExpanded = false and files = []
+      for (const group of capturedFileGroups) {
+        if (
+          group.type === 'project-memory' ||
+          group.type === 'project-command'
+        ) {
+          // These have files
+          expect(group.files.length).toBeGreaterThan(0);
+          expect(group.isExpanded).toBe(true);
+        } else {
+          // These are empty
+          expect(group.files.length).toBe(0);
+          expect(group.isExpanded).toBe(false);
+        }
+      }
+
+      // Verify the UI output
+      const frame = lastFrame();
+      expect(frame).toContain(`Groups: ${expectedTypes.length}`);
+
+      // Check that empty groups show "0 files, expanded: false"
+      expect(frame).toContain('user-memory: 0 files, expanded: false');
+      expect(frame).toContain('project-memory: 1 files, expanded: true');
+      expect(frame).toContain('project-command: 1 files, expanded: true');
+    });
+
+    test('file groups are ordered with user configurations first', async () => {
+      // Create a fixture with mixed user and project files
+      await using fixture = await createFixture({
+        // User files (in home directory structure)
+        '.claude': {
+          'CLAUDE.md': '# User Global Config',
+          commands: {
+            'user-cmd.md': '# /user-cmd\n\nUser command',
+          },
+          agents: {
+            'user-agent.md': '# User Agent\n\nUser subagent',
+          },
+          'settings.json': '{"theme": "dark"}',
+        },
+        // Project files
+        'test-project': {
+          'CLAUDE.md': '# Project Config',
+          'CLAUDE.local.md': '# Project Local Config',
+          '.claude': {
+            commands: {
+              'project-cmd.md': '# /project-cmd\n\nProject command',
+            },
+            agents: {
+              'project-agent.md': '# Project Agent\n\nProject subagent',
+            },
+            'settings.json': '{"theme": "light"}',
+            'settings.local.json': '{"theme": "custom"}',
+          },
+        },
+      });
+
+      // Mock scanner that returns all file types
+      const testScanner: FileScanner = {
+        scanClaudeFiles: async () => [
+          {
+            path: createClaudeFilePath(fixture.getPath('.claude/CLAUDE.md')),
+            type: 'user-memory' as const,
+            size: 100,
+            lastModified: new Date(),
+            commands: [],
+            tags: [],
+          },
+          {
+            path: createClaudeFilePath(
+              fixture.getPath('test-project/CLAUDE.md'),
+            ),
+            type: 'project-memory' as const,
+            size: 100,
+            lastModified: new Date(),
+            commands: [],
+            tags: [],
+          },
+          {
+            path: createClaudeFilePath(
+              fixture.getPath('test-project/CLAUDE.local.md'),
+            ),
+            type: 'project-memory-local' as const,
+            size: 100,
+            lastModified: new Date(),
+            commands: [],
+            tags: [],
+          },
+        ],
+        scanSlashCommands: async () => [
+          {
+            name: 'user-cmd',
+            description: 'User command',
+            filePath: fixture.getPath('.claude/commands/user-cmd.md'),
+            scope: 'user' as const,
+            hasArguments: false,
+            lastModified: new Date(),
+          },
+          {
+            name: 'project-cmd',
+            description: 'Project command',
+            filePath: fixture.getPath(
+              'test-project/.claude/commands/project-cmd.md',
+            ),
+            scope: 'project' as const,
+            hasArguments: false,
+            lastModified: new Date(),
+          },
+        ],
+        scanSubAgents: async () => [
+          {
+            name: 'user-agent',
+            description: 'User subagent',
+            filePath: fixture.getPath('.claude/agents/user-agent.md'),
+            scope: 'user' as const,
+            lastModified: new Date(),
+          },
+          {
+            name: 'project-agent',
+            description: 'Project subagent',
+            filePath: fixture.getPath(
+              'test-project/.claude/agents/project-agent.md',
+            ),
+            scope: 'project' as const,
+            lastModified: new Date(),
+          },
+        ],
+        scanSettingsJson: async () => [
+          {
+            path: createClaudeFilePath(
+              fixture.getPath('.claude/settings.json'),
+            ),
+            type: 'user-settings' as const,
+            size: 100,
+            lastModified: new Date(),
+            commands: [],
+            tags: [],
+          },
+          {
+            path: createClaudeFilePath(
+              fixture.getPath('test-project/.claude/settings.json'),
+            ),
+            type: 'project-settings' as const,
+            size: 100,
+            lastModified: new Date(),
+            commands: [],
+            tags: [],
+          },
+          {
+            path: createClaudeFilePath(
+              fixture.getPath('test-project/.claude/settings.local.json'),
+            ),
+            type: 'project-settings-local' as const,
+            size: 100,
+            lastModified: new Date(),
+            commands: [],
+            tags: [],
+          },
+        ],
+      };
+
+      let capturedFileGroups: FileGroup[] = [];
+
+      // Create a test component that captures fileGroups
+      function TestGroupOrderComponent({ scanner }: { scanner: FileScanner }) {
+        const { fileGroups, isLoading, error } = useFileNavigation(
+          { recursive: false },
+          scanner,
+        );
+
+        React.useEffect(() => {
+          if (!isLoading) {
+            capturedFileGroups = fileGroups;
+          }
+        }, [fileGroups, isLoading]);
+
+        if (isLoading) return <Text>Loading...</Text>;
+        if (error) return <Text>Error: {error}</Text>;
+
+        return (
+          <>
+            <Text>Groups: {fileGroups.length}</Text>
+            {fileGroups.map((group, index) => (
+              <Text key={group.type}>
+                {index}: {group.type}
+              </Text>
+            ))}
+          </>
+        );
+      }
+
+      const { lastFrame } = render(
+        <TestGroupOrderComponent scanner={testScanner} />,
+      );
+
+      // Wait for loading to complete
+      await waitFor(() => {
+        const frame = lastFrame();
+        if (!frame || frame.includes('Loading...')) {
+          throw new Error('Still loading');
+        }
+      });
+
+      // Verify the ordering - user configurations should come first
+      expect(capturedFileGroups.length).toBeGreaterThan(0);
+
+      const groupTypes = capturedFileGroups.map((g) => g.type);
+
+      // Find indices of user and project groups
+      const userMemoryIndex = groupTypes.indexOf('user-memory');
+      const userSettingsIndex = groupTypes.indexOf('user-settings');
+      const personalCommandIndex = groupTypes.indexOf('personal-command');
+      const userSubagentIndex = groupTypes.indexOf('user-subagent');
+
+      const projectMemoryIndex = groupTypes.indexOf('project-memory');
+      const projectMemoryLocalIndex = groupTypes.indexOf(
+        'project-memory-local',
+      );
+      const projectSettingsIndex = groupTypes.indexOf('project-settings');
+      const projectSettingsLocalIndex = groupTypes.indexOf(
+        'project-settings-local',
+      );
+      const projectCommandIndex = groupTypes.indexOf('project-command');
+      const projectSubagentIndex = groupTypes.indexOf('project-subagent');
+
+      // All user groups should come before all project groups
+      const userIndices = [
+        userMemoryIndex,
+        userSettingsIndex,
+        personalCommandIndex,
+        userSubagentIndex,
+      ].filter((i) => i !== -1);
+      const projectIndices = [
+        projectMemoryIndex,
+        projectMemoryLocalIndex,
+        projectSettingsIndex,
+        projectSettingsLocalIndex,
+        projectCommandIndex,
+        projectSubagentIndex,
+      ].filter((i) => i !== -1);
+
+      if (userIndices.length > 0 && projectIndices.length > 0) {
+        const maxUserIndex = Math.max(...userIndices);
+        const minProjectIndex = Math.min(...projectIndices);
+        expect(maxUserIndex).toBeLessThan(minProjectIndex);
+      }
+
+      // Verify the displayed order in the UI
+      const frame = lastFrame();
+      expect(frame).toContain('Groups:');
+
+      // If we have both user and project files, verify they appear in the right order
+      if (userMemoryIndex !== -1 && projectMemoryIndex !== -1) {
+        expect(frame).toMatch(/0: user-memory[\s\S]*project-memory/);
+      }
     });
   });
 }

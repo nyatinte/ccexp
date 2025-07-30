@@ -42,11 +42,11 @@ function hashFileTree(fileTree: FileTree): string {
  * Generate mock file content for testing
  */
 export const createMockFileContent = (
-  type: 'claude-md' | 'slash-command' | 'markdown',
+  type: 'project-memory' | 'project-command' | 'markdown',
 ) => {
   return match(type)
     .with(
-      'claude-md',
+      'project-memory',
       () => `# CLAUDE.md
 
 ## Project Configuration
@@ -59,7 +59,7 @@ This is a test Claude configuration file.
 `,
     )
     .with(
-      'slash-command',
+      'project-command',
       () => `# Deploy Command
 
 Deploys the application to production.

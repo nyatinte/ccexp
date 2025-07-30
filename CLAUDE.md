@@ -165,8 +165,8 @@ src/
    ```typescript
    const detectClaudeFileType = (fileName: string, dirPath: string): ClaudeFileType => {
      return match([fileName, dirPath])
-       .with(['CLAUDE.md', P._], () => 'claude-md' as const)
-       .with(['CLAUDE.local.md', P._], () => 'claude-local-md' as const)
+       .with(['CLAUDE.md', P._], () => 'project-memory' as const)
+       .with(['CLAUDE.local.md', P._], () => 'project-memory-local' as const)
        .otherwise(() => 'unknown' as const);
    };
    ```
@@ -195,18 +195,18 @@ src/
    export abstract class BaseFileScanner<T> {
      protected abstract readonly maxFileSize: number;
      protected abstract readonly fileType: string;
-     
+
      async processFile(filePath: string): Promise<T | null> {
        // Common file processing logic
      }
-     
+
      protected abstract parseContent(
        filePath: string,
        content: string,
        stats: Stats,
      ): Promise<T | null>;
    }
-   
+
    // Specialized scanners extend base
    class ClaudeMdScanner extends BaseFileScanner<ClaudeFileInfo> {
      protected readonly maxFileSize = FILE_SIZE_LIMITS.MAX_CLAUDE_MD_SIZE;
@@ -220,7 +220,7 @@ src/
   - `base-file-scanner.ts` → Abstract base class for all scanners
   - `claude-md-scanner.ts` → CLAUDE.md file discovery
   - `slash-command-scanner.ts` → Slash command discovery
-  - `sub-agent-scanner.ts` → Sub-agent definition discovery
+  - `subagent-scanner.ts` → Subagent definition discovery
   - `default-scanner.ts` → Combined scanner for all file types
   - `fast-scanner.ts` → High-performance directory traversal
 - **Type System**: `_types.ts` → branded types + zod schemas for data integrity
@@ -237,8 +237,8 @@ The tool automatically discovers these file types:
 - **CLAUDE.local.md** → Local overrides (gitignored)
 - **~/.claude/CLAUDE.md** → Global user configuration
 - **.claude/commands/**/*.md** → Slash command definitions
-- **.claude/agents/**/*.md** → Sub-agent definitions (project-level)
-- **~/.claude/agents/**/*.md** → Sub-agent definitions (user-level)
+- **.claude/agents/**/*.md** → Subagent definitions (project-level)
+- **~/.claude/agents/**/*.md** → Subagent definitions (user-level)
 - **.claude/settings.json** → Project settings (shared)
 - **.claude/settings.local.json** → Local project settings (gitignored)
 - **~/.claude/settings.json** → User settings (global)
@@ -352,12 +352,11 @@ This configuration enables:
 - **Error handling**: StatusMessage component with graceful degradation
 - **Loading states**: Spinner component during file scanning
 - **File grouping**: Organized display by file type with collapsible groups
-  - CLAUDE.md files (Project configurations)
-  - CLAUDE.local.md files (Local overrides)
-  - Global CLAUDE.md (User-wide settings)
-  - Slash commands (Custom command definitions)
-  - Sub-agents (Project and user-level agent definitions)
+  - User configurations displayed first (memory, settings, commands, agents)
+  - Project configurations follow (memory, settings, commands, agents)
+  - Groups show file count even when empty (e.g., "User memory (0)")
   - Groups can be collapsed/expanded with arrow keys
+  - High-contrast colors optimized for black terminal backgrounds
 
 ## Quality Management Rules
 
@@ -473,6 +472,23 @@ Before first release:
 3. Ensure npm account has publishing permissions
 
 See `VERSIONING.md` for detailed versioning strategy and commit message conventions.
+
+## Naming Conventions
+
+### Terminology from Anthropic Documentation
+
+This project follows the official terminology from https://docs.anthropic.com:
+
+- **subagent** (not sub-agent) - Specialized AI assistants for specific tasks
+- **slash command** (not slash-command) - Custom commands starting with /
+- **Claude Code** - The official CLI tool name
+- **CLAUDE.md** - Configuration file names (uppercase)
+
+### Compound Word Rules
+
+- Use single words without hyphens for established terms: `subagent`, `codebase`
+- Use hyphens for clarity when needed: `project-specific`, `user-level`
+- Follow TypeScript naming conventions for code identifiers
 
 ## CI/CD Pipeline
 

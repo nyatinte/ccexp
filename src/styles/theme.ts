@@ -4,12 +4,25 @@ export const theme = {
     color: 'black',
   },
   fileTypes: {
-    claudeMd: 'blue',
-    claudeLocalMd: 'yellow',
-    slashCommand: 'green',
-    globalMd: 'magenta',
-    settingsJson: 'cyan',
-    settingsLocalJson: 'yellowBright',
+    // Memory category - Orange
+    projectMemory: '#FF8A65',
+    projectMemoryLocal: '#FFAB91',
+    userMemory: '#FF8A65',
+
+    // Settings category - Cyan
+    projectSettings: '#4DD0E1',
+    projectSettingsLocal: '#80DEEA',
+    userSettings: '#4DD0E1',
+
+    // Command category - Green
+    projectCommand: '#66BB6A',
+    personalCommand: '#66BB6A',
+
+    // Agent category - Magenta
+    projectSubagent: '#C47FD5',
+    userSubagent: '#C47FD5',
+
+    // Other
     unknown: 'gray',
   },
   status: {

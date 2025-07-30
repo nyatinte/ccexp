@@ -53,15 +53,23 @@
 
 ccexp (claude-code-explorer) automatically discovers these configuration files:
 
-- **CLAUDE.md** → Project-level configuration (most common)
-- **CLAUDE.local.md** → Local overrides (gitignored)
-- **~/.claude/CLAUDE.md** → Global user configuration
-- **.claude/commands/**/*.md** → Slash command definitions
-- **.claude/agents/**/*.md** → Sub-agent definitions (project-level)
-- **~/.claude/agents/**/*.md** → Sub-agent definitions (user-level)
-- **.claude/settings.json** → Project settings (shared)
-- **.claude/settings.local.json** → Local project settings (gitignored)
-- **~/.claude/settings.json** → User settings (global)
+### Memory Files
+- **CLAUDE.md** → Project memory (project configuration)
+- **CLAUDE.local.md** → Project memory local (local overrides, gitignored) (deprecated: https://docs.anthropic.com/en/docs/claude-code/memory#determine-memory-type)
+- **~/.claude/CLAUDE.md** → User memory (global configuration)
+
+### Command Files
+- **.claude/commands/**/*.md** → Project commands (project-specific slash commands)
+- **~/.claude/commands/**/*.md** → User commands (personal slash commands)
+
+### Subagent Files
+- **.claude/agents/**/*.md** → Project subagents (project-specific agents)
+- **~/.claude/agents/**/*.md** → User subagents (personal agents)
+
+### Settings Files
+- **.claude/settings.json** → Project settings (shared configuration)
+- **.claude/settings.local.json** → Project settings local (local overrides, gitignored)
+- **~/.claude/settings.json** → User settings (global configuration)
 
 ## Installation
 

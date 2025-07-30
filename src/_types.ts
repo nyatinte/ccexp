@@ -9,16 +9,17 @@ export const createClaudeFilePath = (path: string): ClaudeFilePath => {
   return path;
 };
 
-// Core types as defined in requirement
 export type ClaudeFileType =
-  | 'claude-md'
-  | 'claude-local-md'
-  | 'global-md'
-  | 'slash-command'
-  | 'project-agent'
-  | 'user-agent'
-  | 'settings-json'
-  | 'settings-local-json'
+  | 'user-memory'
+  | 'project-memory'
+  | 'project-memory-local'
+  | 'project-command'
+  | 'personal-command'
+  | 'project-subagent'
+  | 'user-subagent'
+  | 'project-settings'
+  | 'project-settings-local'
+  | 'user-settings'
   | 'unknown';
 
 type _CommandInfo = {

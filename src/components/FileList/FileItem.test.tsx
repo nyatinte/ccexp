@@ -22,40 +22,40 @@ if (import.meta.vitest) {
 
   describe('FileItem', () => {
     test('displays CLAUDE.md file', () => {
-      const file = createMockFile('CLAUDE.md', 'claude-md');
+      const file = createMockFile('CLAUDE.md', 'project-memory');
 
       const { lastFrame } = render(
         <FileItem file={file} isSelected={false} isFocused={false} />,
       );
 
       expect(lastFrame()).toContain('test/CLAUDE.md'); // with parent directory
-      expect(lastFrame()).toContain('📝'); // claude-md icon
+      expect(lastFrame()).toContain('📝'); // project-memory icon
     });
 
     test('displays CLAUDE.local.md file', () => {
-      const file = createMockFile('CLAUDE.local.md', 'claude-local-md');
+      const file = createMockFile('CLAUDE.local.md', 'project-memory-local');
 
       const { lastFrame } = render(
         <FileItem file={file} isSelected={false} isFocused={false} />,
       );
 
-      expect(lastFrame()).toContain('test/CLAUDE.local.md'); // with parent directory
-      expect(lastFrame()).toContain('🔒'); // claude-local-md icon
+      expect(lastFrame()).toContain('test/CLAUDE.local.md');
+      expect(lastFrame()).toContain('🔒');
     });
 
     test('displays slash command file', () => {
-      const file = createMockFile('test-command.md', 'slash-command');
+      const file = createMockFile('test-command.md', 'project-command');
 
       const { lastFrame } = render(
         <FileItem file={file} isSelected={false} isFocused={false} />,
       );
 
       expect(lastFrame()).toContain('test-command'); // .md extension is removed
-      expect(lastFrame()).toContain('⚡'); // slash-command icon
+      expect(lastFrame()).toContain('⚡'); // project-command icon
     });
 
     test('displays selected state', () => {
-      const file = createMockFile('CLAUDE.md', 'claude-md');
+      const file = createMockFile('CLAUDE.md', 'project-memory');
 
       const { lastFrame } = render(
         <FileItem file={file} isSelected={true} isFocused={false} />,
@@ -66,7 +66,7 @@ if (import.meta.vitest) {
     });
 
     test('displays focused state', () => {
-      const file = createMockFile('CLAUDE.md', 'claude-md');
+      const file = createMockFile('CLAUDE.md', 'project-memory');
 
       const { lastFrame } = render(
         <FileItem file={file} isSelected={false} isFocused={true} />,
@@ -77,7 +77,7 @@ if (import.meta.vitest) {
     });
 
     test('displays selected and focused state', () => {
-      const file = createMockFile('CLAUDE.md', 'claude-md');
+      const file = createMockFile('CLAUDE.md', 'project-memory');
 
       const { lastFrame } = render(
         <FileItem file={file} isSelected={true} isFocused={true} />,

@@ -21,7 +21,7 @@ const convertSlashCommandToFileInfo = (
   command: SlashCommandInfo,
 ): ClaudeFileInfo => ({
   path: command.filePath,
-  type: 'slash-command' as const,
+  type: command.scope === 'user' ? 'personal-command' : 'project-command',
   size: 0, // No size information for slash commands
   lastModified: command.lastModified,
   commands: [
@@ -36,11 +36,11 @@ const convertSlashCommandToFileInfo = (
 
 const convertSubAgentToFileInfo = (agent: SubAgentInfo): ClaudeFileInfo => ({
   path: agent.filePath,
-  type: agent.scope === 'project' ? 'project-agent' : 'user-agent',
-  size: 0, // No size information for sub-agents
+  type: agent.scope === 'project' ? 'project-subagent' : 'user-subagent',
+  size: 0, // No size information for subagents
   lastModified: agent.lastModified,
-  commands: [], // No commands in sub-agents
-  tags: [], // No tags for sub-agents
+  commands: [], // No commands in subagents
+  tags: [], // No tags for subagents
 });
 
 type UseFileNavigationReturn = {
@@ -109,31 +109,51 @@ export function useFileNavigation(
         });
 
         // Create FileGroup array (in predefined order)
+        // User-first ordering: User configs → Project configs
         const orderedTypes: ClaudeFileType[] = [
-          'global-md',
-          'claude-md',
-          'claude-local-md',
-          'project-agent',
-          'user-agent',
-          'settings-json',
-          'settings-local-json',
-          'slash-command',
+          // User configurations
+          'user-memory',
+          'user-settings',
+          'personal-command',
+          'user-subagent',
+          // Project configurations
+          'project-memory',
+          'project-memory-local',
+          'project-settings',
+          'project-settings-local',
+          'project-command',
+          'project-subagent',
+          // Other
           'unknown',
         ];
+
+        // Create groups for all types except 'unknown', including empty groups
         const groups: FileGroup[] = orderedTypes
-          .filter((type) => groupedFiles[type] && groupedFiles[type].length > 0)
+          .filter((type) => type !== 'unknown') // exclude unknown
           .map((type) => ({
             type,
-            files: groupedFiles[type] || [],
-            isExpanded: true, // All expanded by default
+            files: groupedFiles[type] || [], // empty array if no files
+            isExpanded: !!groupedFiles[type] && groupedFiles[type].length > 0, // empty groups are not expandable
           }));
+
+        // Add unknown type at the end if it exists
+        if (groupedFiles.unknown && groupedFiles.unknown.length > 0) {
+          groups.push({
+            type: 'unknown',
+            files: groupedFiles.unknown,
+            isExpanded: true,
+          });
+        }
 
         setFileGroups(groups);
         setFiles(allFiles);
 
-        // Auto-select first file (first file of first group)
-        if (groups.length > 0 && groups[0] && groups[0].files.length > 0) {
-          const firstFile = groups[0].files[0];
+        // Auto-select first file from the first non-empty group
+        const firstNonEmptyGroup = groups.find(
+          (group) => group.files.length > 0,
+        );
+        if (firstNonEmptyGroup && firstNonEmptyGroup.files.length > 0) {
+          const firstFile = firstNonEmptyGroup.files[0];
           if (firstFile) {
             setSelectedFile(firstFile);
           }
