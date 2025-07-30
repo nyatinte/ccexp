@@ -4,16 +4,20 @@ import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { uniq } from 'es-toolkit/array';
 import { isError } from 'es-toolkit/predicate';
-import { CLAUDE_FILE_PATTERNS, FILE_SIZE_LIMITS } from './_consts.ts';
-import type { ClaudeFileInfo, ClaudeFileType, ScanOptions } from './_types.ts';
-import { createClaudeFilePath } from './_types.ts';
+import { CLAUDE_FILE_PATTERNS, FILE_SIZE_LIMITS } from '../lib/constants.js';
+import type {
+  ClaudeFileInfo,
+  ClaudeFileType,
+  ScanOptions,
+} from '../lib/types.js';
+import { createClaudeFilePath } from '../lib/types.js';
 import {
   detectClaudeFileType,
   extractCommandsFromContent,
   extractTagsFromContent,
   validateClaudeMdContent,
-} from './_utils.ts';
-import { BaseFileScanner } from './base-file-scanner.ts';
+} from '../lib/utils.js';
+import { BaseFileScanner } from './base-file-scanner.js';
 import { findClaudeFiles } from './fast-scanner.ts';
 
 export const scanClaudeFiles = async (
@@ -247,7 +251,7 @@ if (import.meta.vitest != null) {
     createComplexProjectFixture,
     withTempFixture,
     DEFAULT_CLAUDE_MD,
-  } = await import('./test-fixture-helpers.js');
+  } = await import('../test/utils/fixture-helpers.js');
 
   describe('getSearchPatterns', () => {
     test('should return all patterns when no type specified', () => {

@@ -5,7 +5,7 @@ import { useInput } from 'ink';
 import open from 'open';
 import openEditor from 'open-editor';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ClaudeFileInfo } from '../../../../_types.js';
+import type { ClaudeFileInfo } from '../../../../lib/types.js';
 import type { MenuAction } from '../types.js';
 
 type UseMenuProps = {

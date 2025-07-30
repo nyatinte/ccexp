@@ -2,13 +2,13 @@ import { StatusMessage } from '@inkjs/ui';
 import { Box, Static, Text } from 'ink';
 import type React from 'react';
 import { useMemo } from 'react';
-import type { CliOptions } from './_types.js';
 import { ErrorBoundary } from './components/ErrorBoundary.js';
 import { FileList } from './components/FileList/index.js';
 import { SplitPane } from './components/Layout/index.js';
 import { LoadingScreen } from './components/LoadingScreen.js';
 import { Preview } from './components/Preview/index.js';
 import { useFileNavigation } from './hooks/index.js';
+import type { CliOptions } from './lib/types.js';
 import { theme } from './styles/theme.js';
 
 type AppProps = {

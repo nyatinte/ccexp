@@ -7,12 +7,12 @@ import type {
   ClaudeFileType,
   FileGroup,
   FileScanner,
-} from '../_types.js';
-import { createClaudeFilePath } from '../_types.js';
-import { scanClaudeFiles } from '../claude-md-scanner.js';
-import { scanSettingsJson } from '../settings-json-scanner.js';
-import { scanSlashCommands } from '../slash-command-scanner.js';
-import { waitFor } from '../test-utils.js';
+} from '../lib/types.js';
+import { createClaudeFilePath } from '../lib/types.js';
+import { scanClaudeFiles } from '../scanners/claude-md-scanner.js';
+import { scanSettingsJson } from '../scanners/settings-json-scanner.js';
+import { scanSlashCommands } from '../scanners/slash-command-scanner.js';
+import { waitFor } from '../test/utils/test-utils.js';
 import { useFileNavigation } from './useFileNavigation.js';
 
 // Test component (for testing useFileNavigation)
@@ -62,7 +62,7 @@ if (import.meta.vitest) {
     createClaudeProjectFixture,
     createComplexProjectFixture,
     withTempFixture,
-  } = await import('../test-fixture-helpers.js');
+  } = await import('../test/utils/fixture-helpers.js');
   const { createFixture } = await import('fs-fixture');
 
   describe('useFileNavigation', () => {
@@ -377,7 +377,7 @@ if (import.meta.vitest) {
     test('slash commands are properly loaded', async () => {
       // Import the helper function
       const { createSlashCommandsFixture } = await import(
-        '../test-fixture-helpers.js'
+        '../test/utils/fixture-helpers.js'
       );
 
       await using fixture = await createSlashCommandsFixture();
@@ -424,7 +424,7 @@ if (import.meta.vitest) {
     test('handles mixed file types', async () => {
       // Import the helper function
       const { createMixedFilesFixture } = await import(
-        '../test-fixture-helpers.js'
+        '../test/utils/fixture-helpers.js'
       );
 
       await using fixture = await createMixedFilesFixture();
@@ -525,7 +525,7 @@ if (import.meta.vitest) {
     test('handles recursive directory scanning', async () => {
       // Import the helper function
       const { createNestedProjectFixture } = await import(
-        '../test-fixture-helpers.js'
+        '../test/utils/fixture-helpers.js'
       );
 
       await using fixture = await createNestedProjectFixture();

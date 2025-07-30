@@ -1,7 +1,7 @@
 import { Box, Text } from 'ink';
 import React from 'react';
 import { match } from 'ts-pattern';
-import type { ClaudeFileType } from '../../_types.js';
+import type { ClaudeFileType } from '../../lib/types.js';
 import { theme } from '../../styles/theme.js';
 
 type FileGroupProps = {

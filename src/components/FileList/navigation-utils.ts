@@ -1,6 +1,6 @@
 import { basename } from 'node:path';
 import { filter } from 'es-toolkit/compat';
-import type { ClaudeFileInfo, FileGroup, FlatItem } from '../../_types.js';
+import type { ClaudeFileInfo, FileGroup, FlatItem } from '../../lib/types.js';
 
 export const filterFileGroups = (
   fileGroups: FileGroup[],

@@ -1,5 +1,5 @@
 import { render } from 'ink-testing-library';
-import type { ClaudeFileType } from '../../_types.js';
+import type { ClaudeFileType } from '../../lib/types.js';
 import { FileGroup } from './FileGroup.js';
 
 if (import.meta.vitest) {

@@ -1,12 +1,12 @@
 import { render } from 'ink-testing-library';
-import { App } from './App.js';
-import { theme } from './styles/theme.js';
+import { App } from '../../App.js';
+import { theme } from '../../styles/theme.js';
 import {
   createE2ETestFixture,
   withE2ETestEnvironment,
-} from './test-fixture-helpers.js';
-import { createTestInteraction } from './test-interaction-helpers.js';
-import { waitForEffects } from './test-utils.js';
+} from '../utils/fixture-helpers.js';
+import { createTestInteraction } from '../utils/interaction-helpers.js';
+import { waitForEffects } from '../utils/test-utils.js';
 
 // Mock clipboardy with default export
 vi.mock('clipboardy', () => ({

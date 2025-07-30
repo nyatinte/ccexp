@@ -1,9 +1,9 @@
 import type { Stats } from 'node:fs';
 import { homedir } from 'node:os';
 import matter from 'gray-matter';
-import { FILE_SIZE_LIMITS } from './_consts.ts';
-import type { ScanOptions, SubAgentInfo } from './_types.ts';
-import { BaseFileScanner } from './base-file-scanner.ts';
+import { FILE_SIZE_LIMITS } from '../lib/constants.js';
+import type { ScanOptions, SubAgentInfo } from '../lib/types.js';
+import { BaseFileScanner } from './base-file-scanner.js';
 import { findSubAgents } from './fast-scanner.ts';
 
 class SubAgentScanner extends BaseFileScanner<SubAgentInfo> {
@@ -70,7 +70,7 @@ export const scanSubAgents = async (
 // InSource tests
 if (import.meta.vitest != null) {
   const { describe, test, expect } = import.meta.vitest;
-  const { withTempFixture } = await import('./test-fixture-helpers.js');
+  const { withTempFixture } = await import('../test/utils/fixture-helpers.js');
 
   describe('subagent-scanner', () => {
     test('should parse valid subagent file with frontmatter', async () => {
