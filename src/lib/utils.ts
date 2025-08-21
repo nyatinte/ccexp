@@ -1,8 +1,8 @@
 import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { match, P } from 'ts-pattern';
-import type { ClaudeFilePath, ClaudeFileType } from './_types.ts';
-import { createClaudeFilePath } from './_types.ts';
+import type { ClaudeFilePath, ClaudeFileType } from './types.js';
+import { createClaudeFilePath } from './types.js';
 
 const HOME_DIR = homedir();
 
@@ -159,7 +159,7 @@ export const isBinaryFile = async (filePath: string): Promise<boolean> => {
 if (import.meta.vitest != null) {
   const { describe, test, expect } = import.meta.vitest;
   const { createClaudeProjectFixture, testWithFixture } = await import(
-    './test-fixture-helpers.js'
+    '../test/utils/fixture-helpers.js'
   );
 
   describe('parseSlashCommandName', () => {

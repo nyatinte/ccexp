@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { clearFixtureCache } from './test-fixture-helpers.js';
+import { clearFixtureCache } from './utils/fixture-helpers.js';
 
 // Global mock setup for external dependencies
 

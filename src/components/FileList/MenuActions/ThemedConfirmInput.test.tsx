@@ -1,7 +1,7 @@
 import { render } from 'ink-testing-library';
 import { vi } from 'vitest';
-import { keyboard } from '../../../test-keyboard-helpers.js';
-import { waitFor, waitForEffects } from '../../../test-utils.js';
+import { keyboard } from '../../../test/utils/keyboard-helpers.js';
+import { waitFor, waitForEffects } from '../../../test/utils/test-utils.js';
 import { ThemedConfirmInput } from './ThemedConfirmInput.js';
 
 if (import.meta.vitest) {

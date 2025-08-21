@@ -10,8 +10,8 @@ import type {
   ScanOptions,
   SlashCommandInfo,
   SubAgentInfo,
-} from '../_types.js';
-import { defaultScanner } from '../default-scanner.js';
+} from '../lib/types.js';
+import { defaultScanner } from '../scanners/default-scanner.js';
 
 // Union type to unify ClaudeFileInfo and SlashCommandInfo
 type NavigationFile = ClaudeFileInfo;

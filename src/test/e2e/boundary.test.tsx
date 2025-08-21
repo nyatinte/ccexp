@@ -1,13 +1,16 @@
 import { join } from 'node:path';
 import { render } from 'ink-testing-library';
-import type { ClaudeFileInfo, FileGroup } from './_types.js';
-import { createClaudeFilePath } from './_types.js';
-import { App } from './App.js';
-import { FileList } from './components/FileList/FileList.js';
-import { withTempFixture } from './test-fixture-helpers.js';
-import { createTestInteraction } from './test-interaction-helpers.js';
-import { typeText } from './test-keyboard-helpers.js';
-import { waitFor, waitForEffects } from './test-utils.js';
+import { App } from '../../App.js';
+import { FileList } from '../../components/FileList/FileList.js';
+import {
+  type ClaudeFileInfo,
+  createClaudeFilePath,
+  type FileGroup,
+} from '../../lib/types.js';
+import { withTempFixture } from '../utils/fixture-helpers.js';
+import { createTestInteraction } from '../utils/interaction-helpers.js';
+import { typeText } from '../utils/keyboard-helpers.js';
+import { waitFor, waitForEffects } from '../utils/test-utils.js';
 
 if (import.meta.vitest) {
   const { describe, test, expect } = import.meta.vitest;

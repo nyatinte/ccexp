@@ -1,11 +1,11 @@
 import { join } from 'node:path';
 import { render } from 'ink-testing-library';
-import type { ClaudeFileInfo } from '../../_types.js';
-import { createClaudeFilePath } from '../../_types.js';
+import type { ClaudeFileInfo } from '../../lib/types.js';
+import { createClaudeFilePath } from '../../lib/types.js';
 import {
   DEFAULT_CLAUDE_MD,
   withTempFixture,
-} from '../../test-fixture-helpers.js';
+} from '../../test/utils/fixture-helpers.js';
 import { Preview } from './Preview.js';
 
 if (import.meta.vitest) {

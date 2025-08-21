@@ -1,11 +1,10 @@
 import { join } from 'node:path';
 import { render } from 'ink-testing-library';
-import type { ClaudeFileInfo } from '../../_types.js';
-import { createClaudeFilePath } from '../../_types.js';
-import { withCachedReadOnlyFixture } from '../../test-fixture-helpers.js';
-import { createTestInteraction } from '../../test-interaction-helpers.js';
-import { keyboard } from '../../test-keyboard-helpers.js';
-import { waitFor } from '../../test-utils.js';
+import { type ClaudeFileInfo, createClaudeFilePath } from '../../lib/types.js';
+import { withCachedReadOnlyFixture } from '../../test/utils/fixture-helpers.js';
+import { createTestInteraction } from '../../test/utils/interaction-helpers.js';
+import { keyboard } from '../../test/utils/keyboard-helpers.js';
+import { waitFor } from '../../test/utils/test-utils.js';
 import { MenuActions } from './MenuActions/index.js';
 
 if (import.meta.vitest) {

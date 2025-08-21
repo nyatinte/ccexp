@@ -1,9 +1,9 @@
 import type { Stats } from 'node:fs';
-import type { ClaudeFileInfo, ScanOptions } from './_types.ts';
-import { createClaudeFilePath } from './_types.ts';
-import { detectClaudeFileType } from './_utils.ts';
-import { BaseFileScanner } from './base-file-scanner.ts';
-import { findSettingsJson } from './fast-scanner.ts';
+import type { ClaudeFileInfo, ScanOptions } from '../lib/types.js';
+import { createClaudeFilePath } from '../lib/types.js';
+import { detectClaudeFileType } from '../lib/utils.js';
+import { BaseFileScanner } from './base-file-scanner.js';
+import { findSettingsJson } from './fast-scanner.js';
 
 /**
  * Settings JSON scanner for parsing .claude/project/settings.json files

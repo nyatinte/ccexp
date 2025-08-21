@@ -4,7 +4,7 @@ import { Badge } from '@inkjs/ui';
 import { Box, Text } from 'ink';
 import React from 'react';
 import { match, P } from 'ts-pattern';
-import type { ClaudeFileInfo } from '../../_types.js';
+import type { ClaudeFileInfo } from '../../lib/types.js';
 import { theme } from '../../styles/theme.js';
 
 type FileItemProps = {
