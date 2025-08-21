@@ -2,13 +2,13 @@ import { delay } from 'es-toolkit/promise';
 import { Text } from 'ink';
 import { render } from 'ink-testing-library';
 import React from 'react';
-import type {
-  ClaudeFileInfo,
-  ClaudeFileType,
-  FileGroup,
-  FileScanner,
+import {
+  type ClaudeFileInfo,
+  type ClaudeFileType,
+  createClaudeFilePath,
+  type FileGroup,
+  type FileScanner,
 } from '../lib/types.js';
-import { createClaudeFilePath } from '../lib/types.js';
 import { scanClaudeFiles } from '../scanners/claude-md-scanner.js';
 import { scanSettingsJson } from '../scanners/settings-json-scanner.js';
 import { scanSlashCommands } from '../scanners/slash-command-scanner.js';

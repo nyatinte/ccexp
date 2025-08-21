@@ -4,9 +4,9 @@ import { scanSettingsJson } from './settings-json-scanner.js';
 import { scanSlashCommands } from './slash-command-scanner.js';
 import { scanSubAgents } from './subagent-scanner.js';
 
-export const defaultScanner: FileScanner = {
+export const defaultScanner = {
   scanClaudeFiles,
   scanSlashCommands,
   scanSubAgents,
   scanSettingsJson,
-} as const;
+} satisfies FileScanner;

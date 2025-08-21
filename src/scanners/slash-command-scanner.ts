@@ -9,7 +9,7 @@ import type { ScanOptions, SlashCommandInfo } from '../lib/types.js';
 import { createClaudeFilePath } from '../lib/types.js';
 import { getFileScope, parseSlashCommandName } from '../lib/utils.js';
 import { BaseFileScanner } from './base-file-scanner.js';
-import { findSlashCommands } from './fast-scanner.ts';
+import { findSlashCommands } from './fast-scanner.js';
 
 export const scanSlashCommands = async (
   options: ScanOptions = {},

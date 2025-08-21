@@ -32,7 +32,7 @@ const CliOptionsSchema = z.object({
 });
 
 const rawOptions = program.opts();
-const options = CliOptionsSchema.parse(rawOptions) as CliOptions;
+const options: CliOptions = CliOptionsSchema.parse(rawOptions);
 
 // Render React app (interactive mode)
 render(<App cliOptions={options} />);

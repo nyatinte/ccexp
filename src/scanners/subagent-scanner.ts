@@ -4,7 +4,7 @@ import matter from 'gray-matter';
 import { FILE_SIZE_LIMITS } from '../lib/constants.js';
 import type { ScanOptions, SubAgentInfo } from '../lib/types.js';
 import { BaseFileScanner } from './base-file-scanner.js';
-import { findSubAgents } from './fast-scanner.ts';
+import { findSubAgents } from './fast-scanner.js';
 
 class SubAgentScanner extends BaseFileScanner<SubAgentInfo> {
   protected readonly maxFileSize = FILE_SIZE_LIMITS.MAX_SUBAGENT_SIZE;

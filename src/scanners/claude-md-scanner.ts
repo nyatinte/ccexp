@@ -18,7 +18,7 @@ import {
   validateClaudeMdContent,
 } from '../lib/utils.js';
 import { BaseFileScanner } from './base-file-scanner.js';
-import { findClaudeFiles } from './fast-scanner.ts';
+import { findClaudeFiles } from './fast-scanner.js';
 
 export const scanClaudeFiles = async (
   options: ScanOptions = {},

@@ -1,7 +1,10 @@
 import { join } from 'node:path';
 import { render } from 'ink-testing-library';
-import type { ClaudeFileInfo, FileGroup } from '../../lib/types.js';
-import { createClaudeFilePath } from '../../lib/types.js';
+import {
+  type ClaudeFileInfo,
+  createClaudeFilePath,
+  type FileGroup,
+} from '../../lib/types.js';
 import {
   createComplexProjectFixture,
   withTempFixture,

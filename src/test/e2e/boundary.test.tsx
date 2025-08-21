@@ -2,8 +2,11 @@ import { join } from 'node:path';
 import { render } from 'ink-testing-library';
 import { App } from '../../App.js';
 import { FileList } from '../../components/FileList/FileList.js';
-import type { ClaudeFileInfo, FileGroup } from '../../lib/types.js';
-import { createClaudeFilePath } from '../../lib/types.js';
+import {
+  type ClaudeFileInfo,
+  createClaudeFilePath,
+  type FileGroup,
+} from '../../lib/types.js';
 import { withTempFixture } from '../utils/fixture-helpers.js';
 import { createTestInteraction } from '../utils/interaction-helpers.js';
 import { typeText } from '../utils/keyboard-helpers.js';

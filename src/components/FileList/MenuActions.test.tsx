@@ -1,7 +1,6 @@
 import { join } from 'node:path';
 import { render } from 'ink-testing-library';
-import type { ClaudeFileInfo } from '../../lib/types.js';
-import { createClaudeFilePath } from '../../lib/types.js';
+import { type ClaudeFileInfo, createClaudeFilePath } from '../../lib/types.js';
 import { withCachedReadOnlyFixture } from '../../test/utils/fixture-helpers.js';
 import { createTestInteraction } from '../../test/utils/interaction-helpers.js';
 import { keyboard } from '../../test/utils/keyboard-helpers.js';

@@ -3,7 +3,7 @@ import type { ClaudeFileInfo, ScanOptions } from '../lib/types.js';
 import { createClaudeFilePath } from '../lib/types.js';
 import { detectClaudeFileType } from '../lib/utils.js';
 import { BaseFileScanner } from './base-file-scanner.js';
-import { findSettingsJson } from './fast-scanner.ts';
+import { findSettingsJson } from './fast-scanner.js';
 
 /**
  * Settings JSON scanner for parsing .claude/project/settings.json files
