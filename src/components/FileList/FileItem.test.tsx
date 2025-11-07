@@ -1,6 +1,6 @@
 import { render } from 'ink-testing-library';
-import type { ClaudeFileInfo } from '../../_types.js';
-import { createClaudeFilePath } from '../../_types.js';
+import type { ClaudeFileInfo } from '../../lib/types.js';
+import { createClaudeFilePath } from '../../lib/types.js';
 import { FileItem } from './FileItem.js';
 
 // Helper to create ClaudeFileInfo for testing
