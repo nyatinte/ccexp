@@ -227,6 +227,30 @@ export const useMenu = ({ file, onClose }: UseMenuProps) => {
           return '✅ File opened';
         },
       },
+      {
+        key: 'x',
+        label: 'Delete File',
+        description: 'Delete file (requires confirmation)',
+        action: async () => {
+          const fs = await import('node:fs/promises');
+
+          // The actual deletion operation
+          const performDelete = async () => {
+            await fs.unlink(file.path);
+            return `✅ File deleted: ${basename(file.path)}`;
+          };
+
+          // Always require confirmation for deletion
+          setConfirmMessage(
+            `Are you sure you want to delete "${basename(file.path)}"? This action cannot be undone.`,
+          );
+          setIsConfirming(true);
+          setPendingAction(() => performDelete);
+
+          // Return early, action will be executed after confirmation
+          return '';
+        },
+      },
     ],
     [file.path, file.type, copyToClipboard, openFile, editFile],
   );
