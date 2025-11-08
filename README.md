@@ -176,6 +176,7 @@ ccexp --path ~/workspace   # Specific directory
 - **d** - Copy file to current directory (in menu)
 - **e** - Edit file with $EDITOR (in menu)
 - **o** - Open file in default application (in menu)
+- **x** - Delete file (in menu, requires confirmation)
 
 ## Development
 

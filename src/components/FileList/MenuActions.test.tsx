@@ -54,6 +54,7 @@ if (import.meta.vitest) {
           expect(lastFrame()).toContain('[D] Copy to Current Directory');
           expect(lastFrame()).toContain('[E] Edit File');
           expect(lastFrame()).toContain('[O] Open File');
+          expect(lastFrame()).toContain('[X] Delete File');
         },
       );
     });
@@ -157,13 +158,14 @@ if (import.meta.vitest) {
             <MenuActions file={file} onClose={onClose} />,
           );
 
-          // Verify 6 actions are present
+          // Verify 7 actions are present
           expect(lastFrame()).toContain('[C] Copy Content');
           expect(lastFrame()).toContain('[P] Copy Path (Absolute)');
           expect(lastFrame()).toContain('[R] Copy Path (Relative)');
           expect(lastFrame()).toContain('[D] Copy to Current Directory');
           expect(lastFrame()).toContain('[E] Edit File');
           expect(lastFrame()).toContain('[O] Open File');
+          expect(lastFrame()).toContain('[X] Delete File');
         },
       );
     });
@@ -225,6 +227,7 @@ if (import.meta.vitest) {
             output?.indexOf('[D] Copy to Current Directory') ?? -1;
           const editFileIndex = output?.indexOf('[E] Edit File') ?? -1;
           const openFileIndex = output?.indexOf('[O] Open File') ?? -1;
+          const deleteFileIndex = output?.indexOf('[X] Delete File') ?? -1;
 
           expect(copyContentIndex).toBeGreaterThan(-1);
           expect(copyAbsoluteIndex).toBeGreaterThan(copyContentIndex);
@@ -232,6 +235,7 @@ if (import.meta.vitest) {
           expect(copyDirIndex).toBeGreaterThan(copyRelativeIndex);
           expect(editFileIndex).toBeGreaterThan(copyDirIndex);
           expect(openFileIndex).toBeGreaterThan(editFileIndex);
+          expect(deleteFileIndex).toBeGreaterThan(openFileIndex);
         },
       );
     });
@@ -378,6 +382,7 @@ if (import.meta.vitest) {
           expect(output).toContain('Copy to Current Directory');
           expect(output).toContain('Edit File');
           expect(output).toContain('Open File');
+          expect(output).toContain('Delete File');
         },
       );
     });
@@ -410,6 +415,7 @@ if (import.meta.vitest) {
           expect(output).toContain('[D]');
           expect(output).toContain('[E]');
           expect(output).toContain('[O]');
+          expect(output).toContain('[X]');
         },
       );
     });
