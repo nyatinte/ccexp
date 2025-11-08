@@ -1,8 +1,8 @@
 ---
-allowed-tools: Bash(git:*), Bash(gh pr list:*), Bash(gh pr view:*), Bash(gh repo view:*), Read(.github/PULL_REQUEST_TEMPLATE.md), Write(pr.md)
+allowed-tools: Bash(git:*), Bash(gh pr list:*), Bash(gh pr view:*), Bash(gh repo view:*), Read(.github/PULL_REQUEST_TEMPLATE.md), Write(PR.md), Edit(PR.md)
 denied-tools: Bash(gh pr create:*), Bash(gh pr edit:*)
 argument-hint: [additional instructions]
-description: Draft PR content and write to pr.md file
+description: Draft PR content and write to PR.md file
 ---
 
 Draft PR content with the following additional instructions: $ARGUMENTS
@@ -16,7 +16,7 @@ Draft PR content with the following additional instructions: $ARGUMENTS
 
 ## Your task
 
-Create a PR draft in `pr.md` file based on the current branch changes.
+Create a PR draft in `PR.md` file based on the current branch changes.
 
 ## Steps
 
@@ -45,7 +45,7 @@ Create a PR draft in `pr.md` file based on the current branch changes.
    - Get detailed diff if needed: `git diff origin/main..HEAD --stat`
    - Understand the overall purpose of changes
 
-6. **Create pr.md file**:
+6. **Create PR.md file**:
    - Follow the template structure (Summary, Why, Changes with AS-IS/TO-BE)
    - Write clear title (first line)
    - Write comprehensive description (rest of file)
@@ -53,13 +53,13 @@ Create a PR draft in `pr.md` file based on the current branch changes.
    - Include all relevant context
 
 7. **Show draft to user**:
-   - Display the created `pr.md` content
-   - Inform user they can edit `pr.md` before creating the PR
+   - Display the created `PR.md` content
+   - Inform user they can edit `PR.md` before creating the PR
    - Suggest using `/create-pr` command next
 
 ## Important Notes
 
-- **DO NOT create the actual PR** - only draft the content in pr.md
+- **DO NOT create the actual PR** - only draft the content in PR.md
 - Follow the repository's existing PR style and language
-- Ensure pr.md follows the template format (Summary/Why/Changes)
+- Ensure PR.md follows the template format (Summary/Why/Changes)
 - Make the description comprehensive but concise
