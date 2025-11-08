@@ -46,4 +46,7 @@ Thumbs.db
 
 # Vive Coding
 CLAUDE.local.md
-.claude
+.claude/*
+!.claude/commands/
+!.claude/agents/
+!.claude/settings.json
