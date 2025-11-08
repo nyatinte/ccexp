@@ -1,11 +1,11 @@
 import { Box, Text, useInput } from 'ink';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useVirtualScroll } from '../../hooks/index.js';
 import type {
   ClaudeFileInfo,
   ClaudeFileType,
   FileGroup,
-} from '../../_types.js';
-import { useVirtualScroll } from '../../hooks/index.js';
+} from '../../lib/types.js';
 import { theme } from '../../styles/theme.js';
 import { FileGroup as FileGroupComponent } from './FileGroup.js';
 import { FileItem } from './FileItem.js';

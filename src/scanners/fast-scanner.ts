@@ -2,8 +2,8 @@ import { homedir } from 'node:os';
 import { basename } from 'node:path';
 import { fdir } from 'fdir';
 import type { FileTree } from 'fs-fixture';
-import type { ScanOptions } from './_types.ts';
-import { DEFAULT_EXCLUSIONS } from './scan-exclusions.ts';
+import type { ScanOptions } from '../lib/types.js';
+import { DEFAULT_EXCLUSIONS } from './scan-exclusions.js';
 
 type CrawlerOptions = {
   readonly includeHidden: boolean;
@@ -205,7 +205,7 @@ if (import.meta.vitest != null) {
     createComplexProjectFixture,
     withTempFixture,
     DEFAULT_CLAUDE_MD,
-  } = await import('./test-fixture-helpers.js');
+  } = await import('../test/utils/fixture-helpers.js');
 
   describe('fast-scanner', () => {
     test('should be available after installation', async () => {

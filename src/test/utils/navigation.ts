@@ -1,4 +1,4 @@
-import { keyboard } from './test-keyboard-helpers.js';
+import { keyboard } from './keyboard-helpers.js';
 import { waitForEffects } from './test-utils.js';
 
 type TestStdin = { write: (data: string) => void };

@@ -4,12 +4,12 @@ import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { truncate } from 'es-toolkit/compat';
 import { isError } from 'es-toolkit/predicate';
-import { FILE_SIZE_LIMITS } from './_consts.ts';
-import type { ScanOptions, SlashCommandInfo } from './_types.ts';
-import { createClaudeFilePath } from './_types.ts';
-import { getFileScope, parseSlashCommandName } from './_utils.ts';
-import { BaseFileScanner } from './base-file-scanner.ts';
-import { findSlashCommands } from './fast-scanner.ts';
+import { FILE_SIZE_LIMITS } from '../lib/constants.js';
+import type { ScanOptions, SlashCommandInfo } from '../lib/types.js';
+import { createClaudeFilePath } from '../lib/types.js';
+import { getFileScope, parseSlashCommandName } from '../lib/utils.js';
+import { BaseFileScanner } from './base-file-scanner.js';
+import { findSlashCommands } from './fast-scanner.js';
 
 export const scanSlashCommands = async (
   options: ScanOptions = {},

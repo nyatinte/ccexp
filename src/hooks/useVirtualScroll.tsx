@@ -1,7 +1,7 @@
 import { useStdout } from 'ink';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { match, P } from 'ts-pattern';
-import type { FlatItem } from '../_types.js';
+import type { FlatItem } from '../lib/types.js';
 
 // Viewport height constants
 const MIN_VIEWPORT_HEIGHT = 5;

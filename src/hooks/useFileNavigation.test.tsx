@@ -2,17 +2,17 @@ import { delay } from 'es-toolkit/promise';
 import { Text } from 'ink';
 import { render } from 'ink-testing-library';
 import React from 'react';
-import type {
-  ClaudeFileInfo,
-  ClaudeFileType,
-  FileGroup,
-  FileScanner,
-} from '../_types.js';
-import { createClaudeFilePath } from '../_types.js';
-import { scanClaudeFiles } from '../claude-md-scanner.js';
-import { scanSettingsJson } from '../settings-json-scanner.js';
-import { scanSlashCommands } from '../slash-command-scanner.js';
-import { waitFor } from '../test-utils.js';
+import {
+  type ClaudeFileInfo,
+  type ClaudeFileType,
+  createClaudeFilePath,
+  type FileGroup,
+  type FileScanner,
+} from '../lib/types.js';
+import { scanClaudeFiles } from '../scanners/claude-md-scanner.js';
+import { scanSettingsJson } from '../scanners/settings-json-scanner.js';
+import { scanSlashCommands } from '../scanners/slash-command-scanner.js';
+import { waitFor } from '../test/utils/test-utils.js';
 import { useFileNavigation } from './useFileNavigation.js';
 
 // Test component (for testing useFileNavigation)
@@ -62,7 +62,7 @@ if (import.meta.vitest) {
     createClaudeProjectFixture,
     createComplexProjectFixture,
     withTempFixture,
-  } = await import('../test-fixture-helpers.js');
+  } = await import('../test/utils/fixture-helpers.js');
   const { createFixture } = await import('fs-fixture');
 
   describe('useFileNavigation', () => {
@@ -361,7 +361,7 @@ if (import.meta.vitest) {
     test('slash commands are properly loaded', async () => {
       // Import the helper function
       const { createSlashCommandsFixture } = await import(
-        '../test-fixture-helpers.js'
+        '../test/utils/fixture-helpers.js'
       );
 
       await using fixture = await createSlashCommandsFixture();
@@ -405,7 +405,7 @@ if (import.meta.vitest) {
     test('handles mixed file types', async () => {
       // Import the helper function
       const { createMixedFilesFixture } = await import(
-        '../test-fixture-helpers.js'
+        '../test/utils/fixture-helpers.js'
       );
 
       await using fixture = await createMixedFilesFixture();
@@ -500,7 +500,7 @@ if (import.meta.vitest) {
     test('handles recursive directory scanning', async () => {
       // Import the helper function
       const { createNestedProjectFixture } = await import(
-        '../test-fixture-helpers.js'
+        '../test/utils/fixture-helpers.js'
       );
 
       await using fixture = await createNestedProjectFixture();

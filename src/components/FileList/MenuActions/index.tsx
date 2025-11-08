@@ -1,6 +1,6 @@
 import { Box } from 'ink';
 import type React from 'react';
-import type { ClaudeFileInfo } from '../../../_types.js';
+import type { ClaudeFileInfo } from '../../../lib/types.js';
 import { Footer } from './Footer.js';
 import { Header } from './Header.js';
 import { useMenu } from './hooks/useMenu.js';

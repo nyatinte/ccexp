@@ -5,8 +5,8 @@ import matter from 'gray-matter';
 import { Box, Text } from 'ink';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import type { ClaudeFileInfo } from '../../_types.js';
-import { isBinaryFile } from '../../_utils.js';
+import type { ClaudeFileInfo } from '../../lib/types.js';
+import { isBinaryFile } from '../../lib/utils.js';
 import { theme } from '../../styles/theme.js';
 import { MarkdownPreview } from './MarkdownPreview.js';
 

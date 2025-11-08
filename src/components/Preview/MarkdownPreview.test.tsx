@@ -1,5 +1,5 @@
 import { render } from 'ink-testing-library';
-import { createMockFileContent } from '../../test-fixture-helpers.js';
+import { createMockFileContent } from '../../test/utils/fixture-helpers.js';
 import { MarkdownPreview } from './MarkdownPreview.js';
 
 if (import.meta.vitest) {
