@@ -26,7 +26,7 @@ function TestComponent({
   onFilesLoaded?: (files: ClaudeFileInfo[]) => void;
 }) {
   const { files, selectedFile, isLoading, error } = useFileNavigation(
-    { recursive: false },
+    {},
     scanner,
   );
 
@@ -80,20 +80,17 @@ if (import.meta.vitest) {
           scanClaudeFiles({
             ...options,
             path: fixture.getPath('test-project'),
-            recursive: false,
           }),
         scanSlashCommands: (options) =>
           scanSlashCommands({
             ...options,
             path: fixture.getPath('test-project'),
-            recursive: false,
           }),
         scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
             path: fixture.getPath('test-project'),
-            recursive: false,
           }),
       };
 
@@ -175,20 +172,17 @@ if (import.meta.vitest) {
           scanClaudeFiles({
             ...options,
             path: fixture.getPath('accessible'),
-            recursive: false,
           }),
         scanSlashCommands: (options) =>
           scanSlashCommands({
             ...options,
             path: fixture.getPath('accessible'),
-            recursive: false,
           }),
         scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
             path: fixture.getPath('accessible'),
-            recursive: false,
           }),
       };
 
@@ -224,20 +218,17 @@ if (import.meta.vitest) {
               scanClaudeFiles({
                 ...options,
                 path: f.getPath('empty-project'),
-                recursive: false,
               }),
             scanSlashCommands: (options) =>
               scanSlashCommands({
                 ...options,
                 path: f.getPath('empty-project'),
-                recursive: false,
               }),
             scanSubAgents: async () => [], // No subagents in test
             scanSettingsJson: (options) =>
               scanSettingsJson({
                 ...options,
                 path: f.getPath('empty-project'),
-                recursive: false,
               }),
           };
 
@@ -274,20 +265,17 @@ if (import.meta.vitest) {
           scanClaudeFiles({
             ...options,
             path: fixture.getPath('my-app'),
-            recursive: false,
           }),
         scanSlashCommands: (options) =>
           scanSlashCommands({
             ...options,
             path: fixture.getPath('my-app'),
-            recursive: false,
           }),
         scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
             path: fixture.getPath('my-app'),
-            recursive: false,
           }),
       };
 
@@ -329,14 +317,12 @@ if (import.meta.vitest) {
           const localFiles = await scanClaudeFiles({
             ...options,
             path: fixture.getPath('project'),
-            recursive: false,
           });
 
           // Scan global files
           const globalFiles = await scanClaudeFiles({
             ...options,
             path: fixture.getPath('.claude'),
-            recursive: false,
           });
 
           // Combine results
@@ -346,14 +332,12 @@ if (import.meta.vitest) {
           scanSlashCommands({
             ...options,
             path: fixture.getPath('project'),
-            recursive: false,
           }),
         scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
             path: fixture.getPath('project'),
-            recursive: false,
           }),
       };
 
@@ -388,20 +372,17 @@ if (import.meta.vitest) {
           scanClaudeFiles({
             ...options,
             path: fixture.getPath('slash-project'),
-            recursive: false,
           }),
         scanSlashCommands: (options) =>
           scanSlashCommands({
             ...options,
             path: fixture.getPath('slash-project'),
-            recursive: false,
           }),
         scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
             path: fixture.getPath('slash-project'),
-            recursive: false,
           }),
       };
 
@@ -435,20 +416,17 @@ if (import.meta.vitest) {
           scanClaudeFiles({
             ...options,
             path: fixture.getPath('mixed-project'),
-            recursive: false,
           }),
         scanSlashCommands: (options) =>
           scanSlashCommands({
             ...options,
             path: fixture.getPath('mixed-project'),
-            recursive: false,
           }),
         scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
             path: fixture.getPath('mixed-project'),
-            recursive: false,
           }),
       };
 
@@ -480,20 +458,17 @@ if (import.meta.vitest) {
           scanClaudeFiles({
             ...options,
             path: fixture.getPath('update-test'),
-            recursive: false,
           }),
         scanSlashCommands: (options) =>
           scanSlashCommands({
             ...options,
             path: fixture.getPath('update-test'),
-            recursive: false,
           }),
         scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
             path: fixture.getPath('update-test'),
-            recursive: false,
           }),
       };
 
@@ -536,20 +511,17 @@ if (import.meta.vitest) {
           scanClaudeFiles({
             ...options,
             path: fixture.getPath('nested-project'),
-            recursive: true, // This test specifically tests recursive scanning
           }),
         scanSlashCommands: (options) =>
           scanSlashCommands({
             ...options,
             path: fixture.getPath('nested-project'),
-            recursive: true, // This test specifically tests recursive scanning
           }),
         scanSubAgents: async () => [], // No subagents in test
         scanSettingsJson: (options) =>
           scanSettingsJson({
             ...options,
             path: fixture.getPath('nested-project'),
-            recursive: true, // This test specifically tests recursive scanning
           }),
       };
 
@@ -628,10 +600,7 @@ if (import.meta.vitest) {
 
       // Create a test component that captures fileGroups
       function TestEmptyGroupsComponent({ scanner }: { scanner: FileScanner }) {
-        const { fileGroups, isLoading, error } = useFileNavigation(
-          { recursive: false },
-          scanner,
-        );
+        const { fileGroups, isLoading, error } = useFileNavigation({}, scanner);
 
         React.useEffect(() => {
           if (!isLoading) {
@@ -857,10 +826,7 @@ if (import.meta.vitest) {
 
       // Create a test component that captures fileGroups
       function TestGroupOrderComponent({ scanner }: { scanner: FileScanner }) {
-        const { fileGroups, isLoading, error } = useFileNavigation(
-          { recursive: false },
-          scanner,
-        );
+        const { fileGroups, isLoading, error } = useFileNavigation({}, scanner);
 
         React.useEffect(() => {
           if (!isLoading) {

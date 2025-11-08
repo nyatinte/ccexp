@@ -7,7 +7,6 @@ import { DEFAULT_EXCLUSIONS } from './scan-exclusions.js';
 
 type CrawlerOptions = {
   readonly includeHidden: boolean;
-  readonly recursive: boolean;
   readonly maxDepth: number;
 };
 
@@ -37,9 +36,7 @@ const createBaseCrawler = (options: CrawlerOptions): fdir => {
     return false;
   });
 
-  return options.recursive
-    ? crawler.withMaxDepth(options.maxDepth)
-    : crawler.withMaxDepth(options.maxDepth);
+  return crawler.withMaxDepth(options.maxDepth);
 };
 
 /**
@@ -50,16 +47,11 @@ const createBaseCrawler = (options: CrawlerOptions): fdir => {
 export const findClaudeFiles = async (
   options: ScanOptions = {},
 ): Promise<string[]> => {
-  const {
-    path = process.cwd(),
-    recursive = true,
-    includeHidden = false,
-  } = options;
+  const { path = homedir(), includeHidden = false } = options;
 
   const crawler = createBaseCrawler({
     includeHidden,
-    recursive,
-    maxDepth: recursive ? 20 : 1,
+    maxDepth: 20, // Always scan deeply
   }).filter((filePath) => {
     const fileName = basename(filePath);
     return CLAUDE_FILE_REGEX.test(fileName);
@@ -84,16 +76,11 @@ export const findClaudeFiles = async (
 export const findSlashCommands = async (
   options: ScanOptions = {},
 ): Promise<string[]> => {
-  const {
-    path = process.cwd(),
-    recursive = true,
-    includeHidden = false,
-  } = options;
+  const { path = homedir(), includeHidden = false } = options;
 
   const crawler = createBaseCrawler({
     includeHidden,
-    recursive,
-    maxDepth: recursive ? 20 : 3,
+    maxDepth: 20,
   }).filter((filePath) => {
     return (
       (filePath.includes('/.claude/commands/') ||
@@ -121,18 +108,13 @@ export const findSlashCommands = async (
 export const findSubAgents = async (
   options: ScanOptions = {},
 ): Promise<string[]> => {
-  const {
-    path = process.cwd(),
-    recursive = true,
-    includeHidden = false,
-  } = options;
+  const { path = homedir(), includeHidden = false } = options;
 
   const results: string[] = [];
 
   const projectCrawler = createBaseCrawler({
     includeHidden,
-    recursive,
-    maxDepth: recursive ? 20 : 4,
+    maxDepth: 20,
   }).filter((filePath) => {
     return filePath.includes('/.claude/agents/') && filePath.endsWith('.md');
   });
@@ -167,16 +149,11 @@ export const findSubAgents = async (
 export const findSettingsJson = async (
   options: ScanOptions = {},
 ): Promise<string[]> => {
-  const {
-    path = process.cwd(),
-    recursive = true,
-    includeHidden = false,
-  } = options;
+  const { path = homedir(), includeHidden = false } = options;
 
   const crawler = createBaseCrawler({
     includeHidden,
-    recursive,
-    maxDepth: recursive ? 20 : 4,
+    maxDepth: 20,
   }).filter((filePath) => {
     // Look for settings.json or settings.local.json in .claude directories
     const fileName = basename(filePath);
@@ -249,7 +226,6 @@ if (import.meta.vitest != null) {
 
       const files = await findClaudeFiles({
         path: fixture.getPath('scanner-test'),
-        recursive: false,
       });
 
       expect(Array.isArray(files)).toBe(true);
@@ -262,7 +238,7 @@ if (import.meta.vitest != null) {
       ).toBe(true);
     });
 
-    test('should respect recursive option with nested structure', async () => {
+    test('should find files in nested structure', async () => {
       await using _fixture = await withTempFixture(
         {
           project: {
@@ -275,18 +251,12 @@ if (import.meta.vitest != null) {
           },
         },
         async (f) => {
-          const nonRecursive = await findClaudeFiles({
+          const files = await findClaudeFiles({
             path: f.getPath('project'),
-            recursive: false,
           });
 
-          const recursive = await findClaudeFiles({
-            path: f.getPath('project'),
-            recursive: true,
-          });
-
-          expect(nonRecursive.length).toBe(1);
-          expect(recursive.length).toBe(2);
+          // Always scans deeply now
+          expect(files.length).toBe(2);
           return f;
         },
       );
@@ -297,7 +267,6 @@ if (import.meta.vitest != null) {
 
       const commands = await findSlashCommands({
         path: fixture.getPath('my-app'),
-        recursive: true,
       });
 
       expect(Array.isArray(commands)).toBe(true);
@@ -314,7 +283,6 @@ if (import.meta.vitest != null) {
     test('should handle non-existent paths gracefully', async () => {
       const files = await findClaudeFiles({
         path: '/non/existent/path',
-        recursive: false,
       });
 
       expect(Array.isArray(files)).toBe(true);
@@ -337,7 +305,6 @@ if (import.meta.vitest != null) {
         async (f) => {
           const settings = await findSettingsJson({
             path: f.path,
-            recursive: true,
           });
 
           expect(Array.isArray(settings)).toBe(true);
@@ -371,7 +338,6 @@ if (import.meta.vitest != null) {
         async (f) => {
           const files = await findClaudeFiles({
             path: f.getPath('test-project'),
-            recursive: true,
           });
 
           expect(files.length).toBe(1);
@@ -401,7 +367,6 @@ if (import.meta.vitest != null) {
           const start = Date.now();
           const files = await findClaudeFiles({
             path: f.path,
-            recursive: true,
           });
           const duration = Date.now() - start;
 
@@ -431,14 +396,12 @@ if (import.meta.vitest != null) {
           // Without includeHidden
           const withoutHidden = await findClaudeFiles({
             path: f.path,
-            recursive: true,
             includeHidden: false,
           });
 
           // With includeHidden
           const withHidden = await findClaudeFiles({
             path: f.path,
-            recursive: true,
             includeHidden: true,
           });
 
@@ -449,7 +412,6 @@ if (import.meta.vitest != null) {
           // Check slash commands - .claude should be included even without includeHidden
           const commands = await findSlashCommands({
             path: f.path,
-            recursive: true,
             includeHidden: false,
           });
 

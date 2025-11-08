@@ -66,11 +66,11 @@ export function useFileNavigation(
   const [error, setError] = useState<string | undefined>();
 
   // Destructure object dependencies
-  const { path, recursive = true } = options;
+  const { path } = options;
 
   useEffect(() => {
     // Execute file scan
-    const scanOptions = { recursive, path };
+    const scanOptions = { path };
     Promise.all([
       scanner.scanClaudeFiles(scanOptions),
       scanner.scanSlashCommands(scanOptions),
@@ -166,7 +166,7 @@ export function useFileNavigation(
         setError(err.message || 'Failed to scan files');
         setIsLoading(false);
       });
-  }, [path, recursive, scanner]);
+  }, [path, scanner]);
 
   const selectFile = useCallback((file: NavigationFile): void => {
     setSelectedFile(file);
