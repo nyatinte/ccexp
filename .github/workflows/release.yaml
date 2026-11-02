@@ -3,7 +3,7 @@ name: npm publish
 on:
   push:
     tags:
-      - '*'
+      - "*"
 
 jobs:
   npm:
@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
           node-version: 20
       - uses: oven-sh/setup-bun@v2
         with:

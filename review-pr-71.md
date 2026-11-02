@@ -1,6 +1,7 @@
 # PR #71 レビュー対応戦略
 
 ## PR概要
+
 **タイトル**: refactor: reorganize source directory structure for better scalability
 **目的**: ソースディレクトリ構造を再編成し、コードの保守性、発見性、スケーラビリティを向上
 
@@ -8,13 +9,13 @@
 
 ### 1. ✅ Import拡張子の不整合（4件）- **対応必須**
 
-**コメント内容**: 
+**コメント内容**:
 - `src/scanners/claude-md-scanner.ts:21` - `./fast-scanner.ts` → `.js`に変更すべき
-- `src/scanners/settings-json-scanner.ts:6` - `./fast-scanner.ts` → `.js`に変更すべき  
+- `src/scanners/settings-json-scanner.ts:6` - `./fast-scanner.ts` → `.js`に変更すべき
 - `src/scanners/slash-command-scanner.ts:12` - `./fast-scanner.ts` → `.js`に変更すべき
 - `src/scanners/subagent-scanner.ts:7` - `./fast-scanner.ts` → `.js`に変更すべき
 
-**現在の実装**: 
+**現在の実装**:
 ```typescript
 import { findClaudeFiles } from './fast-scanner.ts';
 ```
@@ -36,7 +37,7 @@ import { findClaudeFiles } from './fast-scanner.ts';
 - **修正する箇所**:
   - `src/index.tsx`: 型アサーションを削除し、変数型宣言を使用
   - `src/scanners/default-scanner.ts`: `satisfies`に変更
-- **修正しない箇所**:  
+- **修正しない箇所**:
   - `navigation-utils.ts`の`as const`: TypeScriptのリテラル型推論に必要で、実質的な問題なし
   - テストファイル内の`as`: テストの可読性に影響なし
 
@@ -52,7 +53,7 @@ export const FileGroup = React.memo(function FileGroup(...) { ... });
 ```
 
 **対応戦略**: **修正しない**
-- **理由**: 
+- **理由**:
   - React公式推奨パターンで、DevToolsでの表示名が適切に設定される
   - コンポーネントとmemoizationの関係が明確
   - パフォーマンスへの影響なし
@@ -71,8 +72,8 @@ export const FileGroup = React.memo(function FileGroup(...) { ... });
 **コメント内容**:
 - `lib/types.js`内のランタイムヘルパーを別ファイルに移動すべき
 
-**対応戦略**: **修正しない**  
-- **理由**: 
+**対応戦略**: **修正しない**
+- **理由**:
   - 型と密接に関連するバリデーション関数
   - 現在のアーキテクチャで問題なく動作
   - 将来的なリファクタリングで対応可能
@@ -90,6 +91,7 @@ export const FileGroup = React.memo(function FileGroup(...) { ... });
    - その他のコードスタイル調整
 
 ## 実装後のテスト計画
+
 - [x] `bun run ci`で全テストパス確認
 - [ ] ビルド成功確認
 - [ ] TypeScript型チェック通過確認

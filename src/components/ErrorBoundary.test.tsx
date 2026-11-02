@@ -19,6 +19,53 @@ function ThrowErrorInEffect() {
   return <Text>Loading...</Text>;
 }
 
+function CustomError(): never {
+  const error = new Error('Custom error with details');
+  // @ts-expect-error - Adding custom property for testing
+  error.code = 'CUSTOM_ERROR';
+  throw error;
+}
+
+function ThrowString(): never {
+  throw 'String error';
+}
+
+function ThrowNull(): never {
+  throw null;
+}
+
+function App() {
+  return (
+    <>
+      <ErrorBoundary>
+        <ThrowError />
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <ThrowError shouldThrow={false} />
+      </ErrorBoundary>
+    </>
+  );
+}
+
+function ErrorWithStack(): never {
+  const error = new Error('Stack trace error');
+  error.stack =
+    'Error: Stack trace error\n    at ErrorWithStack (test.tsx:1:1)';
+  throw error;
+}
+
+function DeepChild(): never {
+  throw new Error('Deep error');
+}
+
+function MiddleChild() {
+  return <DeepChild />;
+}
+
+function ParentComponent() {
+  return <MiddleChild />;
+}
+
 if (import.meta.vitest) {
   const { describe, test, expect, vi, beforeEach } = import.meta.vitest;
 
@@ -56,13 +103,6 @@ if (import.meta.vitest) {
     });
 
     test('displays custom error object', () => {
-      const CustomError = () => {
-        const error = new Error('Custom error with details');
-        // @ts-ignore - Adding custom property for testing
-        error.code = 'CUSTOM_ERROR';
-        throw error;
-      };
-
       const { lastFrame } = render(
         <ErrorBoundary>
           <CustomError />
@@ -87,10 +127,6 @@ if (import.meta.vitest) {
     });
 
     test('handles non-Error objects being thrown', () => {
-      const ThrowString = () => {
-        throw 'String error';
-      };
-
       const { lastFrame } = render(
         <ErrorBoundary>
           <ThrowString />
@@ -103,10 +139,6 @@ if (import.meta.vitest) {
     });
 
     test('handles null/undefined errors gracefully', () => {
-      const ThrowNull = () => {
-        throw null;
-      };
-
       const { lastFrame } = render(
         <ErrorBoundary>
           <ThrowNull />
@@ -119,17 +151,6 @@ if (import.meta.vitest) {
     });
 
     test('multiple error boundaries isolate errors', () => {
-      const App = () => (
-        <>
-          <ErrorBoundary>
-            <ThrowError />
-          </ErrorBoundary>
-          <ErrorBoundary>
-            <ThrowError shouldThrow={false} />
-          </ErrorBoundary>
-        </>
-      );
-
       const { lastFrame } = render(<App />);
 
       const output = lastFrame();
@@ -162,14 +183,6 @@ if (import.meta.vitest) {
     });
 
     test('error formatting handles various error types', () => {
-      // Test with error that has stack trace
-      const ErrorWithStack = () => {
-        const error = new Error('Stack trace error');
-        error.stack =
-          'Error: Stack trace error\n    at ErrorWithStack (test.tsx:1:1)';
-        throw error;
-      };
-
       const { lastFrame } = render(
         <ErrorBoundary>
           <ErrorWithStack />
@@ -182,13 +195,6 @@ if (import.meta.vitest) {
     });
 
     test('deeply nested component errors bubble up', () => {
-      const DeepChild = () => {
-        throw new Error('Deep error');
-      };
-
-      const MiddleChild = () => <DeepChild />;
-      const ParentComponent = () => <MiddleChild />;
-
       const { lastFrame } = render(
         <ErrorBoundary>
           <ParentComponent />

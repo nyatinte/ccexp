@@ -49,10 +49,12 @@ Create or update a GitHub pull request based on the content in `PR.md` file.
 
 7. **Create or update PR** (only after approval):
    - If creating new PR:
+
      ```bash
      gh pr create --title "$(head -n1 PR.md)" --body "$(tail -n+2 PR.md)"
      ```
    - If updating existing PR:
+
      ```bash
      gh pr edit [PR_NUMBER] --title "$(head -n1 PR.md)" --body "$(tail -n+2 PR.md)"
      ```
