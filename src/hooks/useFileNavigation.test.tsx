@@ -56,6 +56,73 @@ function TestComponent({
   );
 }
 
+function TestEmptyGroupsComponent({
+  scanner,
+  onGroups,
+}: {
+  scanner: FileScanner;
+  onGroups: (groups: FileGroup[]) => void;
+}) {
+  const { fileGroups, isLoading, error } = useFileNavigation(
+    { recursive: false },
+    scanner,
+  );
+
+  React.useEffect(() => {
+    if (!isLoading) {
+      onGroups(fileGroups);
+    }
+  }, [fileGroups, isLoading, onGroups]);
+
+  if (isLoading) return <Text>Loading...</Text>;
+  if (error) return <Text>Error: {error}</Text>;
+
+  return (
+    <>
+      <Text>Groups: {fileGroups.length}</Text>
+      {fileGroups.map((group) => (
+        <Text key={group.type}>
+          {group.type}: {group.files.length} files, expanded:{' '}
+          {String(group.isExpanded)}
+        </Text>
+      ))}
+    </>
+  );
+}
+
+function TestGroupOrderComponent({
+  scanner,
+  onGroups,
+}: {
+  scanner: FileScanner;
+  onGroups: (groups: FileGroup[]) => void;
+}) {
+  const { fileGroups, isLoading, error } = useFileNavigation(
+    { recursive: false },
+    scanner,
+  );
+
+  React.useEffect(() => {
+    if (!isLoading) {
+      onGroups(fileGroups);
+    }
+  }, [fileGroups, isLoading, onGroups]);
+
+  if (isLoading) return <Text>Loading...</Text>;
+  if (error) return <Text>Error: {error}</Text>;
+
+  return (
+    <>
+      <Text>Groups: {fileGroups.length}</Text>
+      {fileGroups.map((group, index) => (
+        <Text key={group.type}>
+          {index}: {group.type}
+        </Text>
+      ))}
+    </>
+  );
+}
+
 if (import.meta.vitest) {
   const { describe, test, expect } = import.meta.vitest;
   const {
@@ -626,37 +693,13 @@ if (import.meta.vitest) {
 
       let capturedFileGroups: FileGroup[] = [];
 
-      // Create a test component that captures fileGroups
-      function TestEmptyGroupsComponent({ scanner }: { scanner: FileScanner }) {
-        const { fileGroups, isLoading, error } = useFileNavigation(
-          { recursive: false },
-          scanner,
-        );
-
-        React.useEffect(() => {
-          if (!isLoading) {
-            capturedFileGroups = fileGroups;
-          }
-        }, [fileGroups, isLoading]);
-
-        if (isLoading) return <Text>Loading...</Text>;
-        if (error) return <Text>Error: {error}</Text>;
-
-        return (
-          <>
-            <Text>Groups: {fileGroups.length}</Text>
-            {fileGroups.map((group) => (
-              <Text key={group.type}>
-                {group.type}: {group.files.length} files, expanded:{' '}
-                {String(group.isExpanded)}
-              </Text>
-            ))}
-          </>
-        );
-      }
-
       const { lastFrame } = render(
-        <TestEmptyGroupsComponent scanner={testScanner} />,
+        <TestEmptyGroupsComponent
+          scanner={testScanner}
+          onGroups={(groups) => {
+            capturedFileGroups = groups;
+          }}
+        />,
       );
 
       // Wait for loading to complete
@@ -855,36 +898,13 @@ if (import.meta.vitest) {
 
       let capturedFileGroups: FileGroup[] = [];
 
-      // Create a test component that captures fileGroups
-      function TestGroupOrderComponent({ scanner }: { scanner: FileScanner }) {
-        const { fileGroups, isLoading, error } = useFileNavigation(
-          { recursive: false },
-          scanner,
-        );
-
-        React.useEffect(() => {
-          if (!isLoading) {
-            capturedFileGroups = fileGroups;
-          }
-        }, [fileGroups, isLoading]);
-
-        if (isLoading) return <Text>Loading...</Text>;
-        if (error) return <Text>Error: {error}</Text>;
-
-        return (
-          <>
-            <Text>Groups: {fileGroups.length}</Text>
-            {fileGroups.map((group, index) => (
-              <Text key={group.type}>
-                {index}: {group.type}
-              </Text>
-            ))}
-          </>
-        );
-      }
-
       const { lastFrame } = render(
-        <TestGroupOrderComponent scanner={testScanner} />,
+        <TestGroupOrderComponent
+          scanner={testScanner}
+          onGroups={(groups) => {
+            capturedFileGroups = groups;
+          }}
+        />,
       );
 
       // Wait for loading to complete

@@ -1,6 +1,5 @@
 import { Text } from 'ink';
 import { render } from 'ink-testing-library';
-import type React from 'react';
 import { SplitPane } from './SplitPane.js';
 
 if (import.meta.vitest) {
@@ -8,11 +7,11 @@ if (import.meta.vitest) {
 
   describe('SplitPane', () => {
     test('renders correctly', () => {
-      const LeftContent = (): React.JSX.Element => <Text>Left Content</Text>;
-      const RightContent = (): React.JSX.Element => <Text>Right Content</Text>;
-
       const { lastFrame } = render(
-        <SplitPane left={<LeftContent />} right={<RightContent />} />,
+        <SplitPane
+          left={<Text>Left Content</Text>}
+          right={<Text>Right Content</Text>}
+        />,
       );
 
       expect(lastFrame()).toContain('Left Content');
@@ -20,13 +19,10 @@ if (import.meta.vitest) {
     });
 
     test('applies custom width ratio', () => {
-      const LeftContent = (): React.JSX.Element => <Text>Left</Text>;
-      const RightContent = (): React.JSX.Element => <Text>Right</Text>;
-
       const { lastFrame } = render(
         <SplitPane
-          left={<LeftContent />}
-          right={<RightContent />}
+          left={<Text>Left</Text>}
+          right={<Text>Right</Text>}
           leftWidth={30}
         />,
       );
@@ -37,11 +33,11 @@ if (import.meta.vitest) {
     });
 
     test('uses default 50% width ratio', () => {
-      const LeftContent = (): React.JSX.Element => <Text>Default Left</Text>;
-      const RightContent = (): React.JSX.Element => <Text>Default Right</Text>;
-
       const { lastFrame } = render(
-        <SplitPane left={<LeftContent />} right={<RightContent />} />,
+        <SplitPane
+          left={<Text>Default Left</Text>}
+          right={<Text>Default Right</Text>}
+        />,
       );
 
       expect(lastFrame()).toContain('Default Left');

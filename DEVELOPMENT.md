@@ -207,15 +207,15 @@ bun run test src/file.ts  # Test specific file
 
 When you press Enter on a file, the following actions are available:
 
-| Key | Action | Description |
-|-----|--------|-------------|
-| **c** | Copy Content | Copy file content to clipboard |
-| **p** | Copy Path (Absolute) | Copy absolute file path to clipboard |
-| **r** | Copy Path (Relative) | Copy relative file path to clipboard |
-| **d** | Copy to Current Directory | Copy file to current working directory |
-| **e** | Edit File | Open file in $EDITOR |
-| **o** | Open File | Open file with default application |
-| **ESC** | Cancel | Close menu without action |
+| Key     | Action                    | Description                            |
+| ------- | ------------------------- | -------------------------------------- |
+| **c**   | Copy Content              | Copy file content to clipboard         |
+| **p**   | Copy Path (Absolute)      | Copy absolute file path to clipboard   |
+| **r**   | Copy Path (Relative)      | Copy relative file path to clipboard   |
+| **d**   | Copy to Current Directory | Copy file to current working directory |
+| **e**   | Edit File                 | Open file in $EDITOR                   |
+| **o**   | Open File                 | Open file with default application     |
+| **ESC** | Cancel                    | Close menu without action              |
 
 ## Troubleshooting
 

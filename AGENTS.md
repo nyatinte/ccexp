@@ -223,13 +223,10 @@ export async function withTempFixture<T>(
 }
 
 // Usage example
-await withTempFixture(
-  { 'test.md': '# Test content' },
-  async (fixture) => {
-    const content = await fixture.readFile('test.md', 'utf-8');
-    // Test logic here
-  }
-);
+await withTempFixture({ 'test.md': '# Test content' }, async (fixture) => {
+  const content = await fixture.readFile('test.md', 'utf-8');
+  // Test logic here
+});
 ```
 
 #### Scanner Testing Strategy

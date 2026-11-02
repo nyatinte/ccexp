@@ -9,7 +9,9 @@
 ## Changes
 
 ### AS-IS
+
 <!-- Describe the state before the changes -->
 
 ### TO-BE
+
 <!-- Describe the state after the changes -->
