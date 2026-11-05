@@ -80,7 +80,7 @@
   "dependencies": {
     "@inkjs/ui": "^2.0.0",
     "clipboardy": "^4.0.0",
-    "commander": "^14.0.0",
+    "commander": "^14.0.3",
     "es-toolkit": "^1.39.7",
     "fdir": "^6.4.6",
     "gray-matter": "^4.0.3",
