@@ -70,7 +70,7 @@
     "ink-testing-library": "^4.0.0",
     "knip": "^5.61.3",
     "lefthook": "^1.12.2",
-    "publint": "^0.3.12",
+    "publint": "^0.3.25",
     "tsdown": "^0.12.9",
     "vitest": "^3.2.4"
   },
