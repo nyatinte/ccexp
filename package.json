@@ -66,7 +66,7 @@
     "bumpp": "^10.4.1",
     "clean-pkg-json": "^1.4.2",
     "concurrently": "^9.2.5",
-    "fs-fixture": "^2.8.1",
+    "fs-fixture": "^2.16.2",
     "ink-testing-library": "^4.0.0",
     "knip": "^5.61.3",
     "lefthook": "^1.12.2",
