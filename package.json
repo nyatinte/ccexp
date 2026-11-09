@@ -72,7 +72,7 @@
     "lefthook": "^1.12.2",
     "publint": "^0.3.25",
     "tsdown": "^0.12.9",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.7"
   },
   "overrides": {
     "vite": "npm:rolldown-vite@latest"
