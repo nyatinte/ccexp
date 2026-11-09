@@ -31,7 +31,7 @@
         "bumpp": "^10.4.1",
         "clean-pkg-json": "^1.4.2",
         "concurrently": "^9.2.5",
-        "fs-fixture": "^2.8.1",
+        "fs-fixture": "^2.16.2",
         "ink-testing-library": "^4.0.0",
         "knip": "^5.61.3",
         "lefthook": "^1.12.2",
@@ -391,7 +391,7 @@
 
     "formatly": ["formatly@0.2.4", "", { "dependencies": { "fd-package-json": "^2.0.0" }, "bin": { "formatly": "bin/index.mjs" } }, "sha512-lIN7GpcvX/l/i24r/L9bnJ0I8Qn01qijWpQpDDvTLL29nKqSaJJu4h20+7VJ6m2CAhQ2/En/GbxDiHCzq/0MyA=="],
 
-    "fs-fixture": ["fs-fixture@2.8.1", "", {}, "sha512-C0xA7XvqZBbbOgitWcMDstfih8GaOPEyXfvNefmV7+1573TCnFQ6hAJEUEzH2LVrscONLh73rvayNfa/m9PMgw=="],
+    "fs-fixture": ["fs-fixture@2.16.2", "", {}, "sha512-X0IYcTb6cZt42nlVZEk0cvFdITmlqhkxxfjqMZyUkApvRrDa7HORInQ9EEU29SM2nlJ33eB47H7pos/hbzgz+w=="],
 
     "fsevents": ["fsevents@2.3.3", "", { "os": "darwin" }, "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw=="],
 
