@@ -69,7 +69,7 @@
     "fs-fixture": "^2.16.2",
     "ink-testing-library": "^4.0.0",
     "knip": "^5.88.1",
-    "lefthook": "^1.12.2",
+    "lefthook": "^1.13.6",
     "publint": "^0.3.25",
     "tsdown": "^0.12.9",
     "vitest": "^3.2.7"
