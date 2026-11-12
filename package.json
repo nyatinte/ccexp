@@ -58,7 +58,7 @@
     "release": "bun run ci && bumpp --no-verify"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.4",
+    "@biomejs/biome": "2.6.6",
     "@types/bun": "^1.4.4",
     "@types/marked-terminal": "^6.1.1",
     "@types/react": "^19.3.0",
