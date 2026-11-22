@@ -71,7 +71,7 @@
     "knip": "^5.88.1",
     "lefthook": "^1.13.6",
     "publint": "^0.3.25",
-    "tsdown": "^0.12.9",
+    "tsdown": "^0.23.7",
     "vitest": "^3.2.7"
   },
   "overrides": {
