@@ -63,7 +63,7 @@
     "@types/marked-terminal": "^6.1.1",
     "@types/react": "^19.3.0",
     "@typescript/native-preview": "7.0.0-dev.20260707.2",
-    "bumpp": "^10.4.1",
+    "bumpp": "^12.3.0",
     "clean-pkg-json": "^1.4.2",
     "concurrently": "^9.2.5",
     "fs-fixture": "^2.16.2",
